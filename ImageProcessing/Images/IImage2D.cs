@@ -12,6 +12,6 @@ namespace ImageProcessing.Images
     /// <typeparam name="T">The element type</typeparam>
     public interface  IImage2D<T> : IArray2<T>
     {
-
+        List<PixelIndex2D<T>> ToPixelIndexList();
     }
 }

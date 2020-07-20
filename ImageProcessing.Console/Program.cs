@@ -35,10 +35,10 @@ namespace ImageProcessing.Console
             var timer = new Timer();
             timer.Start();
 
-            image = BinaryImage2D.ParallelThinning(image);
+            image = BinaryImage2D.Thinning(image);
 
             var e = StructureElement2D.BoxElement(3);
-            image = BinaryImage2D.ParallelDilate(image, e);
+            image = BinaryImage2D.Dilate(image, e);
 
             timer.Stop();
 

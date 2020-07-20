@@ -83,6 +83,27 @@ namespace ImageProcessing.Morphology
 		/// 
 		/// </summary>
 		/// <returns></returns>
+		public override List<PixelIndex2D<int>> ToPixelIndexList()
+		{
+			var pixel = new List<PixelIndex2D<int>>();
+
+			for (int y = 0; y < Height; y++)
+			{
+				for (int x = 0; x < Width; x++)
+				{
+					int v = this[x, y];
+					if (v > 0)
+						pixel.Add(new PixelIndex2D<int>(x, y, v));
+				}
+			}
+
+			return pixel;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		public float[,] ToFloatArray()
 		{
 			var array = new float[Size, Size];

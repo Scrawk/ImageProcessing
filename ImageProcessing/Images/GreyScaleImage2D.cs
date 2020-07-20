@@ -98,6 +98,27 @@ namespace ImageProcessing.Images
             return new GreyScaleImage2D(Data);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public override List<PixelIndex2D<float>> ToPixelIndexList()
+        {
+            var pixel = new List<PixelIndex2D<float>>();
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    float v = this[x, y];
+                    if (v > 0.0f)
+                        pixel.Add(new PixelIndex2D<float>(x, y, v));
+                }
+            }
+
+            return pixel;
+        }
+
     }
 
 }

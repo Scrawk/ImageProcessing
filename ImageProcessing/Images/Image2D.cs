@@ -54,6 +54,12 @@ namespace ImageProcessing.Images
             return string.Format("[Image2D: Width={0}, Height={1}]", Width, Height);
         }
 
- 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public abstract List<PixelIndex2D<T>> ToPixelIndexList();
+
+
     }
 }

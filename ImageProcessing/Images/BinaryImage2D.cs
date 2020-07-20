@@ -10,7 +10,7 @@ namespace ImageProcessing.Images
     /// <summary>
     /// 
     /// </summary>
-    public partial class BinaryImage2D : IImage2D<int>
+    public partial class BinaryImage2D : IImage2D<bool>
     {
 
         /// <summary>
@@ -78,10 +78,10 @@ namespace ImageProcessing.Images
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public int this[int x, int y]
+        public bool this[int x, int y]
         {
-            get => Data[x + y * Width] ? 1 : 0;
-            set => Data[x + y * Width] = value > 0;
+            get => Data[x + y * Width];
+            set => Data[x + y * Width] = value;
         }
 
         /// <summary>
@@ -90,10 +90,10 @@ namespace ImageProcessing.Images
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public int this[Vector2i i]
+        public bool this[Vector2i i]
         {
-            get => Data[i.x + i.y * Width] ? 1 : 0;
-            set => Data[i.x + i.y * Width] = value > 0;
+            get => Data[i.x + i.y * Width];
+            set => Data[i.x + i.y * Width] = value;
         }
 
         /// <summary>
@@ -109,10 +109,10 @@ namespace ImageProcessing.Images
         /// Enumerate all elements in the array.
         /// </summary>
         /// <returns></returns>
-        public IEnumerator<int> GetEnumerator()
+        public IEnumerator<bool> GetEnumerator()
         {
-            foreach (bool t in Data)
-                yield return t ? 1 : 0;
+            foreach (bool b in Data)
+                yield return b;
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Get the element at clamped index x,y.
         /// </summary>
-        public int GetClamped(int x, int y)
+        public bool GetClamped(int x, int y)
         {
             x = MathUtil.Clamp(x, 0, Width - 1);
             y = MathUtil.Clamp(y, 0, Height - 1);
@@ -137,32 +137,11 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Get the element at wrapped index x,y.
         /// </summary>
-        public int GetWrapped(int x, int y)
+        public bool GetWrapped(int x, int y)
         {
             x = MathUtil.Wrap(x, Width);
             y = MathUtil.Wrap(y, Height);
             return this[x, y];
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        public bool GetBool(int x, int y)
-        {
-            return Data[x + y * Width];
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="value"></param>
-        public void SetBool(int x, int y, bool value)
-        {
-            Data[x + y * Width] = value;
         }
 
         /// <summary>
@@ -176,22 +155,24 @@ namespace ImageProcessing.Images
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="points"></param>
-        public void Clear(IList<Vector2i> points)
+        public void Fill()
         {
-            for (int i = 0; i < points.Count; i++)
-            {
-                var p = points[i];
-                this[p.x, p.y] = 0;
-            }
+            Data.SetAll(true);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public void Fill()
+        /// <param name="func"></param>
+        public void Fill(Func<int, int, bool> func)
         {
-            Data.SetAll(true);
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    this[x, y] = func(x, y);
+                }
+            }
         }
 
         /// <summary>
@@ -209,7 +190,7 @@ namespace ImageProcessing.Images
                     if (center) p += 0.5f;
 
                     if (shape.Contains(p))
-                        this[x, y] = 1;
+                        this[x, y] = true;
                 }
             }
         }
@@ -218,12 +199,12 @@ namespace ImageProcessing.Images
         /// 
         /// </summary>
         /// <param name="points"></param>
-        public void Fill(IList<Vector2i> points)
+        public void Fill(IList<PixelIndex2D<bool>> points)
         {
             for (int i = 0; i < points.Count; i++)
             {
                 var p = points[i];
-                this[p.x, p.y] = 1;
+                this[p.x, p.y] = p.value;
             }
         }
 
@@ -240,42 +221,20 @@ namespace ImageProcessing.Images
         /// 
         /// </summary>
         /// <returns></returns>
-        public List<Vector2i> ToPoints2()
+        public List<PixelIndex2D<bool>> ToPixelIndexList()
         {
-            var points = new List<Vector2i>();
+            var pixel = new List<PixelIndex2D<bool>>();
 
             for (int y = 0; y < Height; y++)
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    if (this[x, y] == 1)
-                        points.Add(new Vector2i(x, y));
-
+                    if (this[x, y])
+                        pixel.Add(new PixelIndex2D<bool>(x, y, true));
                 }
             }
 
-            return points;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public List<Vector3i> ToPoints3()
-        {
-            var points = new List<Vector3i>();
-
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    if (this[x, y] == 1)
-                        points.Add(new Vector3i(x, y));
-
-                }
-            }
-
-            return points;
+            return pixel;
         }
 
         /// <summary>
@@ -290,7 +249,7 @@ namespace ImageProcessing.Images
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    array[x, y] = this[x, y];
+                    array[x, y] = this[x, y] ? 1 : 0;
                 }
             }
 

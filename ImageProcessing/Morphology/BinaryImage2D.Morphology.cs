@@ -43,23 +43,13 @@ namespace ImageProcessing.Images
 		/// 
 		/// </summary>
 		/// <param name="a"></param>
-		/// <param name="b"></param>
 		/// <returns></returns>
-		public static BinaryImage2D Dilate(BinaryImage2D a, StructureElement2D b)
-		{
-			var image = a.Copy();
-
-			for (int y = 0; y < a.Height; y++)
-			{
-				for (int x = 0; x < a.Width; x++)
-				{
-					if (a[x, y] == 1) continue;
-					image[x, y] = Dilate(x, y, a, b);
-				}
-			}
-
+		public static BinaryImage2D Border(BinaryImage2D a)
+        {
+			var image = Erode(a, StructureElement2D.BoxElement(3));
+			image.Xor(a);
 			return image;
-		}
+        }
 
 		/// <summary>
 		/// 
@@ -67,14 +57,14 @@ namespace ImageProcessing.Images
 		/// <param name="a"></param>
 		/// <param name="b"></param>
 		/// <returns></returns>
-		public static BinaryImage2D ParallelDilate(BinaryImage2D a, StructureElement2D b)
+		public static BinaryImage2D Dilate(BinaryImage2D a, StructureElement2D b)
 		{
 			var image = a.Copy();
 
 			int blockSize = Math.Max(64, Math.Max(a.Width, a.Height) / 16);
 			ThreadingBlock2D.ParallelAction(a.Width, a.Height, blockSize, (x, y) =>
 			{
-				if (a[x, y] != 1)
+				if (!a[x, y])
 					image[x, y] = Dilate(x, y, a, b);
 			});
 
@@ -89,7 +79,7 @@ namespace ImageProcessing.Images
 		/// <param name="a"></param>
 		/// <param name="b"></param>
 		/// <returns></returns>
-		private static int Dilate(int i, int j, BinaryImage2D a, StructureElement2D b)
+		private static bool Dilate(int i, int j, BinaryImage2D a, StructureElement2D b)
 		{
 			int half = b.Size / 2;
 
@@ -103,12 +93,12 @@ namespace ImageProcessing.Images
 					if (xi < 0 || xi >= a.Width) continue;
 					if (yj < 0 || yj >= a.Height) continue;
 
-					if (a[xi, yj] == 1 && b[x, y] == 1)
-						return 1;
+					if (a[xi, yj] && b[x, y] == 1)
+						return true;
 				}
 			}
 
-			return 0;
+			return false;
 		}
 
 		/// <summary>
@@ -121,14 +111,12 @@ namespace ImageProcessing.Images
 		{
 			var image = a.Copy();
 
-			for (int y = 0; y < a.Height; y++)
+			int blockSize = Math.Max(64, Math.Max(a.Width, a.Height) / 16);
+			ThreadingBlock2D.ParallelAction(a.Width, a.Height, blockSize, (x, y) =>
 			{
-				for (int x = 0; x < a.Width; x++)
-				{
-					if (a[x, y] == 0) continue;
+				if (a[x, y])
 					image[x, y] = Erode(x, y, a, b);
-				}
-			}
+			});
 
 			return image;
 		}
@@ -141,7 +129,7 @@ namespace ImageProcessing.Images
 		/// <param name="a"></param>
 		/// <param name="b"></param>
 		/// <returns></returns>
-		private static int Erode(int i, int j, BinaryImage2D a, StructureElement2D b)
+		private static bool Erode(int i, int j, BinaryImage2D a, StructureElement2D b)
 		{
 			int half = b.Size / 2;
 
@@ -155,12 +143,12 @@ namespace ImageProcessing.Images
 					if (xi < 0 || xi >= a.Width) continue;
 					if (yj < 0 || yj >= a.Height) continue;
 
-					if (a[xi, yj] == 0 && b[x, y] == 1)
-						return 0;
+					if (!a[xi, yj] && b[x, y] == 1)
+						return true;
 				}
 			}
 
-			return 1;
+			return false;
 		}
 
 		/// <summary>
@@ -176,7 +164,7 @@ namespace ImageProcessing.Images
 			var c = tuple.Item2;
 
 			var image = a.Copy();
-			var points = image.ToPoints2();
+			var points = image.ToPixelIndexList();
 
 			for (int i = 0; i < iterations; i++)
 			{
@@ -202,83 +190,7 @@ namespace ImageProcessing.Images
 		/// <param name="i"></param>
 		/// <param name="done"></param>
 		/// <returns></returns>
-		private static List<Vector2i> Thinning(List<Vector2i> points, BinaryImage2D a, 
-			StructureElement2D b, StructureElement2D c, int i, ref bool done)
-		{
-			var points1 = new List<Vector2i>(points.Count);
-			var remove = new List<Vector2i>(points.Count);
-
-			for (int x = 0; x < points.Count; x++)
-			{
-				var p = points[x];
-				if ((1 ^ HitAndMiss(p.x, p.y, a, b, i)) == 1)
-					points1.Add(p);
-				else
-					remove.Add(p);
-			}
-
-			a.Clear(remove);
-			if (remove.Count > 0) done = false;
-			remove.Clear();
-
-			var points2 = new List<Vector2i>(points1.Count);
-
-			for (int x = 0; x < points1.Count; x++)
-			{
-				var p = points1[x];
-				if ((1 ^ HitAndMiss(p.x, p.y, a, c, i)) == 1)
-					points2.Add(p);
-				else
-					remove.Add(p);
-			}
-
-			a.Clear(remove);
-			if (remove.Count > 0) done = false;
-			remove.Clear();
-
-			return points2;
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="a"></param>
-		/// <param name="iterations"></param>
-		/// <returns></returns>
-		public static BinaryImage2D ParallelThinning(BinaryImage2D a, int iterations = int.MaxValue)
-		{
-			var tuple = StructureElement2D.ThinningElements();
-			var b = tuple.Item1;
-			var c = tuple.Item2;
-
-			var image = a.Copy();
-			var points = image.ToPoints3();
-
-			for (int i = 0; i < iterations; i++)
-			{
-				bool done = true;
-				points = ParallelThinning(points, image, b, c, 0, ref done);
-				points = ParallelThinning(points, image, b, c, 1, ref done);
-				points = ParallelThinning(points, image, b, c, 2, ref done);
-				points = ParallelThinning(points, image, b, c, 3, ref done);
-
-				if (done) return image;
-			}
-
-			return image;
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="points"></param>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
-		/// <param name="c"></param>
-		/// <param name="i"></param>
-		/// <param name="done"></param>
-		/// <returns></returns>
-		private static List<Vector3i> ParallelThinning(List<Vector3i> points, BinaryImage2D a, 
+		private static List<PixelIndex2D<bool>> Thinning(List<PixelIndex2D<bool>> points, BinaryImage2D a, 
 			StructureElement2D b, StructureElement2D c, int i, ref bool done)
 		{
 
@@ -286,19 +198,19 @@ namespace ImageProcessing.Images
 			ThreadingBlock1D.ParallelAction(points.Count, blockSize, (x) =>
 			{
 				var p = points[x];
-				p.z = 1 ^ HitAndMiss(p.x, p.y, a, b, i);
+				p.value = true ^ HitAndMiss(p.x, p.y, a, b, i);
 				points[x] = p;
 			});
 
-			var points1 = new List<Vector3i>(points.Count);
+			var points1 = new List<PixelIndex2D<bool>>(points.Count);
 			for (int x = 0; x < points.Count; x++)
 			{
 				var p = points[x];
-				if (p.z == 1)
+				if (p.value)
 					points1.Add(p);
 				else
 				{
-					a[p.x, p.y] = 0;
+					a[p.x, p.y] = false;
 					done = false;
 				}
             }
@@ -307,19 +219,19 @@ namespace ImageProcessing.Images
 			ThreadingBlock1D.ParallelAction(points1.Count, blockSize, (x) =>
 			{
 				var p = points1[x];
-				p.z = 1 ^ HitAndMiss(p.x, p.y, a, c, i);
+				p.value = true ^ HitAndMiss(p.x, p.y, a, c, i);
 				points1[x] = p;
 			});
 
-			var points2 = new List<Vector3i>(points1.Count);
+			var points2 = new List<PixelIndex2D<bool>>(points1.Count);
 			for (int x = 0; x < points1.Count; x++)
 			{
 				var p = points1[x];
-				if (p.z == 1)
+				if (p.value)
 					points2.Add(p);
 				else
 				{
-					a[p.x, p.y] = 0;
+					a[p.x, p.y] = false;
 					done = false;
 				}
 			}
@@ -337,14 +249,12 @@ namespace ImageProcessing.Images
 		{
 			var image = a.Copy();
 
-			for (int y = 0; y < a.Height; y++)
+			int blockSize = Math.Max(64, Math.Max(a.Width, a.Height) / 16);
+			ThreadingBlock2D.ParallelAction(a.Width, a.Height, blockSize, (x, y) =>
 			{
-				for (int x = 0; x < a.Width; x++)
-				{
-					if (a[x, y] == 0) continue;
+				if (a[x, y])
 					image[x, y] = HitAndMiss(x, y, a, b);
-				}
-			}
+			});
 
 			return image;
 		}
@@ -359,14 +269,12 @@ namespace ImageProcessing.Images
 		{
 			var image = a.Copy();
 
-			for (int y = 0; y < a.Height; y++)
+			int blockSize = Math.Max(64, Math.Max(a.Width, a.Height) / 16);
+			ThreadingBlock2D.ParallelAction(a.Width, a.Height, blockSize, (x, y) =>
 			{
-				for (int x = 0; x < a.Width; x++)
-				{
-					if (a[x, y] == 0) continue;
+				if (a[x, y])
 					image[x, y] = HitAndMiss4(x, y, a, b);
-				}
-			}
+			});
 
 			return image;
 		}
@@ -386,8 +294,8 @@ namespace ImageProcessing.Images
 			{
 				for (int x = 0; x < a.Width; x++)
 				{
-					if (a[x, y] == 0) continue;
-					image[x, y] = HitAndMiss4(x, y, a, b, c);
+					if (a[x, y])
+						image[x, y] = HitAndMiss4(x, y, a, b, c);
 				}
 			}
 
@@ -402,16 +310,13 @@ namespace ImageProcessing.Images
 		/// <param name="a"></param>
 		/// <param name="b"></param>
 		/// <returns></returns>
-		private static int HitAndMiss4(int x, int y, BinaryImage2D a, StructureElement2D b)
+		private static bool HitAndMiss4(int x, int y, BinaryImage2D a, StructureElement2D b)
 		{
 
-			if (HitAndMiss(x, y, a, b, 0) == 1 ||
-			   HitAndMiss(x, y, a, b, 1) == 1 ||
-			   HitAndMiss(x, y, a, b, 2) == 1 ||
-			   HitAndMiss(x, y, a, b, 3) == 1)
-				return 1;
-			else
-				return 0;
+			return (HitAndMiss(x, y, a, b, 0) ||
+			   HitAndMiss(x, y, a, b, 1) ||
+			   HitAndMiss(x, y, a, b, 2) ||
+			   HitAndMiss(x, y, a, b, 3));
 		}
 
 		/// <summary>
@@ -423,20 +328,17 @@ namespace ImageProcessing.Images
 		/// <param name="b"></param>
 		/// <param name="c"></param>
 		/// <returns></returns>
-		private static int HitAndMiss4(int x, int y, BinaryImage2D a, StructureElement2D b, StructureElement2D c)
+		private static bool HitAndMiss4(int x, int y, BinaryImage2D a, StructureElement2D b, StructureElement2D c)
 		{
 
-			if (HitAndMiss(x, y, a, b, 0) == 1 ||
-			   HitAndMiss(x, y, a, b, 1) == 1 ||
-			   HitAndMiss(x, y, a, b, 2) == 1 ||
-			   HitAndMiss(x, y, a, b, 3) == 1 ||
-			   HitAndMiss(x, y, a, c, 0) == 1 ||
-			   HitAndMiss(x, y, a, c, 1) == 1 ||
-			   HitAndMiss(x, y, a, c, 2) == 1 ||
-			   HitAndMiss(x, y, a, c, 3) == 1)
-				return 1;
-			else
-				return 0;
+			return (HitAndMiss(x, y, a, b, 0) ||
+			   HitAndMiss(x, y, a, b, 1) ||
+			   HitAndMiss(x, y, a, b, 2) ||
+			   HitAndMiss(x, y, a, b, 3) ||
+			   HitAndMiss(x, y, a, c, 0) ||
+			   HitAndMiss(x, y, a, c, 1) ||
+			   HitAndMiss(x, y, a, c, 2) ||
+			   HitAndMiss(x, y, a, c, 3));
 		}
 
 		/// <summary>
@@ -448,7 +350,7 @@ namespace ImageProcessing.Images
 		/// <param name="b"></param>
 		/// <param name="rotate"></param>
 		/// <returns></returns>
-		private static int HitAndMiss(int i, int j, BinaryImage2D a, StructureElement2D b)
+		private static bool HitAndMiss(int i, int j, BinaryImage2D a, StructureElement2D b)
 		{
 			int half = b.Size / 2;
 
@@ -465,12 +367,12 @@ namespace ImageProcessing.Images
 					int v = b[x, y];
 					if (v == -1) continue;
 
-					if (a[xi, yj] != v)
-						return 0;
+					if (a[xi, yj] != (v == 1))
+						return false;
 				}
 			}
 
-			return 1;
+			return true;
 		}
 
 		/// <summary>
@@ -482,7 +384,7 @@ namespace ImageProcessing.Images
 		/// <param name="b"></param>
 		/// <param name="rotate"></param>
 		/// <returns></returns>
-		private static int HitAndMiss(int i, int j, BinaryImage2D a, StructureElement2D b, int rotate)
+		private static bool HitAndMiss(int i, int j, BinaryImage2D a, StructureElement2D b, int rotate)
 		{
 			int half = b.Size / 2;
 
@@ -499,12 +401,12 @@ namespace ImageProcessing.Images
 					int v = b.GetRotated(x, y, rotate);
 					if (v == -1) continue;
 
-					if (a[xi, yj] != v)
-						return 0;
+					if (a[xi, yj] != (v == 1))
+						return false;
 				}
 			}
 
-			return 1;
+			return true;
 		}
 
 
