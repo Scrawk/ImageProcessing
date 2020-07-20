@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile></DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Common.Collections">
+      <HintPath>..\..\Common\Common.Collections\bin\Release\netstandard2.0\Common.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Core">
+      <HintPath>..\..\Common\Common.Core\bin\Release\netstandard2.0\Common.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Geometry">
+      <HintPath>..\..\Common\Common.Geometry\bin\Release\netstandard2.0\Common.Geometry.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.dll&quot; &quot;D:\Projects\Unity Projects\ImageProcessingUnity\Assets\ImageProcessing\Plugins&quot; /y" />
+  </Target>
+
+</Project>

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ImageProcessing\ImageProcessing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Common.Collections">
+      <HintPath>..\..\Common\Common.Collections\bin\Release\netstandard2.0\Common.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Core">
+      <HintPath>..\..\Common\Common.Core\bin\Release\netstandard2.0\Common.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Geometry">
+      <HintPath>..\..\Common\Common.Geometry\bin\Release\netstandard2.0\Common.Geometry.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
