@@ -13,7 +13,7 @@ namespace ImageProcessing.Images
     /// Base class for 2D images.
     /// </summary>
     /// <typeparam name="T">The element type</typeparam>
-    public abstract class Image2D<T> : Array2<T>, IImage2D<T>
+    public abstract partial class Image2D<T> : Array2<T>, IImage2D<T>
     {
 
         /// <summary>
@@ -82,7 +82,15 @@ namespace ImageProcessing.Images
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public abstract ColorRGB GetPixelRGB(int x, int y);
+        public abstract ColorRGB GetPixel(int x, int y);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="pixel"></param>
+        public abstract void SetPixel(int x, int y, ColorRGB pixel);
 
         /// <summary>
         /// 
@@ -103,27 +111,6 @@ namespace ImageProcessing.Images
             }
 
             return pixel;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="shape"></param>
-        /// <param name="value"></param>
-        /// <param name="center"></param>
-        public void Fill(IShape2f shape, T value, bool center = true)
-        {
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    var p = new Vector2f(x, y);
-                    if (center) p += 0.5f;
-
-                    if (shape.Contains(p))
-                        this[x, y] = value;
-                }
-            }
         }
 
         /// <summary>

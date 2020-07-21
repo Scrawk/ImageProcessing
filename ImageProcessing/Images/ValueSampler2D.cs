@@ -18,9 +18,9 @@ namespace ImageProcessing.Images
 
         public float Scale { get; private set; }
 
-        public override ColorRGB GetPixelRGB(int x, int y)
+        public override ColorRGB GetPixel(int x, int y)
         {
-            return Image.GetPixelRGB(x, y) * Scale;
+            return Image.GetPixel(x, y) * Scale;
         }
 
     }

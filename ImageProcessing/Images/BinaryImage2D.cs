@@ -85,10 +85,21 @@ namespace ImageProcessing.Images
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public override ColorRGB GetPixelRGB(int x, int y)
+        public override ColorRGB GetPixel(int x, int y)
         {
             var v = this[x, y] ? 1 : 0;
             return new ColorRGB(v, v, v);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="pixel"></param>
+        public override void SetPixel(int x, int y, ColorRGB pixel)
+        {
+            this[x, y] = pixel.Intensity > 0;
         }
 
         /// <summary>

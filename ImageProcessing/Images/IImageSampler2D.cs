@@ -7,6 +7,6 @@ namespace ImageProcessing.Images
 {
     public interface IImageSampler2D
     {
-        ColorRGB GetPixelRGB(int x, int y);
+        ColorRGB GetPixel(int x, int y);
     }
 }

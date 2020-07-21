@@ -16,9 +16,11 @@ namespace ImageProcessing.Images
     {
         float GetValue(int x, int y);
 
-        List<PixelIndex2D<T>> ToPixelIndexList(Func<T, bool> predicate);
+        //ColorRGB GetPixel(int x, int y);
 
-        void Fill(IShape2f shape, T value, bool center = true);
+        void SetPixel(int x, int y, ColorRGB pixel);
+
+        List<PixelIndex2D<T>> ToPixelIndexList(Func<T, bool> predicate);
 
         void Fill(IList<PixelIndex2D<T>> points);
     }

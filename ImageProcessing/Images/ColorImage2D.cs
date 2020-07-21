@@ -104,9 +104,20 @@ namespace ImageProcessing.Images
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public override ColorRGB GetPixelRGB(int x, int y)
+        public override ColorRGB GetPixel(int x, int y)
         {
             return this[x, y];
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="pixel"></param>
+        public override void SetPixel(int x, int y, ColorRGB pixel)
+        {
+            this[x, y] = pixel;
         }
 
         /// <summary>

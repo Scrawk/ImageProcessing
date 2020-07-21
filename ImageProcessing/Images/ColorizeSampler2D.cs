@@ -40,7 +40,7 @@ namespace ImageProcessing.Images
 
         public bool NonNegative { get; private set; }
 
-        public override ColorRGB GetPixelRGB(int x, int y)
+        public override ColorRGB GetPixel(int x, int y)
         {
             return Colorize(Image.GetValue(x, y) * Scale);
         }

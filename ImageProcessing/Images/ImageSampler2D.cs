@@ -8,6 +8,6 @@ namespace ImageProcessing.Images
 
     public abstract class ImageSampler2D : IImageSampler2D
     {
-        public abstract ColorRGB GetPixelRGB(int x, int y);
+        public abstract ColorRGB GetPixel(int x, int y);
     }
 }
