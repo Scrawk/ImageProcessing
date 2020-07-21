@@ -67,18 +67,11 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Sample the image by clamped bilinear interpolation.
         /// </summary>
-        public float GetBilinear01(float u, float v)
+        public float GetBilinear(float u, float v)
         {
             float x = u * Width;
             float y = v * Height;
-            return GetBilinear(x, y);
-        }
 
-        /// <summary>
-        /// Sample the image by clamped bilinear interpolation.
-        /// </summary>
-        public float GetBilinear(float x, float y)
-        {
             int xi = (int)x;
             int yi = (int)y;
 
@@ -120,6 +113,67 @@ namespace ImageProcessing.Images
         public GreyScaleImage2D Copy()
         {
             return new GreyScaleImage2D(Data);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="w"></param>
+        /// <returns></returns>
+        public Vector2f GetFirstDerivative(int x, int y, Vector2f w)
+        {
+            float z1 = GetClamped(x - 1, y + 1);
+            float z2 = GetClamped(x + 0, y + 1);
+            float z3 = GetClamped(x + 1, y + 1);
+            float z4 = GetClamped(x - 1, y + 0);
+            float z6 = GetClamped(x + 1, y + 0);
+            float z7 = GetClamped(x - 1, y - 1);
+            float z8 = GetClamped(x + 0, y - 1);
+            float z9 = GetClamped(x + 1, y - 1);
+
+            //p, q
+            float zx = (z3 + z6 + z9 - z1 - z4 - z7) / (6.0f * w.x);
+            float zy = (z1 + z2 + z3 - z7 - z8 - z9) / (6.0f * w.y);
+
+            return new Vector2f(-zx, -zy);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="w"></param>
+        /// <param name="d1"></param>
+        /// <param name="d2"></param>
+        public void GetDerivatives(int x, int y, Vector2f w, out Vector2f d1, out Vector3f d2)
+        {
+            float wx2 = w.x * w.x;
+            float wy2 = w.y * w.y;
+            float wxy2 = w.SqrMagnitude;
+            float z1 = GetClamped(x - 1, y + 1);
+            float z2 = GetClamped(x + 0, y + 1);
+            float z3 = GetClamped(x + 1, y + 1);
+            float z4 = GetClamped(x - 1, y + 0);
+            float z5 = GetClamped(x + 0, y + 0);
+            float z6 = GetClamped(x + 1, y + 0);
+            float z7 = GetClamped(x - 1, y - 1);
+            float z8 = GetClamped(x + 0, y - 1);
+            float z9 = GetClamped(x + 1, y - 1);
+
+            //p, q
+            float zx = (z3 + z6 + z9 - z1 - z4 - z7) / (6.0f * w.x);
+            float zy = (z1 + z2 + z3 - z7 - z8 - z9) / (6.0f * w.y);
+
+            //r, t, s
+            float zxx = (z1 + z3 + z4 + z6 + z7 + z9 - 2.0f * (z2 + z5 + z8)) / (3.0f * wx2);
+            float zyy = (z1 + z2 + z3 + z7 + z8 + z9 - 2.0f * (z4 + z5 + z6)) / (3.0f * wy2);
+            float zxy = (z3 + z7 - z1 - z9) / (4.0f * wxy2);
+
+            d1 = new Vector2f(-zx, -zy);
+            d2 = new Vector3f(-zxx, -zyy, -zxy);
         }
 
     }

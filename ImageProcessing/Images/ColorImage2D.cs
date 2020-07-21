@@ -67,18 +67,11 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Sample the image by clamped bilinear interpolation.
         /// </summary>
-        public ColorRGB GetBilinear01(float u, float v)
+        public ColorRGB GetBilinear(float u, float v)
         {
             float x = u * Width;
             float y = v * Height;
-            return GetBilinear(x, y);
-        }
 
-        /// <summary>
-        /// Sample the image by clamped bilinear interpolation.
-        /// </summary>
-        public ColorRGB GetBilinear(float x, float y)
-        {
             int xi = (int)x;
             int yi = (int)y;
 
