@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 
 using Common.Core.Numerics;
+using Common.Core.Colors;
+using Common.Geometry.Shapes;
 using Common.Collections.Arrays;
 
 namespace ImageProcessing.Images
@@ -36,6 +38,18 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="value"></param>
+        public Image2D(int width, int height, T value)
+            : base(width, height)
+        {
+            Data.Fill(value);
+        }
+
+        /// <summary>
         /// Create a new array.
         /// </summary>
         /// <param name="data">The data form the array. Will be deep copied.</param>
@@ -57,8 +71,73 @@ namespace ImageProcessing.Images
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
         /// <returns></returns>
-        public abstract List<PixelIndex2D<T>> ToPixelIndexList();
+        public abstract float GetValue(int x, int y);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public abstract ColorRGB GetPixelRGB(int x, int y);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<PixelIndex2D<T>> ToPixelIndexList(Func<T, bool> predicate)
+        {
+            var pixel = new List<PixelIndex2D<T>>();
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    var v = this[x, y];
+                    if (predicate(v))
+                        pixel.Add(new PixelIndex2D<T>(x, y, v));
+                }
+            }
+
+            return pixel;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="shape"></param>
+        /// <param name="value"></param>
+        /// <param name="center"></param>
+        public void Fill(IShape2f shape, T value, bool center = true)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    var p = new Vector2f(x, y);
+                    if (center) p += 0.5f;
+
+                    if (shape.Contains(p))
+                        this[x, y] = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="points"></param>
+        public void Fill(IList<PixelIndex2D<T>> points)
+        {
+            for (int i = 0; i < points.Count; i++)
+            {
+                var p = points[i];
+                this[p.x, p.y] = p.value;
+            }
+        }
 
 
     }

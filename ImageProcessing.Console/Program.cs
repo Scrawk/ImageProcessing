@@ -19,13 +19,13 @@ namespace ImageProcessing.Console
             var bounds = new Box2f((0, 0), (1024, 1024));
 
             var circle = new BinaryImage2D(1024, 1024);
-            circle.Fill(new Circle2f((512, 512), 48));
+            circle.Fill(new Circle2f((512, 512), 48), true);
 
             var box1 = new BinaryImage2D(1024, 1024);
-            box1.Fill(new Box2f((512 - 256, 512 - 64), (512 + 256, 512 + 64)));
+            box1.Fill(new Box2f((512 - 256, 512 - 64), (512 + 256, 512 + 64)), true);
 
             var box2 = new BinaryImage2D(1024, 1024);
-            box2.Fill(new Box2f((512 - 64, 512 - 256), (512 + 64, 512 + 256)));
+            box2.Fill(new Box2f((512 - 64, 512 - 256), (512 + 64, 512 + 256)), true);
 
             box2.Or(box1);
             box2.Xor(circle);
@@ -42,6 +42,7 @@ namespace ImageProcessing.Console
 
             timer.Stop();
 
+            CONSOLE.WriteLine(image.ToString());
             CONSOLE.WriteLine("Time = " + timer.ElapsedMilliseconds);
 
         }

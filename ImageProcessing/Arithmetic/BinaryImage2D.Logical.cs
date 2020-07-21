@@ -16,7 +16,13 @@ namespace ImageProcessing.Images
         /// </summary>
         public void Invert()
         {
-            Data.Not();
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    this[x, y] = !this[x, y];
+                }
+            }
         }
 
         /// <summary>
@@ -25,7 +31,13 @@ namespace ImageProcessing.Images
         /// <param name="b"></param>
         public void Or(BinaryImage2D b)
         {
-            Data.Or(b.Data);
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    this[x, y] |= b[x, y];
+                }
+            }
         }
 
         /// <summary>
@@ -34,7 +46,13 @@ namespace ImageProcessing.Images
         /// <param name="b"></param>
         public void Xor(BinaryImage2D b)
         {
-            Data.Xor(b.Data);
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    this[x, y] ^= b[x, y];
+                }
+            }
         }
         
         /// <summary>
@@ -43,7 +61,13 @@ namespace ImageProcessing.Images
         /// <param name="b"></param>
         public void And(BinaryImage2D b)
         {
-            Data.And(b.Data);
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    this[x, y] &= b[x, y];
+                }
+            }
         }
 
     }

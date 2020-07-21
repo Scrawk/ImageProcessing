@@ -164,7 +164,7 @@ namespace ImageProcessing.Images
 			var c = tuple.Item2;
 
 			var image = a.Copy();
-			var points = image.ToPixelIndexList();
+			var points = image.ToPixelIndexList((v) => v == true);
 
 			for (int i = 0; i < iterations; i++)
 			{

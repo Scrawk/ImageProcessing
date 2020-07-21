@@ -3,23 +3,22 @@ using System.Collections.Generic;
 
 using Common.Core.Numerics;
 using Common.Geometry.Shapes;
-using ImageProcessing.Images;
 
 namespace ImageProcessing.Morphology
 {
 	/// <summary>
 	/// 
 	/// </summary>
-	public class StructureElement2D : Image2D<int>
+	public class StructureElement2D
 	{
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="size"></param>
 		public StructureElement2D(int size)
-			: base(size, size)
 		{
 			Size = size;
+			Data = new int[size, size];
 		}
 
 		/// <summary>
@@ -28,9 +27,9 @@ namespace ImageProcessing.Morphology
 		/// <param name="size"></param>
 		/// <param name="value"></param>
 		public StructureElement2D(int size, int value)
-			: base(size, size)
 		{
 			Size = size;
+			Data = new int[size, size];
 			Data.Fill(value);
 		}
 
@@ -40,15 +39,29 @@ namespace ImageProcessing.Morphology
 		/// <param name="size"></param>
 		/// <param name="data"></param>
 		private StructureElement2D(int size, int[,] data) 
-			: base(data)
 		{
 			Size = size;
+			Data = data.Copy();
 		}
+
+		public int[,] Data { get; private set; }
 
 		/// <summary>
 		/// 
 		/// </summary>
 		public int Size { get; private set; }
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <returns></returns>
+		public int this[int x, int y]
+        {
+			get => Data[x, y];
+			set => Data[x, y] = value;
+        }
 
 		/// <summary>
 		/// 
@@ -77,27 +90,6 @@ namespace ImageProcessing.Morphology
 		public StructureElement2D Copy()
 		{
 			return new StructureElement2D(Size, Data);
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		public override List<PixelIndex2D<int>> ToPixelIndexList()
-		{
-			var pixel = new List<PixelIndex2D<int>>();
-
-			for (int y = 0; y < Height; y++)
-			{
-				for (int x = 0; x < Width; x++)
-				{
-					int v = this[x, y];
-					if (v > 0)
-						pixel.Add(new PixelIndex2D<int>(x, y, v));
-				}
-			}
-
-			return pixel;
 		}
 
 		/// <summary>

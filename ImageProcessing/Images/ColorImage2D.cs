@@ -10,14 +10,14 @@ namespace ImageProcessing.Images
     /// <summary>
     /// 
     /// </summary>
-    public partial class GreyScaleImage2D : Image2D<float>
+    public partial class ColorImage2D : Image2D<ColorRGB>
     {
         /// <summary>
         /// 
         /// </summary>
         /// <param name="width"></param>
         /// <param name="height"></param>
-        public GreyScaleImage2D(int width, int height)
+        public ColorImage2D(int width, int height)
             : base(width, height)
         {
 
@@ -27,7 +27,7 @@ namespace ImageProcessing.Images
         /// 
         /// </summary>
         /// <param name="size"></param>
-        public GreyScaleImage2D(Vector2i size)
+        public ColorImage2D(Vector2i size)
             : base(size)
         {
 
@@ -39,7 +39,7 @@ namespace ImageProcessing.Images
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <param name="vaule"></param>
-        public GreyScaleImage2D(int width, int height, float value)
+        public ColorImage2D(int width, int height, ColorRGB value)
             : base(width, height, value)
         {
 
@@ -49,7 +49,7 @@ namespace ImageProcessing.Images
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public GreyScaleImage2D(float[,] data)
+        public ColorImage2D(ColorRGB[,] data)
             : base(data)
         {
 
@@ -61,13 +61,13 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[GreyScaleImage2D: Width={0}, Height={1}]", Width, Height);
+            return string.Format("[ColorImage2D: Width={0}, Height={1}]", Width, Height);
         }
 
         /// <summary>
         /// Sample the image by clamped bilinear interpolation.
         /// </summary>
-        public float GetBilinear01(float u, float v)
+        public ColorRGB GetBilinear01(float u, float v)
         {
             float x = u * Width;
             float y = v * Height;
@@ -77,7 +77,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Sample the image by clamped bilinear interpolation.
         /// </summary>
-        public float GetBilinear(float x, float y)
+        public ColorRGB GetBilinear(float x, float y)
         {
             int xi = (int)x;
             int yi = (int)y;
@@ -87,7 +87,11 @@ namespace ImageProcessing.Images
             var v01 = GetClamped(xi, yi + 1);
             var v11 = GetClamped(xi + 1, yi + 1);
 
-            return MathUtil.Blerp(v00, v10, v01, v11, x - xi, y - yi);
+            var col = new ColorRGB();
+            col.r = MathUtil.Blerp(v00.r, v10.r, v01.r, v11.r, x - xi, y - yi);
+            col.g = MathUtil.Blerp(v00.g, v10.g, v01.g, v11.g, x - xi, y - yi);
+            col.b = MathUtil.Blerp(v00.b, v10.b, v01.b, v11.b, x - xi, y - yi);
+            return col;
         }
 
         /// <summary>
@@ -98,7 +102,7 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public override float GetValue(int x, int y)
         {
-            return this[x, y];
+            return this[x, y].Intensity;
         }
 
         /// <summary>
@@ -109,17 +113,16 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public override ColorRGB GetPixelRGB(int x, int y)
         {
-            var v = this[x, y];
-            return new ColorRGB(v, v, v);
+            return this[x, y];
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public GreyScaleImage2D Copy()
+        public ColorImage2D Copy()
         {
-            return new GreyScaleImage2D(Data);
+            return new ColorImage2D(Data);
         }
 
     }

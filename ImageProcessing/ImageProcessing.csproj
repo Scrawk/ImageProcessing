@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.dll&quot; &quot;D:\Projects\Unity Projects\ImageProcessingUnity\Assets\ImageProcessing\Plugins&quot; /y&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.dll&quot; &quot;D:\Projects\Unity Projects\Goblinz\Assets\ImageProcessing\Plugins&quot; /y" />
+    <Exec Command="xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.dll&quot; &quot;D:\Projects\Unity Projects\ImageProcessingUnity\Assets\ImageProcessing\Plugins&quot; /y&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.dll&quot; &quot;D:\Projects\Unity Projects\Goblinz\Assets\ImageProcessing\Plugins&quot; /y&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.dll&quot; &quot;D:\Projects\Unity Projects\GeoMorphUnity\Assets\ImageProcessing\Plugins&quot; /y" />
   </Target>
 
 </Project>
