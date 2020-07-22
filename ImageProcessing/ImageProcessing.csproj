@@ -18,6 +18,9 @@
     <Reference Include="Common.Geometry">
       <HintPath>..\..\Common\Common.Geometry\bin\Release\netstandard2.0\Common.Geometry.dll</HintPath>
     </Reference>
+    <Reference Include="Common.GraphTheory">
+      <HintPath>..\..\Common\Common.GraphTheory\bin\Release\netstandard2.0\Common.GraphTheory.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

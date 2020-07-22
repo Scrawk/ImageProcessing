@@ -1,13 +1,11 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 
 using Common.Core.Numerics;
 using Common.Core.Threading;
 using Common.Geometry.Shapes;
 
 using ImageProcessing.Morphology;
-using System;
 
 namespace ImageProcessing.Images
 {
@@ -198,7 +196,7 @@ namespace ImageProcessing.Images
 			ThreadingBlock1D.ParallelAction(points.Count, blockSize, (x) =>
 			{
 				var p = points[x];
-				p.value = true ^ HitAndMiss(p.x, p.y, a, b, i);
+				p.Value = true ^ HitAndMiss(p.Index.x, p.Index.y, a, b, i);
 				points[x] = p;
 			});
 
@@ -206,11 +204,11 @@ namespace ImageProcessing.Images
 			for (int x = 0; x < points.Count; x++)
 			{
 				var p = points[x];
-				if (p.value)
+				if (p.Value)
 					points1.Add(p);
 				else
 				{
-					a[p.x, p.y] = false;
+					a[p.Index] = false;
 					done = false;
 				}
             }
@@ -219,7 +217,7 @@ namespace ImageProcessing.Images
 			ThreadingBlock1D.ParallelAction(points1.Count, blockSize, (x) =>
 			{
 				var p = points1[x];
-				p.value = true ^ HitAndMiss(p.x, p.y, a, c, i);
+				p.Value = true ^ HitAndMiss(p.Index.x, p.Index.y, a, c, i);
 				points1[x] = p;
 			});
 
@@ -227,11 +225,11 @@ namespace ImageProcessing.Images
 			for (int x = 0; x < points1.Count; x++)
 			{
 				var p = points1[x];
-				if (p.value)
+				if (p.Value)
 					points2.Add(p);
 				else
 				{
-					a[p.x, p.y] = false;
+					a[p.Index] = false;
 					done = false;
 				}
 			}

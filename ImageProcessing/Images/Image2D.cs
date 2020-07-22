@@ -122,7 +122,7 @@ namespace ImageProcessing.Images
             for (int i = 0; i < points.Count; i++)
             {
                 var p = points[i];
-                this[p.x, p.y] = p.value;
+                this[p.Index] = p.Value;
             }
         }
 
