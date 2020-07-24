@@ -123,13 +123,15 @@ namespace ImageProcessing.Images
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		public GraphForest MinimumSpanningForest()
+		public GraphForest MinimumSpanningForest(Func<Vector2i, Vector2i, float> func = null)
         {
+			if (func == null)
+				func = (a, b) => (float)Vector2i.Distance(a, b);
+
 			var pixels = ToPixelIndexList((v) => v == true);
 
 			var table = new Dictionary<Vector2i, int>();
 			var graph = new UndirectedGraph(pixels.Count);
-
 			for (int i = 0; i < pixels.Count; i++)
 			{
 				var pixel = pixels[i];
@@ -141,7 +143,7 @@ namespace ImageProcessing.Images
 			for (int j = 0; j < pixels.Count; j++)
             {
 				var pixel = pixels[j];
-				var from = graph.Vertices[j].Index;
+				var a = graph.Vertices[j].Index;
 				var idx = pixel.Index;
 
 				for (int i = 0; i < 8; i++)
@@ -151,11 +153,12 @@ namespace ImageProcessing.Images
 
 					if (xi < 0 || xi >= Width) continue;
 					if (yi < 0 || yi >= Height) continue;
+					var idx2 = new Vector2i(xi, yi);
 
-					if (table.TryGetValue((xi, yi), out int to) && !graph.ContainsEdge(from, to))
+					if (table.TryGetValue(idx2, out int b) && !graph.ContainsEdge(a, b))
                     {
-						float w = Vector2f.Distance(idx, (xi, yi));
-						graph.AddEdge(from, to, w, w);
+						float weight = func(idx, idx2);
+						graph.AddEdge(a, b, weight);
                     }
 				}
 			}
