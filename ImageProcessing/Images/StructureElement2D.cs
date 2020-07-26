@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Common.Core.Numerics;
 using Common.Geometry.Shapes;
 
-namespace ImageProcessing.Morphology
+namespace ImageProcessing.Images
 {
 	/// <summary>
 	/// 
@@ -38,9 +38,12 @@ namespace ImageProcessing.Morphology
 		/// </summary>
 		/// <param name="size"></param>
 		/// <param name="data"></param>
-		private StructureElement2D(int size, int[,] data) 
+		private StructureElement2D(int[,] data) 
 		{
-			Size = size;
+			if(data.GetLength(0) != data.GetLength(1))
+				throw new Exception("Data array must be square.");
+
+			Size = data.GetLength(0);
 			Data = data.Copy();
 		}
 
@@ -89,7 +92,7 @@ namespace ImageProcessing.Morphology
 		/// <returns></returns>
 		public StructureElement2D Copy()
 		{
-			return new StructureElement2D(Size, Data);
+			return new StructureElement2D(Data);
 		}
 
 		/// <summary>
@@ -212,10 +215,14 @@ namespace ImageProcessing.Morphology
 		/// <returns></returns>
 		public static StructureElement2D HitMissCornerElement()
 		{
-			var e = new StructureElement2D(3, -1);
-			e[0, 0] = 0; e[1, 0] = 0; e[0, 1] = 0;
-			e[1, 1] = 1; e[2, 1] = 1; e[1, 2] = 1;
-			return e;
+			var data = new int[,]
+			{
+				{ -1, 1, -1},
+				{ 0,  1,  1},
+				{ 0,  0, -1}
+			};
+
+			return new StructureElement2D(data);
 		}
 
 		/// <summary>
@@ -224,15 +231,53 @@ namespace ImageProcessing.Morphology
 		/// <returns></returns>
 		public static (StructureElement2D, StructureElement2D) ThinningElements()
 		{
-			var b = new StructureElement2D(3, -1);
-			b[0, 2] = 0; b[1, 2] = 0; b[2, 2] = 0;
-			b[0, 0] = 1; b[1, 0] = 1; b[2, 0] = 1; b[1, 1] = 1;
+			var data1 = new int[,]
+			{
+				{  0, 0,  0},
+				{ -1, 1, -1},
+				{  1, 1,  1}
+			};
 
-			var c = new StructureElement2D(3, -1);
-			c[2, 2] = 0; c[1, 2] = 0; c[2, 1] = 0;
-			c[1, 1] = 1; c[1, 0] = 1; c[0, 1] = 1;
+			var data2 = new int[,]
+			{
+				{ -1, 0,  0},
+				{  1, 1,  0},
+				{ -1, 1, -1}
+			};
 
-			return (b, c);
+			return (new StructureElement2D(data1), new StructureElement2D(data2));
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public static StructureElement2D CityBlockElement()
+		{
+			var data = new int[,]
+			{
+				{ -1, -1, -1},
+				{ -1,  0, -1},
+				{ -1, -1, -1}
+			};
+
+			return new StructureElement2D(data);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public static StructureElement2D ChessBoardElement()
+		{
+			var data = new int[,]
+			{
+				{ -2, -1, -2},
+				{ -1,  0, -1},
+				{ -2, -1, -2}
+			};
+
+			return new StructureElement2D(data);
 		}
 
 	}

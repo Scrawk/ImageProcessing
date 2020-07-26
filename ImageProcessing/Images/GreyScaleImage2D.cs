@@ -256,6 +256,34 @@ namespace ImageProcessing.Images
             return (d1, d2);
         }
 
+        public void Normalize()
+        {
+
+            float min = float.PositiveInfinity;
+            float max = float.NegativeInfinity;
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    float v = this[x, y];
+                    if (v < min) min = v;
+                    if (v > max) max = v;
+                }
+            }
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    float v = this[x, y];
+                    v = MathUtil.Normalize(v, min, max);
+                    this[x, y] = MathUtil.Clamp01(v);
+                }
+            }
+
+        }
+
     }
 
 }

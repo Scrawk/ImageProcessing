@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using Common.Core.Numerics;
 using Common.Core.Threading;
 
-using ImageProcessing.Morphology;
-
 namespace ImageProcessing.Images
 {
 	/// <summary>
@@ -15,10 +13,10 @@ namespace ImageProcessing.Images
 	{
 
 		/// <summary>
-		/// 
+		/// Open the image by performing a erode followed by a dilate.
 		/// </summary>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
+		/// <param name="a">The image to be opened.</param>
+		/// <param name="b">The structure element.</param>
 		/// <returns></returns>
 		public static BinaryImage2D Open(BinaryImage2D a, StructureElement2D b)
 		{
@@ -26,10 +24,10 @@ namespace ImageProcessing.Images
 		}
 
 		/// <summary>
-		/// 
+		/// Close the image by performing a dilate followed by a erode.
 		/// </summary>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
+		/// <param name="a">The image to be closed.</param>
+		/// <param name="b">The structure element.</param>
 		/// <returns></returns>
 		public static BinaryImage2D Close(BinaryImage2D a, StructureElement2D b)
 		{
@@ -37,22 +35,22 @@ namespace ImageProcessing.Images
 		}
 
 		/// <summary>
-		/// 
+		/// Find the border of all connected blocks of true values in the image.
 		/// </summary>
-		/// <param name="a"></param>
+		/// <param name="a">The source image.</param>
 		/// <returns></returns>
 		public static BinaryImage2D Border(BinaryImage2D a)
-        {
+        	{
 			var image = Erode(a, StructureElement2D.BoxElement(3));
 			image.Xor(a);
 			return image;
-        }
+        	}
 
 		/// <summary>
-		/// 
+		/// Diluate all true values in a image by the structure element.
 		/// </summary>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
+		/// <param name="a">The image to be dilated.</param>
+		/// <param name="b">The structure element.</param>
 		/// <returns></returns>
 		public static BinaryImage2D Dilate(BinaryImage2D a, StructureElement2D b)
 		{
@@ -69,12 +67,15 @@ namespace ImageProcessing.Images
 		}
 
 		/// <summary>
-		/// 
+		/// Find if a pixel in the image should be dilated.
+		/// A pixel should be dilated if any surrounding pixel
+		/// and the element both have a true value.
+		/// The element is centered on the pixel.
 		/// </summary>
-		/// <param name="i"></param>
-		/// <param name="j"></param>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
+		/// <param name="i">x index in source image.</param>
+		/// <param name="j">y index in source image.</param>
+		/// <param name="a">The source image.</param>
+		/// <param name="b">The structure element.</param>
 		/// <returns></returns>
 		private static bool Dilate(int i, int j, BinaryImage2D a, StructureElement2D b)
 		{
@@ -99,10 +100,10 @@ namespace ImageProcessing.Images
 		}
 
 		/// <summary>
-		/// 
+		/// Erode all true values in a image by the structure element.
 		/// </summary>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
+		/// <param name="a">The image to be eroded.</param>
+		/// <param name="b">The structure element.</param>
 		/// <returns></returns>
 		public static BinaryImage2D Erode(BinaryImage2D a, StructureElement2D b)
 		{
@@ -119,12 +120,15 @@ namespace ImageProcessing.Images
 		}
 
 		/// <summary>
-		/// 
+		/// Find if a pixel in the image should be eroded.
+		/// A pixel should be eroded if any surrounding pixel
+		/// has a false value and the element a true value.
+		/// The element is centered on the pixel.
 		/// </summary>
-		/// <param name="i"></param>
-		/// <param name="j"></param>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
+		/// <param name="i">x index in source image.</param>
+		/// <param name="j">y index in source image.</param>
+		/// <param name="a">The source image.</param>
+		/// <param name="b">The structure element.</param>
 		/// <returns></returns>
 		private static bool Erode(int i, int j, BinaryImage2D a, StructureElement2D b)
 		{
@@ -149,10 +153,12 @@ namespace ImageProcessing.Images
 		}
 
 		/// <summary>
-		/// 
+		/// Iteratively thin a image by removing pixels on the border
+		/// if they match the structure element.
+		/// Will exit early if image can not be thinned anymore.
 		/// </summary>
-		/// <param name="a"></param>
-		/// <param name="iterations"></param>
+		/// <param name="a">The image to the thinned.</param>
+		/// <param name="iterations">The number of times to thin the image.</param>
 		/// <returns></returns>
 		public static BinaryImage2D Thinning(BinaryImage2D a, int iterations = int.MaxValue)
 		{
@@ -161,16 +167,22 @@ namespace ImageProcessing.Images
 			var c = tuple.Item2;
 
 			var image = a.Copy();
+
+			//Get all the points in image with a true value.
+			//Only these pixels need to be iterated.
 			var points = image.ToPixelIndexList((v) => v == true);
 
 			for (int i = 0; i < iterations; i++)
 			{
+				//Thin the image for each rotation of the element.
 				bool done = true;
 				points = Thinning(points, image, b, c, 0, ref done);
 				points = Thinning(points, image, b, c, 1, ref done);
 				points = Thinning(points, image, b, c, 2, ref done);
 				points = Thinning(points, image, b, c, 3, ref done);
 
+				//If the image did not change then it can not be 
+				//thinned anymore so return.
 				if (done) return image;
 			}
 
@@ -178,19 +190,22 @@ namespace ImageProcessing.Images
 		}
 
 		/// <summary>
-		/// 
+		/// Thin the image with the two structure elements and remove 
+		/// any thinned points from the image.
 		/// </summary>
-		/// <param name="points"></param>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
-		/// <param name="c"></param>
-		/// <param name="i"></param>
-		/// <param name="done"></param>
+		/// <param name="points">The current pixels in the image with a true value.</param>
+		/// <param name="a">The image to be thinned.</param>
+		/// <param name="b">The structure element b.</param>
+		/// <param name="c">The structure element c.</param>
+		/// <param name="i">The rotation index for the elements.</param>
+		/// <param name="done">If the image has not changed this iteration.</param>
 		/// <returns></returns>
 		private static List<PixelIndex2D<bool>> Thinning(List<PixelIndex2D<bool>> points, BinaryImage2D a, 
 			StructureElement2D b, StructureElement2D c, int i, ref bool done)
 		{
 
+			//For each point in the list determine its value depending
+			//on if it matches the element b or not.
 			int blockSize = Math.Max(256, points.Count / 16);
 			ThreadingBlock1D.ParallelAction(points.Count, blockSize, (x) =>
 			{
@@ -199,6 +214,8 @@ namespace ImageProcessing.Images
 				points[x] = p;
 			});
 
+			//Update the points by removing those with a false value
+			//and keeping those with a true value.
 			var points1 = new List<PixelIndex2D<bool>>(points.Count);
 			for (int x = 0; x < points.Count; x++)
 			{
@@ -207,11 +224,15 @@ namespace ImageProcessing.Images
 					points1.Add(p);
 				else
 				{
+					//If value is false remove from image
+					//and mark that the algorithm is not done.
 					a[p.Index] = false;
 					done = false;
 				}
-            }
+            		}
 
+			//For each point in the list determine its value depending
+			//on if it matches the element c or not.
 			blockSize = Math.Max(256, points1.Count / 16);
 			ThreadingBlock1D.ParallelAction(points1.Count, blockSize, (x) =>
 			{
@@ -228,21 +249,24 @@ namespace ImageProcessing.Images
 					points2.Add(p);
 				else
 				{
+					//If value is false remove from image
+					//and mark that the algorithm is not done.
 					a[p.Index] = false;
 					done = false;
 				}
 			}
 
+			//return only thye points remaining in the image.
 			return points2;
 		}
 
 		/// <summary>
-		/// 
+		/// Remove all pixels in the image that matchs the structure element.
 		/// </summary>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
+		/// <param name="a">The source image.</param>
+		/// <param name="b">The structure element.</param>
 		/// <returns></returns>
-		public static BinaryImage2D HitAndMiss1(BinaryImage2D a, StructureElement2D b)
+		public static BinaryImage2D HitAndMiss(BinaryImage2D a, StructureElement2D b)
 		{
 			var image = a.Copy();
 
@@ -257,10 +281,11 @@ namespace ImageProcessing.Images
 		}
 
 		/// <summary>
-		/// 
+		/// Remove all pixels in the image that match the structure element
+		/// in any of its 4 rotations.
 		/// </summary>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
+		/// <param name="a">The source image.</param>
+		/// <param name="b">The structure element.</param>
 		/// <returns></returns>
 		public static BinaryImage2D HitAndMiss4(BinaryImage2D a, StructureElement2D b)
 		{
@@ -277,35 +302,35 @@ namespace ImageProcessing.Images
 		}
 
 		/// <summary>
-		/// 
+		/// Remove all pixels in the image that match either of the two 
+		/// structure elements in any of there 4 rotations.
 		/// </summary>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
-		/// <param name="c"></param>
+		/// <param name="a">The source image.</param>
+		/// <param name="b">The structure element b.</param>
+		/// <param name="c">The structure element c.</param>
 		/// <returns></returns>
 		public static BinaryImage2D HitAndMiss4(BinaryImage2D a, StructureElement2D b, StructureElement2D c)
 		{
 			var image = a.Copy();
 
-			for (int y = 0; y < a.Height; y++)
+			int blockSize = Math.Max(64, Math.Max(a.Width, a.Height) / 16);
+			ThreadingBlock2D.ParallelAction(a.Width, a.Height, blockSize, (x, y) =>
 			{
-				for (int x = 0; x < a.Width; x++)
-				{
-					if (a[x, y])
-						image[x, y] = HitAndMiss4(x, y, a, b, c);
-				}
-			}
+				if (a[x, y])
+					image[x, y] = HitAndMiss4(x, y, a, b, c);
+			});
 
 			return image;
 		}
 
 		/// <summary>
-		/// 
+		/// Find if the pixel in the image matches the structure element
+		/// in any of its 4 rotations.
 		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
+		/// <param name="x">The x index in the source image.</param>
+		/// <param name="y">The y index in the source image.</param>
+		/// <param name="a">The source image.</param>
+		/// <param name="b">The structure element.</param>
 		/// <returns></returns>
 		private static bool HitAndMiss4(int x, int y, BinaryImage2D a, StructureElement2D b)
 		{
@@ -317,13 +342,14 @@ namespace ImageProcessing.Images
 		}
 
 		/// <summary>
-		/// 
+		/// Find if the pixel in the image matches either of the 
+		/// structure elements in any of there 4 rotations.
 		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
-		/// <param name="c"></param>
+		/// <param name="x">The x index in the source image.</param>
+		/// <param name="y">The y index in the source image.</param>
+		/// <param name="a">The source image.</param>
+		/// <param name="b">The structure element b.</param>
+		/// <param name="c">The structure element c.</param>
 		/// <returns></returns>
 		private static bool HitAndMiss4(int x, int y, BinaryImage2D a, StructureElement2D b, StructureElement2D c)
 		{
@@ -339,49 +365,16 @@ namespace ImageProcessing.Images
 		}
 
 		/// <summary>
-		/// 
+		/// Find if all surrounding pixels in a image match the 
+		/// structure element.
 		/// </summary>
-		/// <param name="i"></param>
-		/// <param name="j"></param>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
-		/// <param name="rotate"></param>
+		/// <param name="i">The x index in the source image.</param>
+		/// <param name="j">The y index in the source image.</param>
+		/// <param name="a">The source image.</param>
+		/// <param name="b">The structure element.</param>
+		/// <param name="rotate">The element rotation.</param>
 		/// <returns></returns>
-		private static bool HitAndMiss(int i, int j, BinaryImage2D a, StructureElement2D b)
-		{
-			int half = b.Size / 2;
-
-			for (int y = 0; y < b.Size; y++)
-			{
-				for (int x = 0; x < b.Size; x++)
-				{
-					int xi = x + i - half;
-					int yj = y + j - half;
-
-					if (xi < 0 || xi >= a.Width) continue;
-					if (yj < 0 || yj >= a.Height) continue;
-
-					int v = b[x, y];
-					if (v == -1) continue;
-
-					if (a[xi, yj] != (v == 1))
-						return false;
-				}
-			}
-
-			return true;
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="i"></param>
-		/// <param name="j"></param>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
-		/// <param name="rotate"></param>
-		/// <returns></returns>
-		private static bool HitAndMiss(int i, int j, BinaryImage2D a, StructureElement2D b, int rotate)
+		private static bool HitAndMiss(int i, int j, BinaryImage2D a, StructureElement2D b, int rotate = 0)
 		{
 			int half = b.Size / 2;
 
