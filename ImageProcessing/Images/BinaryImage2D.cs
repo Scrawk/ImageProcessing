@@ -76,7 +76,26 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public override float GetValue(int x, int y)
         {
-            return this[x, y] ? 1 : 0;
+            return GetClamped(x, y) ? 1 : 0;
+        }
+
+        /// <summary>
+        /// Sample the image by clamped bilinear interpolation.
+        /// </summary>
+        public override float GetValue(float u, float v)
+        {
+            float x = u * Width;
+            float y = v * Height;
+
+            int xi = (int)x;
+            int yi = (int)y;
+
+            var v00 = GetValue(xi, yi);
+            var v10 = GetValue(xi + 1, yi);
+            var v01 = GetValue(xi, yi + 1);
+            var v11 = GetValue(xi + 1, yi + 1);
+
+            return MathUtil.Blerp(v00, v10, v01, v11, x - xi, y - yi);
         }
 
         /// <summary>
@@ -87,8 +106,20 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public override ColorRGB GetPixel(int x, int y)
         {
-            var v = this[x, y] ? 1 : 0;
-            return new ColorRGB(v, v, v);
+            var value = GetValue(x, y);
+            return new ColorRGB(value);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="u"></param>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        public override ColorRGB GetPixel(float u, float v)
+        {
+            var value = GetValue(u, v);
+            return new ColorRGB(value);
         }
 
         /// <summary>

@@ -65,9 +65,42 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public override float GetValue(int x, int y)
+        {
+            return GetPixel(x, y).Intensity;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="u"></param>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        public override float GetValue(float u, float v)
+        {
+            return GetPixel(u, v).Intensity;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public override ColorRGB GetPixel(int x, int y)
+        {
+            return GetClamped(x, y);
+        }
+
+        /// <summary>
         /// Sample the image by clamped bilinear interpolation.
         /// </summary>
-        public ColorRGB GetBilinear(float u, float v)
+        public override ColorRGB GetPixel(float u, float v)
         {
             float x = u * Width;
             float y = v * Height;
@@ -85,28 +118,6 @@ namespace ImageProcessing.Images
             col.g = MathUtil.Blerp(v00.g, v10.g, v01.g, v11.g, x - xi, y - yi);
             col.b = MathUtil.Blerp(v00.b, v10.b, v01.b, v11.b, x - xi, y - yi);
             return col;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        public override float GetValue(int x, int y)
-        {
-            return this[x, y].Intensity;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        public override ColorRGB GetPixel(int x, int y)
-        {
-            return this[x, y];
         }
 
         /// <summary>

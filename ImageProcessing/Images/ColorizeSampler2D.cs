@@ -45,6 +45,11 @@ namespace ImageProcessing.Images
             return Colorize(Image.GetValue(x, y) * Scale);
         }
 
+        public override ColorRGB GetPixel(float u, float v)
+        {
+            return Colorize(Image.GetValue(u, v) * Scale);
+        }
+
         public ColorRGB Colorize(float v)
         {
             if (m_gradient == null)

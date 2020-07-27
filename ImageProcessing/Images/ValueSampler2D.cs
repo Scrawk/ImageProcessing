@@ -23,5 +23,10 @@ namespace ImageProcessing.Images
             return Image.GetPixel(x, y) * Scale;
         }
 
+        public override ColorRGB GetPixel(float u, float v)
+        {
+            return Image.GetPixel(u, v) * Scale;
+        }
+
     }
 }

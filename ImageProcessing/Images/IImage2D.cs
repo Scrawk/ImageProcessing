@@ -16,7 +16,11 @@ namespace ImageProcessing.Images
     {
         float GetValue(int x, int y);
 
+        float GetValue(float u, float v);
+
         //ColorRGB GetPixel(int x, int y);
+
+        //ColorRGB GetPixel(float u, float v);
 
         void SetPixel(int x, int y, ColorRGB pixel);
 

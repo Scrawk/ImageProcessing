@@ -79,10 +79,26 @@ namespace ImageProcessing.Images
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="u"></param>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        public abstract float GetValue(float u, float v);
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
         public abstract ColorRGB GetPixel(int x, int y);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="u"></param>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        public abstract ColorRGB GetPixel(float u, float v);
 
         /// <summary>
         /// 
@@ -124,6 +140,19 @@ namespace ImageProcessing.Images
                 var p = points[i];
                 this[p.Index] = p.Value;
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="divisions"></param>
+        /// <returns></returns>
+        public static int BlockSize(int width, int height, int divisions = 4)
+        {
+            if (divisions <= 0) divisions = 4;
+            return Math.Max(64, Math.Max(width, height) / divisions);
         }
 
 

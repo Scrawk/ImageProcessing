@@ -16,13 +16,7 @@ namespace ImageProcessing.Images
         /// </summary>
         public void Invert()
         {
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    this[x, y] = !this[x, y];
-                }
-            }
+            Modify((v) => !v);
         }
 
         /// <summary>
@@ -31,13 +25,7 @@ namespace ImageProcessing.Images
         /// <param name="b"></param>
         public void Or(BinaryImage2D b)
         {
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    this[x, y] |= b[x, y];
-                }
-            }
+            Fill((x, y) => this[x, y] | b[x, y]);
         }
 
         /// <summary>
@@ -46,13 +34,7 @@ namespace ImageProcessing.Images
         /// <param name="b"></param>
         public void Xor(BinaryImage2D b)
         {
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    this[x, y] ^= b[x, y];
-                }
-            }
+            Fill((x, y) => this[x, y] ^ b[x, y]);
         }
         
         /// <summary>
@@ -61,13 +43,7 @@ namespace ImageProcessing.Images
         /// <param name="b"></param>
         public void And(BinaryImage2D b)
         {
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    this[x, y] &= b[x, y];
-                }
-            }
+            Fill((x, y) => this[x, y] & b[x, y]);
         }
 
     }

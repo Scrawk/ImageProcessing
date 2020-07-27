@@ -65,9 +65,20 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public override float GetValue(int x, int y)
+        {
+            return GetClamped(x, y);
+        }
+
+        /// <summary>
         /// Sample the image by clamped bilinear interpolation.
         /// </summary>
-        public float GetBilinear(float u, float v)
+        public override float GetValue(float u, float v)
         {
             float x = u * Width;
             float y = v * Height;
@@ -89,21 +100,22 @@ namespace ImageProcessing.Images
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public override float GetValue(int x, int y)
+        public override ColorRGB GetPixel(int x, int y)
         {
-            return this[x, y];
+            var value = GetClamped(x, y);
+            return new ColorRGB(value);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
+        /// <param name="u"></param>
+        /// <param name="v"></param>
         /// <returns></returns>
-        public override ColorRGB GetPixel(int x, int y)
+        public override ColorRGB GetPixel(float u, float v)
         {
-            var v = this[x, y];
-            return new ColorRGB(v, v, v);
+            var value = GetValue(u, v);
+            return new ColorRGB(value);
         }
 
         /// <summary>
@@ -162,14 +174,14 @@ namespace ImageProcessing.Images
         {
             float x1 = 1.0f / Width;
             float y1 = 1.0f / Height;
-            float z1 = GetBilinear(u - x1, v + y1);
-            float z2 = GetBilinear(u +  0, v + y1);
-            float z3 = GetBilinear(u + x1, v + y1);
-            float z4 = GetBilinear(u - x1, v +  0);
-            float z6 = GetBilinear(u + x1, v +  0);
-            float z7 = GetBilinear(u - x1, v - y1);
-            float z8 = GetBilinear(u +  0, v - y1);
-            float z9 = GetBilinear(u + x1, v - y1);
+            float z1 = GetValue(u - x1, v + y1);
+            float z2 = GetValue(u +  0, v + y1);
+            float z3 = GetValue(u + x1, v + y1);
+            float z4 = GetValue(u - x1, v +  0);
+            float z6 = GetValue(u + x1, v +  0);
+            float z7 = GetValue(u - x1, v - y1);
+            float z8 = GetValue(u +  0, v - y1);
+            float z9 = GetValue(u + x1, v - y1);
 
             //p, q
             float zx = (z3 + z6 + z9 - z1 - z4 - z7) / (6.0f * w.x);
@@ -231,15 +243,15 @@ namespace ImageProcessing.Images
             float wx2 = w.x * w.x;
             float wy2 = w.y * w.y;
             float wxy2 = w.SqrMagnitude;
-            float z1 = GetBilinear(u - x1, v + y1);
-            float z2 = GetBilinear(u +  0, v + y1);
-            float z3 = GetBilinear(u + x1, v + y1);
-            float z4 = GetBilinear(u - x1, v +  0);
-            float z5 = GetBilinear(u +  0, v +  0);
-            float z6 = GetBilinear(u + x1, v +  0);
-            float z7 = GetBilinear(u - x1, v - y1);
-            float z8 = GetBilinear(u +  0, v - y1);
-            float z9 = GetBilinear(u + x1, v - y1);
+            float z1 = GetValue(u - x1, v + y1);
+            float z2 = GetValue(u +  0, v + y1);
+            float z3 = GetValue(u + x1, v + y1);
+            float z4 = GetValue(u - x1, v +  0);
+            float z5 = GetValue(u +  0, v +  0);
+            float z6 = GetValue(u + x1, v +  0);
+            float z7 = GetValue(u - x1, v - y1);
+            float z8 = GetValue(u +  0, v - y1);
+            float z9 = GetValue(u + x1, v - y1);
 
             //p, q
             float zx = (z3 + z6 + z9 - z1 - z4 - z7) / (6.0f * w.x);
@@ -256,9 +268,8 @@ namespace ImageProcessing.Images
             return (d1, d2);
         }
 
-        public void Normalize()
+        public (float min, float max) MinMax()
         {
-
             float min = float.PositiveInfinity;
             float max = float.NegativeInfinity;
 
@@ -272,16 +283,19 @@ namespace ImageProcessing.Images
                 }
             }
 
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    float v = this[x, y];
-                    v = MathUtil.Normalize(v, min, max);
-                    this[x, y] = MathUtil.Clamp01(v);
-                }
-            }
+            return (min, max);
+        }
 
+        public void Normalize()
+        {
+            var minMax = MinMax();
+
+            int blockSize = BlockSize(Width, Height);
+            ParallelModify(blockSize, (v) =>
+            {
+                v = MathUtil.Normalize(v, minMax.min, minMax.max);
+                return MathUtil.Clamp01(v);
+            });
         }
 
     }

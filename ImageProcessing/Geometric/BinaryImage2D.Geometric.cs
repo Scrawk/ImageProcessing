@@ -18,14 +18,7 @@ namespace ImageProcessing.Images
         public static BinaryImage2D Rotate90(BinaryImage2D a)
         {
             var image = new BinaryImage2D(a.Height, a.Width);
-
-            for (int y = 0; y < a.Height; y++)
-            {
-                for (int x = 0; x < a.Width; x++)
-                {
-                    image[y, a.Width - 1 - x] = a[x, y];
-                }
-            }
+            image.Fill((x, y) => a[y, a.Width - 1 - x]);
 
             return a;
         }
@@ -38,14 +31,7 @@ namespace ImageProcessing.Images
         public static BinaryImage2D Rotate180(BinaryImage2D a)
         {
             var image = new BinaryImage2D(a.Height, a.Width);
-
-            for (int y = 0; y < a.Height; y++)
-            {
-                for (int x = 0; x < a.Width; x++)
-                {
-                    image[a.Width - 1 - x, a.Height - 1 - y] = a[x, y];
-                }
-            }
+            image.Fill((x, y) => a[a.Width - 1 - x, a.Height - 1 - y]);
 
             return image;
         }
@@ -58,14 +44,7 @@ namespace ImageProcessing.Images
         public static BinaryImage2D Rotate270(BinaryImage2D a)
         {
             var image = new BinaryImage2D(a.Height, a.Width);
-
-            for (int y = 0; y < a.Height; y++)
-            {
-                for (int x = 0; x < a.Width; x++)
-                {
-                    image[a.Height - 1 - y, x] = a[x, y];
-                }
-            }
+            image.Fill((x, y) => a[a.Height - 1 - y, x]);
 
             return image;
         }
