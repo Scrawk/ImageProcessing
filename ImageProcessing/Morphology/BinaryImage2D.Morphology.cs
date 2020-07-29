@@ -140,11 +140,11 @@ namespace ImageProcessing.Images
 					if (yj < 0 || yj >= a.Height) continue;
 
 					if (!a[xi, yj] && b[x, y] == 1)
-						return true;
+						return false;
 				}
 			}
 
-			return false;
+			return true;
 		}
 
 		/// <summary>

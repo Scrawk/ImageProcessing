@@ -12,7 +12,7 @@ namespace ImageProcessing.Images
 	public partial class BinaryImage2D
 	{
 
-		public GreyScaleImage2D DistanceTransform(StructureElement2D b)
+		public GreyScaleImage2D Distance(StructureElement2D b)
 		{
 			var image = new GreyScaleImage2D(Width, Height);
 			image.Fill((x, y) => this[x, y] ? float.PositiveInfinity : 0);
@@ -38,7 +38,7 @@ namespace ImageProcessing.Images
 			return image;
 		}
 
-		public GreyScaleImage2D ApproxEuclideanDistanceTransform()
+		public GreyScaleImage2D ApproxEuclideanDistance()
 		{
 			var image = new GreyScaleImage2D(Width, Height);
 			image.Fill((x, y) => this[x, y] ? float.PositiveInfinity : 0);
@@ -94,7 +94,7 @@ namespace ImageProcessing.Images
 					int xi = MathUtil.Clamp(x + i - half, 0, a.Width - 1);
 					int yj = MathUtil.Clamp(y + j - half, 0, a.Height - 1);
 
-					dist = MathUtil.Min(dist, a[xi, yj] + b[x, y]);
+					dist = MathUtil.Min(dist, a[xi, yj] - b[x, y]);
 				}
 			}
 
