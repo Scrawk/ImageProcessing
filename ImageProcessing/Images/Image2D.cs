@@ -145,6 +145,17 @@ namespace ImageProcessing.Images
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="divisions"></param>
+        /// <returns></returns>
+        public int BlockSize(int divisions = 4)
+        {
+            if (divisions <= 0) divisions = 4;
+            return Math.Max(64, Math.Max(Width, Height) / divisions);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <param name="divisions"></param>

@@ -94,7 +94,7 @@ namespace ImageProcessing.Images
 					int xi = MathUtil.Clamp(x + i - half, 0, a.Width - 1);
 					int yj = MathUtil.Clamp(y + j - half, 0, a.Height - 1);
 
-					dist = MathUtil.Min(dist, a[xi, yj] - b[x, y]);
+					dist = MathUtil.Min(dist, a[xi, yj] + b[x, y]);
 				}
 			}
 

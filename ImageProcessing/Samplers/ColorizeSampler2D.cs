@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using Common.Core.Numerics;
 using Common.Core.Colors;
 using Common.Collections.Arrays;
+using ImageProcessing.Images;
 
-namespace ImageProcessing.Images
+namespace ImageProcessing.Samplers
 {
     public class ColorizeSampler2D<T> : ImageSampler2D
     {

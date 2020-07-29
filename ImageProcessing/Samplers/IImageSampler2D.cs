@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 
 using Common.Core.Colors;
+using ImageProcessing.Images;
 
-namespace ImageProcessing.Images
+namespace ImageProcessing.Samplers
 {
     public interface IImageSampler2D
     {

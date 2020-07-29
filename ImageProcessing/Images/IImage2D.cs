@@ -6,6 +6,8 @@ using Common.Core.Colors;
 using Common.Geometry.Shapes;
 using Common.Collections.Arrays;
 
+using ImageProcessing.Samplers;
+
 namespace ImageProcessing.Images
 {
     /// <summary>
