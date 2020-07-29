@@ -103,20 +103,25 @@ namespace ImageProcessing.Images
 			float sigma = (size-1) * 0.5f;
 			int center = (int)(3 * sigma);
 			float sigma2 = sigma * sigma;
+			float sum = 0;
 
 			var kernel = new FilterKernel2D(size, 1.0f);
 
-			for(int y = 0; y < size; y++)
+			kernel.Data.Fill((x, y) =>
 			{
-				for(int x = 0; x < size; x++)
-				{
-					float rx = center - x;
-					float ry = center - y;
-					float g = MathUtil.Exp(-0.5f * (rx*rx + ry*ry) / sigma2);
+				float rx = center - x;
+				float ry = center - y;
+				float g = MathUtil.Exp(-0.5f * (rx * rx + ry * ry) / sigma2);
 
-					kernel[x, y] = g;
-				}
-			}
+				sum += g;
+				return g;
+			});
+
+			kernel.Data.Fill((x, y) =>
+			{
+				return kernel[x, y] /= sum;
+			});
+
 
 			return kernel;
 		}
