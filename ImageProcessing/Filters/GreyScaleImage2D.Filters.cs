@@ -19,9 +19,9 @@ namespace ImageProcessing.Images
 			return Filter(k);
 		}
 
-		public GreyScaleImage2D GaussianBlur(int size)
+		public GreyScaleImage2D GaussianBlur(float sigma)
 		{
-			var k = FilterKernel2D.GaussianKernel(size);
+			var k = FilterKernel2D.GaussianKernel(sigma);
 			return Filter(k);
 		}
 

@@ -12,6 +12,18 @@ namespace ImageProcessing.Images
 	public partial class BinaryImage2D
 	{
 
+		public GreyScaleImage2D CityBlockDistance()
+        {
+			var e = StructureElement2D.CityBlockElement();
+			return Distance(e);
+		}
+
+		public GreyScaleImage2D ChessBoardDistance()
+		{
+			var e = StructureElement2D.ChessBoardElement();
+			return Distance(e);
+		}
+
 		public GreyScaleImage2D Distance(StructureElement2D b)
 		{
 			var image = new GreyScaleImage2D(Width, Height);
@@ -58,7 +70,7 @@ namespace ImageProcessing.Images
 					float d1 = MathUtil.Sqr(d4 - d8);
 					float d2 = MathUtil.Sqr(d8);
 
-					image[x, y] = MathUtil.Sqrt(d1 + d2);
+					image[x, y] = MathUtil.SafeSqrt(d1 + d2);
 				}
 			}
 
@@ -74,7 +86,7 @@ namespace ImageProcessing.Images
 					float d1 = MathUtil.Sqr(d4 - d8);
 					float d2 = MathUtil.Sqr(d8);
 
-					image[x, y] = MathUtil.Sqrt(d1 + d2);
+					image[x, y] = MathUtil.SafeSqrt(d1 + d2);
 				}
 			}
 
@@ -91,10 +103,15 @@ namespace ImageProcessing.Images
 			{
 				for (int x = 0; x < b.Size; x++)
 				{
-					int xi = MathUtil.Clamp(x + i - half, 0, a.Width - 1);
-					int yj = MathUtil.Clamp(y + j - half, 0, a.Height - 1);
+					int xi = x + i - half;
+					int yj = y + j - half;
 
-					dist = MathUtil.Min(dist, a[xi, yj] - b[x, y]);
+					float v = 0;
+
+					if (a.InBounds(xi, yj))
+						v = a[xi, yj];
+
+					dist = MathUtil.Min(dist, v - b[x, y]);
 				}
 			}
 

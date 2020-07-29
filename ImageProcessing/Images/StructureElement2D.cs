@@ -69,6 +69,24 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <returns></returns>
+		public override string ToString()
+		{
+			return string.Format("[StructureElement2D: Size={0}]", Size);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public StructureElement2D Copy()
+		{
+			return new StructureElement2D(Data);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
 		/// <param name="shape"></param>
 		/// <param name="center"></param>
 		public void Fill(IShape2f shape, bool center = true)
@@ -84,15 +102,6 @@ namespace ImageProcessing.Images
 						this[x, y] = 1;
 				}
 			}
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		public StructureElement2D Copy()
-		{
-			return new StructureElement2D(Data);
 		}
 
 		/// <summary>

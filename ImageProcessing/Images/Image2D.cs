@@ -145,6 +145,30 @@ namespace ImageProcessing.Images
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public bool InBounds(int x, int y)
+        {
+            if (x < 0 || x >= Width) return false;
+            if (y < 0 || y >= Height) return false;
+            return true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public bool NotInBounds(int x, int y)
+        {
+            return InBounds(x, y);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="divisions"></param>
         /// <returns></returns>
         public int BlockSize(int divisions = 4)

@@ -40,9 +40,9 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="size"></param>
 		/// <param name="data"></param>
-		private FilterKernel2D(float[,] data, float scale) 
+		private FilterKernel2D(float[,] data, float scale)
 		{
-			if(data.GetLength(0) != data.GetLength(1))
+			if (data.GetLength(0) != data.GetLength(1))
 				throw new Exception("Data array must be square.");
 
 			Size = data.GetLength(0);
@@ -72,10 +72,19 @@ namespace ImageProcessing.Images
 		/// <param name="y"></param>
 		/// <returns></returns>
 		public float this[int x, int y]
-        	{
+		{
 			get => Data[x, y];
 			set => Data[x, y] = value;
-        	}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString()
+		{
+			return string.Format("[FilterKernel2D: Size={0}, Scale={1}]", Size, Scale);
+		}
 
 		/// <summary>
 		/// 
@@ -94,14 +103,22 @@ namespace ImageProcessing.Images
 		public static FilterKernel2D BoxKernel(int size)
 		{
 			size = Math.Max(3, size);
-			return new FilterKernel2D(size, 1.0f / (size*size), 1.0f);
+			return new FilterKernel2D(size, 1.0f / (size * size), 1.0f);
 		}
 
-		public static FilterKernel2D GaussianKernel(int size)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="sigma"></param>
+		/// <returns></returns>
+		public static FilterKernel2D GaussianKernel(float sigma)
 		{
-			size = Math.Max(3, size);
-			float sigma = (size-1) * 0.5f;
-			int center = (int)(3 * sigma);
+			//sigma 0.5  == size 3
+			//sigma 0.75 == size 5
+			//sigma 1.0  == size 7
+
+			int center = (int)(sigma * 3);
+			int size = 2 * center + 1;
 			float sigma2 = sigma * sigma;
 			float sum = 0;
 
@@ -117,11 +134,7 @@ namespace ImageProcessing.Images
 				return g;
 			});
 
-			kernel.Data.Fill((x, y) =>
-			{
-				return kernel[x, y] /= sum;
-			});
-
+			kernel.Data.Fill((x, y) => kernel[x, y] / sum);
 
 			return kernel;
 		}
