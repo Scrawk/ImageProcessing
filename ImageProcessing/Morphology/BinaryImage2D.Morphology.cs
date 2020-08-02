@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Common.Core.Numerics;
 using Common.Core.Threading;
 
+using ImageProcessing.Pixels;
+
 namespace ImageProcessing.Images
 {
 	/// <summary>

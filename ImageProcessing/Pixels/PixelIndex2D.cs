@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Common.Core.Numerics;
 
-namespace ImageProcessing.Images
+namespace ImageProcessing.Pixels
 {
     public struct PixelIndex2D<T>
     {

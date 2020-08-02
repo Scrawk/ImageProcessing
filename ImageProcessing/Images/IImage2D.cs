@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 using Common.Core.Numerics;
 using Common.Core.Colors;
-using Common.Geometry.Shapes;
 using Common.Collections.Arrays;
 
 using ImageProcessing.Samplers;
+using ImageProcessing.Pixels;
 
 namespace ImageProcessing.Images
 {

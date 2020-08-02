@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 
 using Common.Core.Numerics;
-using Common.Core.Colors;
 using Common.Core.Directions;
 using Common.Collections.Sets;
 using Common.GraphTheory.AdjacencyGraphs;
+
+using ImageProcessing.Pixels;
 
 namespace ImageProcessing.Images
 {
@@ -19,9 +20,9 @@ namespace ImageProcessing.Images
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		public Dictionary<Vector2i, List<PixelIndex2D<bool>>> Segmentation()
+		public PixelSegmentation2D<bool> Segmentation()
         {
-			var segments = new Dictionary<Vector2i, List<PixelIndex2D<bool>>>();
+			var segmentation = new PixelSegmentation2D<bool>(this);
 
 			var set = new DisjointGridSet2(Width, Height);
 
@@ -60,73 +61,24 @@ namespace ImageProcessing.Images
 				{
 					if (!this[x, y]) continue;
 
-					var p = set.FindParent(x, y);
+					var root = set.FindParent(x, y);
+					var pixel = new PixelIndex2D<bool>(x, y, true);
 
-					List<PixelIndex2D<bool>> list;
-					if(!segments.TryGetValue(p, out list))
-                    {
-						list = new List<PixelIndex2D<bool>>();
-						segments.Add(p, list);
-                    }
-
-					list.Add(new PixelIndex2D<bool>(x, y, this[x, y]));
+					segmentation.AddPixel(root, pixel);
 				}
 			}
 
-
-			return segments;
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="keys"></param>
-		/// <returns></returns>
-		public static Dictionary<Vector2i, ColorRGB> SegmentationColors(int seed, IEnumerable<Vector2i> keys)
-        {
-			var rnd = new Random(seed);
-			var colors = new Dictionary<Vector2i, ColorRGB>();
-			
-			foreach(var p in keys)
-            {
-				colors.TryAdd(p, rnd.NextColorRGB());
-            }
-
-			return colors;
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="segmentation"></param>
-		/// <returns></returns>
-		public ColorImage2D ColorizeSegmentation(int seed, Dictionary<Vector2i, List<PixelIndex2D<bool>>> segmentation)
-        {
-			var colors = SegmentationColors(seed, segmentation.Keys);
-
-			var image = new ColorImage2D(Width, Height);
-
-			foreach (var kvp in segmentation)
-			{
-				var idx = kvp.Key;
-				var list = kvp.Value;
-				var color = colors[idx];
-
-				foreach (var p in list)
-					image[p.Index] = color;
-			}
-
-			return image;
+			return segmentation;
 		}
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		public GraphForest MinimumSpanningForest(Func<Vector2i, Vector2i, float> func = null)
+		public GraphForest MinimumSpanningForest(Func<Vector2i, Vector2i, float> weights = null)
         {
-			if (func == null)
-				func = (a, b) => (float)Vector2i.Distance(a, b);
+			if (weights == null)
+				weights = (a, b) => (float)Vector2i.Distance(a, b);
 
 			var pixels = ToPixelIndexList((v) => v == true);
 
@@ -157,7 +109,7 @@ namespace ImageProcessing.Images
 
 					if (table.TryGetValue(idx2, out int b) && !graph.ContainsEdge(a, b))
                     {
-						float weight = func(idx, idx2);
+						float weight = weights(idx, idx2);
 						graph.AddEdge(a, b, weight);
                     }
 				}
@@ -181,7 +133,7 @@ namespace ImageProcessing.Images
 				roots.Add(pixel.Index);
             }
 
-			var colors = SegmentationColors(seed, roots);
+			var colors = PixelSegmentation2D.SegmentationColors(seed, roots);
 			var pixels = new List<PixelIndex2D<bool>>();
 			var image = new ColorImage2D(Width, Height);
 
