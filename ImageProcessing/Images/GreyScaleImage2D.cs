@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 using Common.Core.Numerics;
 using Common.Core.Colors;
-using Common.Geometry.Shapes;
 
 namespace ImageProcessing.Images
 {

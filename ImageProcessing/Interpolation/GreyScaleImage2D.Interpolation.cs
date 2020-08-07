@@ -25,6 +25,11 @@ namespace ImageProcessing.Images
 			return Rescale(width, height, CubicInterpolation.Default);
 		}
 
+		public GreyScaleImage2D BSplineRescale(int width, int height)
+		{
+			return Rescale(width, height, SplineInterpolation.MitchellNetravli);
+		}
+
 		public GreyScaleImage2D Rescale(int width, int height, InterpolationFunction func)
 		{
 			var image = new GreyScaleImage2D(width, height);

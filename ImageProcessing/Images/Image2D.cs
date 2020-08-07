@@ -146,30 +146,6 @@ namespace ImageProcessing.Images
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        public bool InBounds(int x, int y)
-        {
-            if (x < 0 || x >= Width) return false;
-            if (y < 0 || y >= Height) return false;
-            return true;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        public bool NotInBounds(int x, int y)
-        {
-            return InBounds(x, y);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="divisions"></param>
         /// <returns></returns>
         public int BlockSize(int divisions = 4)
@@ -189,6 +165,27 @@ namespace ImageProcessing.Images
         {
             if (divisions <= 0) divisions = 4;
             return Math.Max(64, Math.Max(width, height) / divisions);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dest"></param>
+        public void CopyTo(Image2D<T> dest)
+        {
+            if (dest.Width != Width)
+                throw new ArgumentException("dest.Width != Width");
+
+            if (dest.Height != Height)
+                throw new ArgumentException("dest.Height != Height");
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    dest[x, y] = this[x, y];
+                }
+            }
         }
 
 
