@@ -146,6 +146,20 @@ namespace ImageProcessing.Images
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="points"></param>
+        /// <param name="value"></param>
+        public void Fill(IList<PixelIndex2D<T>> points, T value)
+        {
+            for (int i = 0; i < points.Count; i++)
+            {
+                var p = points[i];
+                this[p.Index] = value;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="divisions"></param>
         /// <returns></returns>
         public int BlockSize(int divisions = 4)

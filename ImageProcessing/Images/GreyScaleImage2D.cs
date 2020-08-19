@@ -144,6 +144,34 @@ namespace ImageProcessing.Images
         /// <param name="y"></param>
         /// <param name="w"></param>
         /// <returns></returns>
+        public Vector3f GetNormal(int x, int y, Vector2f w)
+        {
+            var d = GetFirstDerivative(x, y, w);
+            var n = new Vector3f(d.x, 1, d.y);
+            return n.Normalized;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="u"></param>
+        /// <param name="v"></param>
+        /// <param name="w"></param>
+        /// <returns></returns>
+        public Vector3f GetNormal(float u, float v, Vector2f w)
+        {
+            var d = GetFirstDerivative(u, v, w);
+            var n = new Vector3f(d.x, 1, d.y);
+            return n.Normalized;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="w"></param>
+        /// <returns></returns>
         public Vector2f GetFirstDerivative(int x, int y, Vector2f w)
         {
             float z1 = GetClamped(x - 1, y + 1);
@@ -267,6 +295,10 @@ namespace ImageProcessing.Images
             return (d1, d2);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public (float min, float max) MinMax()
         {
             float min = float.PositiveInfinity;
@@ -285,6 +317,9 @@ namespace ImageProcessing.Images
             return (min, max);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Normalize()
         {
             var minMax = MinMax();
