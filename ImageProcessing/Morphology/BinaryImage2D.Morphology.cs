@@ -54,8 +54,7 @@ namespace ImageProcessing.Images
 		{
 			var image = Copy();
 
-			int blockSize = BlockSize(Width, Height);
-			ThreadingBlock2D.ParallelAction(Width, Height, blockSize, (x, y) =>
+			ParallelIterate((x, y) =>
 			{
 				if (!this[x, y])
 					image[x, y] = Dilate(x, y, this, b);
@@ -106,8 +105,7 @@ namespace ImageProcessing.Images
 		{
 			var image = Copy();
 
-			int blockSize = BlockSize(Width, Height);
-			ThreadingBlock2D.ParallelAction(Width, Height, blockSize, (x, y) =>
+			ParallelIterate((x, y) =>
 			{
 				if (this[x, y])
 					image[x, y] = Erode(x, y, this, b);
@@ -265,8 +263,7 @@ namespace ImageProcessing.Images
 		{
 			var image = Copy();
 
-			int blockSize = BlockSize(Width, Height);
-			ThreadingBlock2D.ParallelAction(Width, Height, blockSize, (x, y) =>
+			ParallelIterate((x, y) =>
 			{
 				if (this[x, y])
 					image[x, y] = HitAndMiss(x, y, this, b);
@@ -285,8 +282,7 @@ namespace ImageProcessing.Images
 		{
 			var image = Copy();
 
-			int blockSize = BlockSize(Width, Height);
-			ThreadingBlock2D.ParallelAction(Width, Height, blockSize, (x, y) =>
+			ParallelIterate((x, y) =>
 			{
 				if (this[x, y])
 					image[x, y] = HitAndMiss4(x, y, this, b);
@@ -306,8 +302,7 @@ namespace ImageProcessing.Images
 		{
 			var image = Copy();
 
-			int blockSize = BlockSize(Width, Height);
-			ThreadingBlock2D.ParallelAction(Width, Height, blockSize, (x, y) =>
+			ParallelIterate((x, y) =>
 			{
 				if (this[x, y])
 					image[x, y] = HitAndMiss4(x, y, this, b, c);

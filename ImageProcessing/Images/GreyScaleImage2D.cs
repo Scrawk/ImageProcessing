@@ -324,12 +324,28 @@ namespace ImageProcessing.Images
         {
             var minMax = MinMax();
 
-            int blockSize = BlockSize(Width, Height);
-            ParallelModify(blockSize, (v) =>
+            ParallelModify((v) =>
             {
                 v = MathUtil.Normalize(v, minMax.min, minMax.max);
                 return MathUtil.Clamp01(v);
             });
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public float Sum()
+        {
+            float sum = 0;
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    sum += this[x, y];
+                }
+            }
+
+            return sum;
         }
 
     }

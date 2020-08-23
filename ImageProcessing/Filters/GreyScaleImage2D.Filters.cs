@@ -29,8 +29,7 @@ namespace ImageProcessing.Images
 		{
 			var image = new GreyScaleImage2D(Width, Height);
 
-			int blockSize = BlockSize(Width, Height);
-			image.ParallelFill(blockSize, (x, y) =>
+			image.ParallelFill((x, y) =>
 			{
 				return Filter(x, y, this, k) * k.Scale;
 			});
@@ -61,7 +60,7 @@ namespace ImageProcessing.Images
 		{
 			var image = new GreyScaleImage2D(Width, Height);
 
-			int blockSize = BlockSize(Width, Height);
+			int blockSize = BlockSize();
 			var blocks = ThreadingBlock2D.CreateBlocks(Width, Height, blockSize);
 			Parallel.ForEach(blocks, (block) =>
 			{
