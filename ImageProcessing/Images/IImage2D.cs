@@ -26,8 +26,5 @@ namespace ImageProcessing.Images
 
         void SetPixel(int x, int y, ColorRGB pixel);
 
-        List<PixelIndex2D<T>> ToPixelIndexList(Func<T, bool> predicate);
-
-        void Fill(IList<PixelIndex2D<T>> points);
     }
 }

@@ -66,13 +66,13 @@ namespace ImageProcessing.Samplers
             }
 
             if (NonNegative)
-                return m_gradient.GetBilinear01(v);
+                return m_gradient.GetClamped(v);
             else
             {
                 if (v > 0)
-                    return m_posGradient.GetBilinear01(v);
+                    return m_posGradient.GetClamped(v);
                 else
-                    return m_negGradient.GetBilinear01(-v);
+                    return m_negGradient.GetClamped(-v);
             }
         }
 

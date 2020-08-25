@@ -17,8 +17,8 @@ namespace ImageProcessing.Images
 
 		public float GetInterpolatedValue(float u, float v, InterpolationFunction func)
 		{
-			float x = u * Width;
-			float y = v * Height;
+			float x = u * (Width - 1);
+			float y = v * (Height - 1);
 			int n = func.Size;
 			int N = 2 * n - 1;
 
@@ -43,8 +43,8 @@ namespace ImageProcessing.Images
 
 		public ColorRGB GetInterpolatedPixel(float u, float v, InterpolationFunction func)
 		{
-			float x = u * Width;
-			float y = v * Height;
+			float x = u * (Width - 1);
+			float y = v * (Height - 1);
 			int n = func.Size;
 			int N = 2 * n - 1;
 

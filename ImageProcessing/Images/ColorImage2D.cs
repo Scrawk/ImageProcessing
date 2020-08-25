@@ -102,8 +102,8 @@ namespace ImageProcessing.Images
         /// </summary>
         public override ColorRGB GetPixel(float u, float v)
         {
-            float x = u * Width;
-            float y = v * Height;
+            float x = u * (Width-1);
+            float y = v * (Height-1);
 
             int xi = (int)x;
             int yi = (int)y;
