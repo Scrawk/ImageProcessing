@@ -164,7 +164,8 @@ namespace ImageProcessing.Images
 
 			//Get all the points in image with a true value.
 			//Only these pixels need to be iterated.
-			var points = image.ToPixelIndexList((v) => v == true);
+			var points = new List<PixelIndex2D<bool>>();
+			image.ToPixelIndexList(points, (v) => v == true);
 
 			for (int i = 0; i < iterations; i++)
 			{

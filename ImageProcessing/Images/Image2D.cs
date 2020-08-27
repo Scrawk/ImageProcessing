@@ -113,42 +113,34 @@ namespace ImageProcessing.Images
         /// 
         /// </summary>
         /// <returns></returns>
-        public List<Vector2i> ToIndexList(Func<T, bool> predicate)
+        public void ToIndexList(List<Vector2i> list, Func<T, bool> predicate)
         {
-            var pixel = new List<Vector2i>();
-
             for (int y = 0; y < Height; y++)
             {
                 for (int x = 0; x < Width; x++)
                 {
                     var v = this[x, y];
                     if (predicate(v))
-                        pixel.Add(new Vector2i(x, y));
+                        list.Add(new Vector2i(x, y));
                 }
             }
-
-            return pixel;
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public List<PixelIndex2D<T>> ToPixelIndexList(Func<T, bool> predicate)
+        public void ToPixelIndexList(List<PixelIndex2D<T>>  list, Func<T, bool> predicate)
         {
-            var pixel = new List<PixelIndex2D<T>>();
-
             for (int y = 0; y < Height; y++)
             {
                 for (int x = 0; x < Width; x++)
                 {
                     var v = this[x, y];
                     if (predicate(v))
-                        pixel.Add(new PixelIndex2D<T>(x, y, v));
+                        list.Add(new PixelIndex2D<T>(x, y, v));
                 }
             }
-
-            return pixel;
         }
 
         /// <summary>

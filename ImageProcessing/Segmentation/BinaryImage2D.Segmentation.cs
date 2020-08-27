@@ -80,7 +80,8 @@ namespace ImageProcessing.Images
 			if (weights == null)
 				weights = (a, b) => (float)Vector2i.Distance(a, b);
 
-			var pixels = ToPixelIndexList((v) => v == true);
+			var pixels = new List<Vector2i>();
+			ToIndexList(pixels, (v) => v == true);
 
 			var table = new Dictionary<Vector2i, int>();
 			var graph = new UndirectedGraph(pixels.Count);
@@ -89,19 +90,18 @@ namespace ImageProcessing.Images
 				var pixel = pixels[i];
 
 				graph.Vertices[i].Data = pixel;
-				table.Add(pixel.Index, i);
+				table.Add(pixel, i);
 			}
 			
 			for (int j = 0; j < pixels.Count; j++)
             {
 				var pixel = pixels[j];
 				var a = graph.Vertices[j].Index;
-				var idx = pixel.Index;
 
 				for (int i = 0; i < 8; i++)
 				{
-					int xi = idx.x + D8.OFFSETS[i, 0];
-					int yi = idx.y + D8.OFFSETS[i, 1];
+					int xi = pixel.x + D8.OFFSETS[i, 0];
+					int yi = pixel.y + D8.OFFSETS[i, 1];
 
 					if (xi < 0 || xi >= Width) continue;
 					if (yi < 0 || yi >= Height) continue;
@@ -109,7 +109,7 @@ namespace ImageProcessing.Images
 
 					if (table.TryGetValue(idx2, out int b) && !graph.ContainsEdge(a, b))
                     {
-						float weight = weights(idx, idx2);
+						float weight = weights(pixel, idx2);
 						graph.AddEdge(a, b, weight);
                     }
 				}
