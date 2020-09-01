@@ -74,15 +74,20 @@ namespace ImageProcessing.Images
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public override float GetValue(int x, int y)
+        public override float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return GetClamped(x, y) ? 1 : 0;
+            if (mode == WRAP_MODE.CLAMP)
+                return GetClamped(x, y) ? 1 : 0;
+            else if (mode == WRAP_MODE.WRAP)
+                return GetWrapped(x, y) ? 1 : 0;
+            else
+                return GetMirrored(x, y) ? 1 : 0;
         }
 
         /// <summary>
-        /// Sample the image by clamped bilinear interpolation.
+        /// Sample the image by bilinear interpolation.
         /// </summary>
-        public override float GetValue(float u, float v)
+        public override float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float x = u * (Width-1);
             float y = v * (Height-1);
@@ -90,10 +95,10 @@ namespace ImageProcessing.Images
             int xi = (int)x;
             int yi = (int)y;
 
-            var v00 = GetValue(xi, yi);
-            var v10 = GetValue(xi + 1, yi);
-            var v01 = GetValue(xi, yi + 1);
-            var v11 = GetValue(xi + 1, yi + 1);
+            var v00 = GetValue(xi, yi, mode);
+            var v10 = GetValue(xi + 1, yi, mode);
+            var v01 = GetValue(xi, yi + 1, mode);
+            var v11 = GetValue(xi + 1, yi + 1, mode);
 
             return MathUtil.Blerp(v00, v10, v01, v11, x - xi, y - yi);
         }
@@ -104,9 +109,9 @@ namespace ImageProcessing.Images
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public override ColorRGB GetPixel(int x, int y)
+        public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            var value = GetValue(x, y);
+            var value = GetValue(x, y, mode);
             return new ColorRGB(value);
         }
 
@@ -116,9 +121,9 @@ namespace ImageProcessing.Images
         /// <param name="u"></param>
         /// <param name="v"></param>
         /// <returns></returns>
-        public override ColorRGB GetPixel(float u, float v)
+        public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            var value = GetValue(u, v);
+            var value = GetValue(u, v, mode);
             return new ColorRGB(value);
         }
 

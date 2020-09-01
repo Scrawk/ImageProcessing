@@ -139,6 +139,41 @@ namespace ImageProcessing.Images
 			return kernel;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public static FilterKernel2D SharpenKernel()
+		{
+			float[,] data = new float[,]
+			{
+				{0,-1,0},
+				{-1,5,-1},
+				{0,-1,0}
+			};
+
+			return new FilterKernel2D(data, 1.0f);
+		}
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public static FilterKernel2D UnsharpenKernel()
+		{
+			float[,] data = new float[,]
+			{
+				{1,4,6,4,1},
+				{4,16,24,16,4},
+				{6,24,-476,24,6},
+				{4,16,24,16,4},
+				{1,4,6,4,1}
+			};
+
+			return new FilterKernel2D(data, -1.0f / 256.0f);
+		}
+
 	}
 
 }

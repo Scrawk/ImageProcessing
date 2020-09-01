@@ -12,19 +12,53 @@ namespace ImageProcessing.Images
 	/// </summary>
 	public partial class GreyScaleImage2D
 	{
-
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="size"></param>
+		/// <returns></returns>
 		public GreyScaleImage2D BoxBlur(int size)
 		{
 			var k = FilterKernel2D.BoxKernel(size);
 			return Filter(k);
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="sigma"></param>
+		/// <returns></returns>
 		public GreyScaleImage2D GaussianBlur(float sigma)
 		{
 			var k = FilterKernel2D.GaussianKernel(sigma);
 			return Filter(k);
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public GreyScaleImage2D SharpenFilter()
+		{
+			var k = FilterKernel2D.SharpenKernel();
+			return Filter(k);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public GreyScaleImage2D UnsharpenFilter()
+		{
+			var k = FilterKernel2D.UnsharpenKernel();
+			return Filter(k);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="k"></param>
+		/// <returns></returns>
 		public GreyScaleImage2D Filter(FilterKernel2D k)
 		{
 			var image = new GreyScaleImage2D(Width, Height);
@@ -37,6 +71,14 @@ namespace ImageProcessing.Images
 			return image;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="i"></param>
+		/// <param name="j"></param>
+		/// <param name="a"></param>
+		/// <param name="k"></param>
+		/// <returns></returns>
 		private static float Filter(int i, int j, GreyScaleImage2D a, FilterKernel2D k)
 		{
 			int half = k.Size / 2;
@@ -56,6 +98,11 @@ namespace ImageProcessing.Images
 			return sum;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="size"></param>
+		/// <returns></returns>
 		public GreyScaleImage2D MedianFilter(int size)
 		{
 			var image = new GreyScaleImage2D(Width, Height);
@@ -91,6 +138,14 @@ namespace ImageProcessing.Images
 			return image;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="i"></param>
+		/// <param name="j"></param>
+		/// <param name="a"></param>
+		/// <param name="list"></param>
+		/// <param name="size"></param>
 		private static void GetValues(int i, int j, GreyScaleImage2D a, List<float> list, int size)
 		{
 			int half = size / 2;

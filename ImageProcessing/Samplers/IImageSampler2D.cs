@@ -8,8 +8,8 @@ namespace ImageProcessing.Samplers
 {
     public interface IImageSampler2D
     {
-        ColorRGB GetPixel(int x, int y);
+        ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
-        ColorRGB GetPixel(float u, float v);
+        ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
     }
 }

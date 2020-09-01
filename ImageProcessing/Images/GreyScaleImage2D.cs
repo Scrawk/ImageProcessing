@@ -69,15 +69,20 @@ namespace ImageProcessing.Images
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public override float GetValue(int x, int y)
+        public override float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return GetClamped(x, y);
+            if(mode == WRAP_MODE.CLAMP)
+                return GetClamped(x, y);
+            else if (mode == WRAP_MODE.WRAP)
+                return GetWrapped(x, y);
+            else
+                return GetMirrored(x, y);
         }
 
         /// <summary>
-        /// Sample the image by clamped bilinear interpolation.
+        /// Sample the image by bilinear interpolation.
         /// </summary>
-        public override float GetValue(float u, float v)
+        public override float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float x = u * (Width-1);
             float y = v * (Height-1);
@@ -85,10 +90,29 @@ namespace ImageProcessing.Images
             int xi = (int)x;
             int yi = (int)y;
 
-            var v00 = GetClamped(xi, yi);
-            var v10 = GetClamped(xi + 1, yi);
-            var v01 = GetClamped(xi, yi + 1);
-            var v11 = GetClamped(xi + 1, yi + 1);
+            float v00, v10, v01, v11;
+
+            if (mode == WRAP_MODE.CLAMP)
+            {
+                v00 = GetClamped(xi, yi);
+                v10 = GetClamped(xi + 1, yi);
+                v01 = GetClamped(xi, yi + 1);
+                v11 = GetClamped(xi + 1, yi + 1);
+            }
+            else if (mode == WRAP_MODE.WRAP)
+            {
+                v00 = GetWrapped(xi, yi);
+                v10 = GetWrapped(xi + 1, yi);
+                v01 = GetWrapped(xi, yi + 1);
+                v11 = GetWrapped(xi + 1, yi + 1);
+            }
+            else
+            {
+                v00 = GetMirrored(xi, yi);
+                v10 = GetMirrored(xi + 1, yi);
+                v01 = GetMirrored(xi, yi + 1);
+                v11 = GetMirrored(xi + 1, yi + 1);
+            }
 
             return MathUtil.Blerp(v00, v10, v01, v11, x - xi, y - yi);
         }
@@ -99,9 +123,9 @@ namespace ImageProcessing.Images
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public override ColorRGB GetPixel(int x, int y)
+        public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            var value = GetClamped(x, y);
+            float value = GetValue(x, y, mode);
             return new ColorRGB(value);
         }
 
@@ -111,9 +135,9 @@ namespace ImageProcessing.Images
         /// <param name="u"></param>
         /// <param name="v"></param>
         /// <returns></returns>
-        public override ColorRGB GetPixel(float u, float v)
+        public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            var value = GetValue(u, v);
+            var value = GetValue(u, v, mode);
             return new ColorRGB(value);
         }
 
@@ -144,9 +168,9 @@ namespace ImageProcessing.Images
         /// <param name="y"></param>
         /// <param name="w"></param>
         /// <returns></returns>
-        public Vector3f GetNormal(int x, int y, Vector2f w)
+        public Vector3f GetNormal(int x, int y, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            var d = GetFirstDerivative(x, y, w);
+            var d = GetFirstDerivative(x, y, w, mode);
             var n = new Vector3f(d.x, 1, d.y);
             return n.Normalized;
         }
@@ -158,9 +182,9 @@ namespace ImageProcessing.Images
         /// <param name="v"></param>
         /// <param name="w"></param>
         /// <returns></returns>
-        public Vector3f GetNormal(float u, float v, Vector2f w)
+        public Vector3f GetNormal(float u, float v, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            var d = GetFirstDerivative(u, v, w);
+            var d = GetFirstDerivative(u, v, w, mode);
             var n = new Vector3f(d.x, 1, d.y);
             return n.Normalized;
         }
@@ -172,16 +196,16 @@ namespace ImageProcessing.Images
         /// <param name="y"></param>
         /// <param name="w"></param>
         /// <returns></returns>
-        public Vector2f GetFirstDerivative(int x, int y, Vector2f w)
+        public Vector2f GetFirstDerivative(int x, int y, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            float z1 = GetClamped(x - 1, y + 1);
-            float z2 = GetClamped(x + 0, y + 1);
-            float z3 = GetClamped(x + 1, y + 1);
-            float z4 = GetClamped(x - 1, y + 0);
-            float z6 = GetClamped(x + 1, y + 0);
-            float z7 = GetClamped(x - 1, y - 1);
-            float z8 = GetClamped(x + 0, y - 1);
-            float z9 = GetClamped(x + 1, y - 1);
+            float z1 = GetValue(x - 1, y + 1, mode);
+            float z2 = GetValue(x + 0, y + 1, mode);
+            float z3 = GetValue(x + 1, y + 1, mode);
+            float z4 = GetValue(x - 1, y + 0, mode);
+            float z6 = GetValue(x + 1, y + 0, mode);
+            float z7 = GetValue(x - 1, y - 1, mode);
+            float z8 = GetValue(x + 0, y - 1, mode);
+            float z9 = GetValue(x + 1, y - 1, mode);
 
             //p, q
             float zx = (z3 + z6 + z9 - z1 - z4 - z7) / (6.0f * w.x);
@@ -197,18 +221,18 @@ namespace ImageProcessing.Images
         /// <param name="v"></param>
         /// <param name="w"></param>
         /// <returns></returns>
-        public Vector2f GetFirstDerivative(float u, float v, Vector2f w)
+        public Vector2f GetFirstDerivative(float u, float v, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float x1 = 1.0f / Width;
             float y1 = 1.0f / Height;
-            float z1 = GetValue(u - x1, v + y1);
-            float z2 = GetValue(u +  0, v + y1);
-            float z3 = GetValue(u + x1, v + y1);
-            float z4 = GetValue(u - x1, v +  0);
-            float z6 = GetValue(u + x1, v +  0);
-            float z7 = GetValue(u - x1, v - y1);
-            float z8 = GetValue(u +  0, v - y1);
-            float z9 = GetValue(u + x1, v - y1);
+            float z1 = GetValue(u - x1, v + y1, mode);
+            float z2 = GetValue(u +  0, v + y1, mode);
+            float z3 = GetValue(u + x1, v + y1, mode);
+            float z4 = GetValue(u - x1, v +  0, mode);
+            float z6 = GetValue(u + x1, v +  0, mode);
+            float z7 = GetValue(u - x1, v - y1, mode);
+            float z8 = GetValue(u +  0, v - y1, mode);
+            float z9 = GetValue(u + x1, v - y1, mode);
 
             //p, q
             float zx = (z3 + z6 + z9 - z1 - z4 - z7) / (6.0f * w.x);
@@ -225,20 +249,20 @@ namespace ImageProcessing.Images
         /// <param name="w"></param>
         /// <param name="d1"></param>
         /// <param name="d2"></param>
-        public (Vector2f d1, Vector3f d2) GetFirstAndSecondDerivative(int x, int y, Vector2f w)
+        public (Vector2f d1, Vector3f d2) GetFirstAndSecondDerivative(int x, int y, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float wx2 = w.x * w.x;
             float wy2 = w.y * w.y;
             float wxy2 = w.SqrMagnitude;
-            float z1 = GetClamped(x - 1, y + 1);
-            float z2 = GetClamped(x + 0, y + 1);
-            float z3 = GetClamped(x + 1, y + 1);
-            float z4 = GetClamped(x - 1, y + 0);
-            float z5 = GetClamped(x + 0, y + 0);
-            float z6 = GetClamped(x + 1, y + 0);
-            float z7 = GetClamped(x - 1, y - 1);
-            float z8 = GetClamped(x + 0, y - 1);
-            float z9 = GetClamped(x + 1, y - 1);
+            float z1 = GetValue(x - 1, y + 1, mode);
+            float z2 = GetValue(x + 0, y + 1, mode);
+            float z3 = GetValue(x + 1, y + 1, mode);
+            float z4 = GetValue(x - 1, y + 0, mode);
+            float z5 = GetValue(x + 0, y + 0, mode);
+            float z6 = GetValue(x + 1, y + 0, mode);
+            float z7 = GetValue(x - 1, y - 1, mode);
+            float z8 = GetValue(x + 0, y - 1, mode);
+            float z9 = GetValue(x + 1, y - 1, mode);
 
             //p, q
             float zx = (z3 + z6 + z9 - z1 - z4 - z7) / (6.0f * w.x);
@@ -263,22 +287,22 @@ namespace ImageProcessing.Images
         /// <param name="w"></param>
         /// <param name="d1"></param>
         /// <param name="d2"></param>
-        public (Vector2f d1, Vector3f d2) GetFirstAndSecondDerivative(float u, float v, Vector2f w)
+        public (Vector2f d1, Vector3f d2) GetFirstAndSecondDerivative(float u, float v, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float x1 = 1.0f / Width;
             float y1 = 1.0f / Height;
             float wx2 = w.x * w.x;
             float wy2 = w.y * w.y;
             float wxy2 = w.SqrMagnitude;
-            float z1 = GetValue(u - x1, v + y1);
-            float z2 = GetValue(u +  0, v + y1);
-            float z3 = GetValue(u + x1, v + y1);
-            float z4 = GetValue(u - x1, v +  0);
-            float z5 = GetValue(u +  0, v +  0);
-            float z6 = GetValue(u + x1, v +  0);
-            float z7 = GetValue(u - x1, v - y1);
-            float z8 = GetValue(u +  0, v - y1);
-            float z9 = GetValue(u + x1, v - y1);
+            float z1 = GetValue(u - x1, v + y1, mode);
+            float z2 = GetValue(u +  0, v + y1, mode);
+            float z3 = GetValue(u + x1, v + y1, mode);
+            float z4 = GetValue(u - x1, v +  0, mode);
+            float z5 = GetValue(u +  0, v +  0, mode);
+            float z6 = GetValue(u + x1, v +  0, mode);
+            float z7 = GetValue(u - x1, v - y1, mode);
+            float z8 = GetValue(u +  0, v - y1, mode);
+            float z9 = GetValue(u + x1, v - y1, mode);
 
             //p, q
             float zx = (z3 + z6 + z9 - z1 - z4 - z7) / (6.0f * w.x);

@@ -70,9 +70,9 @@ namespace ImageProcessing.Images
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public override float GetValue(int x, int y)
+        public override float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return GetPixel(x, y).Intensity;
+            return GetPixel(x, y, mode).Intensity;
         }
 
         /// <summary>
@@ -81,9 +81,9 @@ namespace ImageProcessing.Images
         /// <param name="u"></param>
         /// <param name="v"></param>
         /// <returns></returns>
-        public override float GetValue(float u, float v)
+        public override float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return GetPixel(u, v).Intensity;
+            return GetPixel(u, v, mode).Intensity;
         }
 
         /// <summary>
@@ -92,15 +92,15 @@ namespace ImageProcessing.Images
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public override ColorRGB GetPixel(int x, int y)
+        public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return GetClamped(x, y);
+            return GetPixel(x, y, mode);
         }
 
         /// <summary>
-        /// Sample the image by clamped bilinear interpolation.
+        /// Sample the image by bilinear interpolation.
         /// </summary>
-        public override ColorRGB GetPixel(float u, float v)
+        public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float x = u * (Width-1);
             float y = v * (Height-1);
@@ -108,10 +108,29 @@ namespace ImageProcessing.Images
             int xi = (int)x;
             int yi = (int)y;
 
-            var v00 = GetClamped(xi, yi);
-            var v10 = GetClamped(xi + 1, yi);
-            var v01 = GetClamped(xi, yi + 1);
-            var v11 = GetClamped(xi + 1, yi + 1);
+            ColorRGB v00, v10, v01, v11;
+
+            if (mode == WRAP_MODE.CLAMP)
+            {
+                v00 = GetClamped(xi, yi);
+                v10 = GetClamped(xi + 1, yi);
+                v01 = GetClamped(xi, yi + 1);
+                v11 = GetClamped(xi + 1, yi + 1);
+            }
+            else if (mode == WRAP_MODE.WRAP)
+            {
+                v00 = GetWrapped(xi, yi);
+                v10 = GetWrapped(xi + 1, yi);
+                v01 = GetWrapped(xi, yi + 1);
+                v11 = GetWrapped(xi + 1, yi + 1);
+            }
+            else
+            {
+                v00 = GetMirrored(xi, yi);
+                v10 = GetMirrored(xi + 1, yi);
+                v01 = GetMirrored(xi, yi + 1);
+                v11 = GetMirrored(xi + 1, yi + 1);
+            }
 
             var col = new ColorRGB();
             col.r = MathUtil.Blerp(v00.r, v10.r, v01.r, v11.r, x - xi, y - yi);

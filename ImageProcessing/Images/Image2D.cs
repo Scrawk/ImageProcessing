@@ -75,7 +75,7 @@ namespace ImageProcessing.Images
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public abstract float GetValue(int x, int y);
+        public abstract float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
         /// 
@@ -83,7 +83,7 @@ namespace ImageProcessing.Images
         /// <param name="u"></param>
         /// <param name="v"></param>
         /// <returns></returns>
-        public abstract float GetValue(float u, float v);
+        public abstract float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
         /// 
@@ -91,7 +91,7 @@ namespace ImageProcessing.Images
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public abstract ColorRGB GetPixel(int x, int y);
+        public abstract ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
         /// 
@@ -99,7 +99,7 @@ namespace ImageProcessing.Images
         /// <param name="u"></param>
         /// <param name="v"></param>
         /// <returns></returns>
-        public abstract ColorRGB GetPixel(float u, float v);
+        public abstract ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
         /// 
