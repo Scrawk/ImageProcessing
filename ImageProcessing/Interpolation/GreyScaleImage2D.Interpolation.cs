@@ -14,22 +14,46 @@ namespace ImageProcessing.Images
 	/// </summary>
 	public partial class GreyScaleImage2D
 	{
-
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
+		/// <returns></returns>
 		public GreyScaleImage2D BilinearRescale(int width, int height)
 		{
 			return Rescale(width, height, LinearInterpolation.Default);
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
+		/// <returns></returns>
 		public GreyScaleImage2D BicubicRescale(int width, int height)
 		{
 			return Rescale(width, height, CubicInterpolation.Default);
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
+		/// <returns></returns>
 		public GreyScaleImage2D BSplineRescale(int width, int height)
 		{
 			return Rescale(width, height, SplineInterpolation.MitchellNetravli);
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
+		/// <param name="func"></param>
+		/// <returns></returns>
 		public GreyScaleImage2D Rescale(int width, int height, InterpolationFunction func)
 		{
 			var image = new GreyScaleImage2D(width, height);
