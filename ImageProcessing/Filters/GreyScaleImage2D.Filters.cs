@@ -17,10 +17,11 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		public GreyScaleImage2D BoxBlur(int size)
+		public static GreyScaleImage2D BoxBlur(GreyScaleImage2D image, int size)
 		{
 			var k = FilterKernel2D.BoxKernel(size);
-			return Filter(k);
+			var image2 = new GreyScaleImage2D(image.Size);
+			return Filter(image2, k);
 		}
 
 		/// <summary>
@@ -28,30 +29,33 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="sigma"></param>
 		/// <returns></returns>
-		public GreyScaleImage2D GaussianBlur(float sigma)
+		public static GreyScaleImage2D GaussianBlur(GreyScaleImage2D image, float sigma)
 		{
 			var k = FilterKernel2D.GaussianKernel(sigma);
-			return Filter(k);
+			var image2 = new GreyScaleImage2D(image.Size);
+			return Filter(image2, k);
 		}
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		public GreyScaleImage2D SharpenFilter()
+		public static GreyScaleImage2D SharpenFilter(GreyScaleImage2D image)
 		{
 			var k = FilterKernel2D.SharpenKernel();
-			return Filter(k);
+			var image2 = new GreyScaleImage2D(image.Size);
+			return Filter(image2, k);
 		}
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		public GreyScaleImage2D UnsharpenFilter()
+		public static GreyScaleImage2D UnsharpenFilter(GreyScaleImage2D image)
 		{
 			var k = FilterKernel2D.UnsharpenKernel();
-			return Filter(k);
+			var image2 = new GreyScaleImage2D(image.Size);
+			return Filter(image2, k);
 		}
 
 		/// <summary>
@@ -59,16 +63,16 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="k"></param>
 		/// <returns></returns>
-		public GreyScaleImage2D Filter(FilterKernel2D k)
+		public static GreyScaleImage2D Filter(GreyScaleImage2D image, FilterKernel2D k)
 		{
-			var image = new GreyScaleImage2D(Width, Height);
+			var image2 = new GreyScaleImage2D(image.Size);
 
-			image.ParallelFill((x, y) =>
+			image2.ParallelFill((x, y) =>
 			{
-				return Filter(x, y, this, k) * k.Scale;
+				return Filter(x, y, image, k) * k.Scale;
 			});
 
-			return image;
+			return image2;
 		}
 
 		/// <summary>
@@ -76,10 +80,10 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="i"></param>
 		/// <param name="j"></param>
-		/// <param name="a"></param>
+		/// <param name="image"></param>
 		/// <param name="k"></param>
 		/// <returns></returns>
-		private static float Filter(int i, int j, GreyScaleImage2D a, FilterKernel2D k)
+		private static float Filter(int i, int j, GreyScaleImage2D image, FilterKernel2D k)
 		{
 			int half = k.Size / 2;
 
@@ -88,10 +92,10 @@ namespace ImageProcessing.Images
 			{
 				for (int x = 0; x < k.Size; x++)
 				{
-					int xi = MathUtil.Clamp(x + i - half, 0, a.Width - 1);
-					int yj = MathUtil.Clamp(y + j - half, 0, a.Height - 1);
+					int xi = MathUtil.Clamp(x + i - half, 0, image.Width - 1);
+					int yj = MathUtil.Clamp(y + j - half, 0, image.Height - 1);
 
-					sum += a[xi, yj] * k[x, y];
+					sum += image[xi, yj] * k[x, y];
 				}
 			}
 
@@ -103,12 +107,12 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="size"></param>
 		/// <returns></returns>
-		public GreyScaleImage2D MedianFilter(int size)
+		public static GreyScaleImage2D MedianFilter(GreyScaleImage2D image, int size)
 		{
-			var image = new GreyScaleImage2D(Width, Height);
+			var image2 = new GreyScaleImage2D(image.Size);
 
-			int blockSize = BlockSize();
-			var blocks = ThreadingBlock2D.CreateBlocks(Width, Height, blockSize);
+			int blockSize = image2.BlockSize();
+			var blocks = ThreadingBlock2D.CreateBlocks(image2.Width, image2.Height, blockSize);
 			Parallel.ForEach(blocks, (block) =>
 			{
 				var list = new List<float>(size * size);
@@ -118,24 +122,24 @@ namespace ImageProcessing.Images
 					for (int x = block.Min.x; x < block.Max.x; x++)
 					{
 						list.Clear();
-						GetValues(x, y, this, list, size);
+						GetValues(x, y, image2, list, size);
 
 						list.Sort();
 						int count = list.Count;
 
 						if (count % 2 != 0)
-							image[x, y] = list[count / 2];
+							image2[x, y] = list[count / 2];
 						else
 						{
 							float v0 = list[count / 2 - 1];
 							float v1 = list[count / 2];
-							image[x, y] = (v0 + v1) * 0.5f;
+							image2[x, y] = (v0 + v1) * 0.5f;
 						}
 					}
 				}
 			});
 
-			return image;
+			return image2;
 		}
 
 		/// <summary>
@@ -143,10 +147,10 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="i"></param>
 		/// <param name="j"></param>
-		/// <param name="a"></param>
+		/// <param name="image"></param>
 		/// <param name="list"></param>
 		/// <param name="size"></param>
-		private static void GetValues(int i, int j, GreyScaleImage2D a, List<float> list, int size)
+		private static void GetValues(int i, int j, GreyScaleImage2D image, List<float> list, int size)
 		{
 			int half = size / 2;
 
@@ -157,10 +161,8 @@ namespace ImageProcessing.Images
 					int xi = x + i - half;
 					int yj = y + j - half;
 
-					if (xi < 0 || xi >= a.Width) continue;
-					if (yj < 0 || yj >= a.Height) continue;
-
-					list.Add(a[xi, yj]);
+					if (image.InBounds(xi, yj))
+						list.Add(image[xi, yj]);
 				}
 			}
 

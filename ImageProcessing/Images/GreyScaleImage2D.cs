@@ -11,6 +11,16 @@ namespace ImageProcessing.Images
     /// </summary>
     public partial class GreyScaleImage2D : Image2D<float>
     {
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public GreyScaleImage2D()
+             : base(0, 0)
+        {
+
+        }
+
         /// <summary>
         /// 
         /// </summary>

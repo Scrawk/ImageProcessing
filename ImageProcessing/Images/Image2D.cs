@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Common.Core.Numerics;
 using Common.Core.Colors;
 using Common.Collections.Arrays;
+using Common.Geometry.Shapes;
 
 using ImageProcessing.Pixels;
 
@@ -59,6 +60,16 @@ namespace ImageProcessing.Images
         {
 
         }
+
+        /// <summary>
+        /// The size of the image as a vector.
+        /// </summary>
+        public Vector2i Size => new Vector2i(Width, Height);
+
+        /// <summary>
+        /// The size of the image as a box.
+        /// </summary>
+        public Box2i Bounds => new Box2i((0, 0), Size);
 
         /// <summary>
         /// 

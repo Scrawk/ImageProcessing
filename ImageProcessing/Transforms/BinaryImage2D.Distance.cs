@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 
 using Common.Core.Numerics;
-using Common.Core.Threading;
 
 namespace ImageProcessing.Images
 {
@@ -12,85 +11,85 @@ namespace ImageProcessing.Images
 	public partial class BinaryImage2D
 	{
 
-		public GreyScaleImage2D CityBlockDistance()
+		public static GreyScaleImage2D CityBlockDistance(BinaryImage2D image)
         {
 			var e = StructureElement2D.CityBlockElement();
-			return Distance(e);
+			return Distance(image, e);
 		}
 
-		public GreyScaleImage2D ChessBoardDistance()
+		public static GreyScaleImage2D ChessBoardDistance(BinaryImage2D image)
 		{
 			var e = StructureElement2D.ChessBoardElement();
-			return Distance(e);
+			return Distance(image, e);
 		}
 
-		public GreyScaleImage2D Distance(StructureElement2D b)
+		public static GreyScaleImage2D Distance(BinaryImage2D image, StructureElement2D b)
 		{
-			var image = new GreyScaleImage2D(Width, Height);
-			image.Fill((x, y) => this[x, y] ? float.PositiveInfinity : 0);
+			var image2 = new GreyScaleImage2D(image.Size);
+			image2.Fill((x, y) => image[x, y] ? float.PositiveInfinity : 0);
 
-			for (int y = 0; y < Height; y++)
+			for (int y = 0; y < image.Height; y++)
 			{
-				for (int x = 0; x < Width; x++)
+				for (int x = 0; x < image.Width; x++)
 				{
-					if (!this[x, y]) continue;
-					image[x, y] = MinDistance(x, y, image, b);
+					if (!image[x, y]) continue;
+					image2[x, y] = MinDistance(x, y, image2, b);
 				}
 			}
 
-			for (int y = Height - 1; y >= 0; y--)
+			for (int y = image.Height - 1; y >= 0; y--)
 			{
-				for (int x = Width - 1; x >= 0; x--)
+				for (int x = image.Width - 1; x >= 0; x--)
 				{
-					if (!this[x, y]) continue;
-					image[x, y] = MinDistance(x, y, image, b);
+					if (!image[x, y]) continue;
+					image2[x, y] = MinDistance(x, y, image2, b);
 				}
 			}
 
-			return image;
+			return image2;
 		}
 
-		public GreyScaleImage2D ApproxEuclideanDistance()
+		public static GreyScaleImage2D ApproxEuclideanDistance(BinaryImage2D image)
 		{
-			var image = new GreyScaleImage2D(Width, Height);
-			image.Fill((x, y) => this[x, y] ? float.PositiveInfinity : 0);
+			var image2 = new GreyScaleImage2D(image.Size);
+			image2.Fill((x, y) => image[x, y] ? float.PositiveInfinity : 0);
 
 			var k4 = StructureElement2D.ChessBoardElement();
 			var k8 = StructureElement2D.CityBlockElement();
 
-			for (int y = 0; y < Height; y++)
+			for (int y = 0; y < image2.Height; y++)
 			{
-				for (int x = 0; x < Width; x++)
+				for (int x = 0; x < image2.Width; x++)
 				{
-					if (!this[x, y]) continue;
+					if (!image[x, y]) continue;
 
-					float d4 = MinDistance(x, y, image, k4);
-					float d8 = MinDistance(x, y, image, k8);
+					float d4 = MinDistance(x, y, image2, k4);
+					float d8 = MinDistance(x, y, image2, k8);
 
 					float d1 = MathUtil.Sqr(d4 - d8);
 					float d2 = MathUtil.Sqr(d8);
 
-					image[x, y] = MathUtil.SafeSqrt(d1 + d2);
+					image2[x, y] = MathUtil.SafeSqrt(d1 + d2);
 				}
 			}
 
-			for (int y = Height - 1; y >= 0; y--)
+			for (int y = image2.Height - 1; y >= 0; y--)
 			{
-				for (int x = Width - 1; x >= 0; x--)
+				for (int x = image2.Width - 1; x >= 0; x--)
 				{
-					if (!this[x, y]) continue;
+					if (!image[x, y]) continue;
 
-					float d4 = MinDistance(x, y, image, k4);
-					float d8 = MinDistance(x, y, image, k8);
+					float d4 = MinDistance(x, y, image2, k4);
+					float d8 = MinDistance(x, y, image2, k8);
 
 					float d1 = MathUtil.Sqr(d4 - d8);
 					float d2 = MathUtil.Sqr(d8);
 
-					image[x, y] = MathUtil.SafeSqrt(d1 + d2);
+					image2[x, y] = MathUtil.SafeSqrt(d1 + d2);
 				}
 			}
 
-			return image;
+			return image2;
 		}
 
 		private static float MinDistance(int i, int j, GreyScaleImage2D a, StructureElement2D b)

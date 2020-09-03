@@ -15,6 +15,15 @@ namespace ImageProcessing.Images
         /// <summary>
         /// 
         /// </summary>
+        public ColorImage2D()
+             : base(0, 0)
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="width"></param>
         /// <param name="height"></param>
         public ColorImage2D(int width, int height)

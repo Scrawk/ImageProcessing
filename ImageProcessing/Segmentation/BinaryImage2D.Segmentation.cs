@@ -20,46 +20,45 @@ namespace ImageProcessing.Images
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		public PixelSegmentation2D<bool> Segmentation()
+		public static PixelSegmentation2D<bool> Segmentation(BinaryImage2D image)
         {
-			var segmentation = new PixelSegmentation2D<bool>(this);
+			var segmentation = new PixelSegmentation2D<bool>(image);
 
-			var set = new DisjointGridSet2(Width, Height);
+			var set = new DisjointGridSet2(image.Width, image.Height);
 
-			for(int y = 0; y < Height; y++)
+			for(int y = 0; y < image.Height; y++)
             {
-				for (int x = 0; x < Width; x++)
+				for (int x = 0; x < image.Width; x++)
 				{
-					if (!this[x, y]) continue;
+					if (!image[x, y]) continue;
 					set.Add(x, y, x, y);
 				}
 			}
 
-			for (int y = 0; y < Height; y++)
+			for (int y = 0; y < image.Height; y++)
 			{
-				for (int x = 0; x < Width; x++)
+				for (int x = 0; x < image.Width; x++)
 				{
-					if (!this[x, y]) continue;
+					if (!image[x, y]) continue;
 					
 					for(int i = 0; i < 8; i++)
                     {
 						int xi = x + D8.OFFSETS[i, 0];
 						int yi = y + D8.OFFSETS[i, 1];
 
-						if (xi < 0 || xi >= Width) continue;
-						if (yi < 0 || yi >= Height) continue;
-						if (!this[xi, yi]) continue;
+						if (image.NotInBounds(xi, yi)) continue;
+						if (!image[xi, yi]) continue;
 
 						set.Union(xi, yi, x, y);
 					}
 				}
 			}
 
-			for (int y = 0; y < Height; y++)
+			for (int y = 0; y < image.Height; y++)
 			{
-				for (int x = 0; x < Width; x++)
+				for (int x = 0; x < image.Width; x++)
 				{
-					if (!this[x, y]) continue;
+					if (!image[x, y]) continue;
 
 					var root = set.FindParent(x, y);
 					var pixel = new PixelIndex2D<bool>(x, y, true);
@@ -75,13 +74,13 @@ namespace ImageProcessing.Images
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		public GraphForest MinimumSpanningForest(Func<Vector2i, Vector2i, float> weights = null)
+		public static GraphForest MinimumSpanningForest(BinaryImage2D image, Func<Vector2i, Vector2i, float> weights = null)
         {
 			if (weights == null)
 				weights = (a, b) => (float)Vector2i.Distance(a, b);
 
 			var pixels = new List<Vector2i>();
-			ToIndexList(pixels, (v) => v == true);
+			image.ToIndexList(pixels, (v) => v == true);
 
 			var table = new Dictionary<Vector2i, int>();
 			var graph = new UndirectedGraph(pixels.Count);
@@ -103,8 +102,7 @@ namespace ImageProcessing.Images
 					int xi = pixel.x + D8.OFFSETS[i, 0];
 					int yi = pixel.y + D8.OFFSETS[i, 1];
 
-					if (xi < 0 || xi >= Width) continue;
-					if (yi < 0 || yi >= Height) continue;
+					if (image.NotInBounds(xi, yi)) continue;
 					var idx2 = new Vector2i(xi, yi);
 
 					if (table.TryGetValue(idx2, out int b) && !graph.ContainsEdge(a, b))
@@ -123,7 +121,7 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="segmentation"></param>
 		/// <returns></returns>
-		public ColorImage2D ColorizeForest(int seed, GraphForest forest)
+		public static ColorImage2D ColorizeForest(BinaryImage2D image, int seed, GraphForest forest)
 		{
 			var roots = new List<Vector2i>();
 			foreach(var tree in forest.Trees)
@@ -135,7 +133,7 @@ namespace ImageProcessing.Images
 
 			var colors = PixelSegmentation2D.SegmentationColors(seed, roots);
 			var pixels = new List<PixelIndex2D<bool>>();
-			var image = new ColorImage2D(Width, Height);
+			var image2 = new ColorImage2D(image.Size);
 
 			foreach (var tree in forest.Trees)
 			{
@@ -147,11 +145,11 @@ namespace ImageProcessing.Images
 				tree.GetData(pixels);
 
 				foreach (var p in pixels)
-					image[p.Index] = color;
+					image2[p.Index] = color;
 
 			}
 
-			return image;
+			return image2;
 		}
 
 

@@ -14,37 +14,61 @@ namespace ImageProcessing.Images
 	/// </summary>
 	public partial class ColorImage2D
 	{
-
-		public ColorImage2D BilinearRescale(int width, int height)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
+		/// <returns></returns>
+		public static ColorImage2D BilinearRescale(ColorImage2D image, int width, int height)
 		{
-			return Rescale(width, height, LinearInterpolation.Default);
+			return Rescale(image, width, height, LinearInterpolation.Default);
 		}
 
-		public ColorImage2D BicubicRescale(int width, int height)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
+		/// <returns></returns>
+		public static ColorImage2D BicubicRescale(ColorImage2D image, int width, int height)
 		{
-			return Rescale(width, height, CubicInterpolation.Default);
+			return Rescale(image, width, height, CubicInterpolation.Default);
+		}
+	
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
+		/// <returns></returns>
+		public static ColorImage2D BSplineRescale(ColorImage2D image, int width, int height)
+		{
+			return Rescale(image, width, height, SplineInterpolation.MitchellNetravli);
 		}
 
-		public ColorImage2D BSplineRescale(int width, int height)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
+		/// <param name="func"></param>
+		/// <returns></returns>
+		public static ColorImage2D Rescale(ColorImage2D image, int width, int height, InterpolationFunction func)
 		{
-			return Rescale(width, height, SplineInterpolation.MitchellNetravli);
-		}
+			var image2 = new ColorImage2D(width, height);
+			var tmp = new ColorImage2D(width, image.Height);
 
-		public ColorImage2D Rescale(int width, int height, InterpolationFunction func)
-		{
-			var image = new ColorImage2D(width, height);
-			var tmp = new ColorImage2D(width, Height);
+			var xKernel = new PolyphaseKernel(func, image.Width, width);
+			var yKernel = new PolyphaseKernel(func, image.Height, height);
 
-			var xKernel = new PolyphaseKernel(func, Width, width);
-			var yKernel = new PolyphaseKernel(func, Height, height);
-
-			for (int y = 0; y < Height; y++)
-				xKernel.ApplyHorizontal(y, this, tmp);
+			for (int y = 0; y < image.Height; y++)
+				xKernel.ApplyHorizontal(y, image, tmp);
 
 			for (int x = 0; x < width; x++)
-				yKernel.ApplyVertical(x, tmp, image);
+				yKernel.ApplyVertical(x, tmp, image2);
 
-			return image;
+			return image2;
 		}
 
 	}
