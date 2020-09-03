@@ -177,6 +177,38 @@ namespace ImageProcessing.Images
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="w"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        public float GetSlope(int x, int y, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        {
+            var d = GetFirstDerivative(x, y, w, mode);
+            float p = d.x * d.x + d.y * d.y;
+            float g = MathUtil.SafeSqrt(p);
+            return MathUtil.Atan(g) * MathUtil.Rad2Deg / 90.0f;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="u"></param>
+        /// <param name="v"></param>
+        /// <param name="w"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        public float GetSlope(float u, float v, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        {
+            var d = GetFirstDerivative(u, v, w, mode);
+            float p = d.x * d.x + d.y * d.y;
+            float g = MathUtil.SafeSqrt(p);
+            return MathUtil.Atan(g) * MathUtil.Rad2Deg / 90.0f;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="w"></param>
         /// <returns></returns>
         public Vector3f GetNormal(int x, int y, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
