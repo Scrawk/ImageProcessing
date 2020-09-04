@@ -103,7 +103,12 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return GetPixel(x, y, mode);
+            if (mode == WRAP_MODE.CLAMP)
+                return GetClamped(x, y);
+            else if (mode == WRAP_MODE.WRAP)
+                return GetWrapped(x, y);
+            else
+                return GetMirrored(x, y);
         }
 
         /// <summary>
