@@ -20,8 +20,7 @@ namespace ImageProcessing.Images
 		public static GreyScaleImage2D BoxBlur(GreyScaleImage2D image, int size)
 		{
 			var k = FilterKernel2D.BoxKernel(size);
-			var image2 = new GreyScaleImage2D(image.Size);
-			return Filter(image2, k);
+			return Filter(image, k);
 		}
 
 		/// <summary>
@@ -32,8 +31,7 @@ namespace ImageProcessing.Images
 		public static GreyScaleImage2D GaussianBlur(GreyScaleImage2D image, float sigma)
 		{
 			var k = FilterKernel2D.GaussianKernel(sigma);
-			var image2 = new GreyScaleImage2D(image.Size);
-			return Filter(image2, k);
+			return Filter(image, k);
 		}
 
 		/// <summary>
@@ -43,8 +41,7 @@ namespace ImageProcessing.Images
 		public static GreyScaleImage2D SharpenFilter(GreyScaleImage2D image)
 		{
 			var k = FilterKernel2D.SharpenKernel();
-			var image2 = new GreyScaleImage2D(image.Size);
-			return Filter(image2, k);
+			return Filter(image, k);
 		}
 
 		/// <summary>
@@ -54,8 +51,7 @@ namespace ImageProcessing.Images
 		public static GreyScaleImage2D UnsharpenFilter(GreyScaleImage2D image)
 		{
 			var k = FilterKernel2D.UnsharpenKernel();
-			var image2 = new GreyScaleImage2D(image.Size);
-			return Filter(image2, k);
+			return Filter(image, k);
 		}
 
 		/// <summary>

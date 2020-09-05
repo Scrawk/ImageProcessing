@@ -19,8 +19,8 @@ namespace ImageProcessing.Images
             where IMAGE : Image2D<T>, new()
         {
             var image2 = new IMAGE();
-            image2.Resize(image.Size);
-            image2.Fill((x, y) => image[y, image.Width - 1 - x]);
+            image2.Resize(image.Height, image.Width);
+            image2.Fill((x, y) => image[y, image2.Width - 1 - x]);
             return image2;
         }
 
@@ -33,8 +33,8 @@ namespace ImageProcessing.Images
             where IMAGE : Image2D<T>, new()
         {
             var image2 = new IMAGE();
-            image2.Resize(image.Size);
-            image2.Fill((x, y) => image[image.Width - 1 - x, image.Height - 1 - y]);
+            image2.Resize(image.Width, image.Height);
+            image2.Fill((x, y) => image[image2.Width - 1 - x, image2.Height - 1 - y]);
             return image2;
         }
 
@@ -47,8 +47,8 @@ namespace ImageProcessing.Images
             where IMAGE : Image2D<T>, new()
         {
             var image2 = new IMAGE();
-            image2.Resize(image.Size);
-            image2.Fill((x, y) => image[image.Height - 1 - y, x]);
+            image2.Resize(image.Height, image.Width);
+            image2.Fill((x, y) => image[image2.Height - 1 - y, x]);
             return image2;
         }
 
@@ -69,7 +69,7 @@ namespace ImageProcessing.Images
             {
                 for (int x = bounds.Min.x, i = 0; x < bounds.Max.x; x++, i++)
                 {
-                    image.SetPixel(i, j, image2.GetPixel(x, y, mode));
+                    image2.SetPixel(i, j, image.GetPixel(x, y, mode));
                 }
             }
 
