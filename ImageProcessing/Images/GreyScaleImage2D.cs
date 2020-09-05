@@ -364,28 +364,6 @@ namespace ImageProcessing.Images
         /// <summary>
         /// 
         /// </summary>
-        /// <returns></returns>
-        public (float min, float max) MinMax()
-        {
-            float min = float.PositiveInfinity;
-            float max = float.NegativeInfinity;
-
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    float v = this[x, y];
-                    if (v < min) min = v;
-                    if (v > max) max = v;
-                }
-            }
-
-            return (min, max);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
         public void Normalize()
         {
             var minMax = MinMax();
@@ -395,23 +373,6 @@ namespace ImageProcessing.Images
                 v = MathUtil.Normalize(v, minMax.min, minMax.max);
                 return MathUtil.Clamp01(v);
             });
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public float Sum()
-        {
-            float sum = 0;
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    sum += this[x, y];
-                }
-            }
-
-            return sum;
         }
 
     }
