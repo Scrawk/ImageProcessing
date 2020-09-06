@@ -361,20 +361,6 @@ namespace ImageProcessing.Images
             return (d1, d2);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public void Normalize()
-        {
-            var minMax = MinMax();
-
-            ParallelModify((v) =>
-            {
-                v = MathUtil.Normalize(v, minMax.min, minMax.max);
-                return MathUtil.Clamp01(v);
-            });
-        }
-
     }
 
 }
