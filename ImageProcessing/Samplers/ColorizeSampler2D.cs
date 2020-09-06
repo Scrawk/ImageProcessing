@@ -8,47 +8,38 @@ using ImageProcessing.Images;
 
 namespace ImageProcessing.Samplers
 {
-    public class ColorizeSampler2D<T> : ImageSampler2D
+    public class ColorizeSampler2D : ImageSampler2D
     {
 
         private ColorArray1 m_posGradient, m_negGradient, m_gradient;
 
-        public ColorizeSampler2D(IImage2D<T> image, float exponent)
-            : this(image, exponent, true, 1.0f)
+        public ColorizeSampler2D(IImageSampler2D image, float exponent)
+            : this(image, exponent, true)
         {
 
         }
 
-        public ColorizeSampler2D(IImage2D<T> image, float exponent, bool nonNegative)
-            : this(image, exponent, nonNegative, 1.0f)
-        {
-
-        }
-
-        public ColorizeSampler2D(IImage2D<T> image, float exponent, bool nonNegative, float scale)
+        public ColorizeSampler2D(IImageSampler2D image, float exponent, bool nonNegative)
         {
             Image = image;
             Exponent = exponent;
-            Scale = scale;
             NonNegative = nonNegative;
         }
 
-        public IImage2D<T> Image { get; private set; }
+        public IImageSampler2D Image { get; private set; }
 
         public float Exponent { get; private set; }
-
-        public float Scale { get; private set; }
 
         public bool NonNegative { get; private set; }
 
         public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return Colorize(Image.GetValue(x, y, mode) * Scale);
+            return Colorize(Image.GetPixel(x, y, mode).Intensity);
         }
 
         public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return Colorize(Image.GetValue(u, v, mode) * Scale);
+            return Colorize(Image.GetPixel(u, v, mode).Intensity);
         }
 
         public ColorRGB Colorize(float v)
