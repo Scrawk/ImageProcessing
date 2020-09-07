@@ -98,6 +98,24 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <returns></returns>
+		public float Sum()
+		{
+			float sum = 0;
+			for (int y = 0; y < Size; y++)
+			{
+				for (int x = 0; x < Size; x++)
+				{
+					sum += this[x, y];
+				}
+			}
+
+			return sum;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
 		/// <param name="size"></param>
 		/// <returns></returns>
 		public static FilterKernel2D BoxKernel(int size)

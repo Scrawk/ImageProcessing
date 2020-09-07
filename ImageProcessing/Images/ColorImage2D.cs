@@ -173,6 +173,31 @@ namespace ImageProcessing.Images
             return new ColorImage2D(Data);
         }
 
+        /// <summary>
+        /// Presuming the image color space is rgb 
+        /// convert al pixels to hsv color space.
+        /// </summary>
+        public void ToHSV()
+        {
+            ParallelModify(c =>
+            {
+                var hsv = c.hsv;
+                return new ColorRGB(hsv.h, hsv.s, hsv.v);
+            });
+        }
+
+        /// <summary>
+        /// Presuming the image color space is hsv 
+        /// convert al pixels to rgb color space.
+        /// </summary>
+        public void ToRGB()
+        {
+            ParallelModify(c =>
+            {
+                return ColorHSV.ToRGB(c.r, c.g, c.b);
+            });
+        }
+
     }
 
 }

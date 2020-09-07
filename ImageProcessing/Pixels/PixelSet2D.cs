@@ -7,6 +7,7 @@ using Common.Geometry.Shapes;
 
 namespace ImageProcessing.Pixels
 {
+
     public class PixelSet2D<T> : IComparable<PixelSet2D<T>>
     {
 
@@ -15,33 +16,36 @@ namespace ImageProcessing.Pixels
             Pixels = new List<PixelIndex2D<T>>();
         }
 
-        public PixelSet2D(Vector2i root)
+        public PixelSet2D(List<PixelIndex2D<T>> pixels)
         {
-            Root = root;
-            Pixels = new List<PixelIndex2D<T>>();
+            Pixels = new List<PixelIndex2D<T>>(pixels);
         }
 
-        public PixelSet2D(Vector2i root, List<PixelIndex2D<T>> pixels)
-        {
-            Root = root;
-            Pixels = pixels;
-        }
-
-        public Vector2i Root { get; private set; }
+        public int Count => Pixels.Count;
 
         public List<PixelIndex2D<T>> Pixels { get; private set; }
+
+        public override string ToString()
+        {
+            return string.Format("[PixelSet2D: Count={0}]", Count);
+        }
+
+        public void Add(PixelIndex2D<T> pixel)
+        {
+            Pixels.Add(pixel);
+        }
 
         public int CompareTo(PixelSet2D<T> other)
         {
             return Pixels.Count.CompareTo(other.Pixels.Count);
         }
 
-        public float CalculateArea()
+        public float Area()
         {
             return Pixels.Count;
         }
 
-        public Box2i CalculateBounds()
+        public Box2i Bounds()
         {
             Vector2i min = Vector2i.MaxInt;
             Vector2i max = Vector2i.MinInt;
@@ -58,16 +62,16 @@ namespace ImageProcessing.Pixels
             return new Box2i(min, max);
         }
 
-        public float CalculateRoundness(float perimeter)
+        public float Roundness(float perimeter)
         {
-            float area = CalculateArea();
+            float area = Area();
             float p2 = perimeter * perimeter;
             float pi = MathUtil.PI;
 
             return MathUtil.Clamp01(pi * 4.0f * area / p2);
         }
 
-        public Vector2f CalculateCentroid()
+        public Vector2f Centroid()
         {
             Vector2f centroid = new Vector2f();
 
@@ -78,9 +82,8 @@ namespace ImageProcessing.Pixels
                 centroid.y += idx.y;
             }
 
-            return centroid / Pixels.Count;
+            return centroid / Count;
         }
-
 
     }
 }

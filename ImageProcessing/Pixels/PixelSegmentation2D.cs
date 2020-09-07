@@ -9,23 +9,7 @@ using ImageProcessing.Images;
 namespace ImageProcessing.Pixels
 {
 
-    public abstract class PixelSegmentation2D
-    {
-        public static Dictionary<Vector2i, ColorRGB> SegmentationColors(int seed, IEnumerable<Vector2i> keys)
-        {
-            var rnd = new Random(seed);
-            var colors = new Dictionary<Vector2i, ColorRGB>();
-
-            foreach (var p in keys)
-            {
-                colors.TryAdd(p, rnd.NextColorRGB());
-            }
-
-            return colors;
-        }
-    }
-
-    public class PixelSegmentation2D<T> : PixelSegmentation2D
+    public class PixelSegmentation2D<T>
     {
 
         public PixelSegmentation2D(Image2D<T> image)
@@ -36,14 +20,21 @@ namespace ImageProcessing.Pixels
 
         public Image2D<T> Image { get; private set; }
 
+        public int Count => Sets.Count;
+
         public Dictionary<Vector2i, PixelSet2D<T>> Sets { get; private set; }
+
+        public override string ToString()
+        {
+            return string.Format("[PixelSegmentation2D: Count={0}]", Count);
+        }
 
         public void AddPixel(Vector2i root, PixelIndex2D<T> pixel)
         {
             PixelSet2D<T> set;
             if (!Sets.TryGetValue(root, out set))
             {
-                set = new PixelSet2D<T>(root);
+                set = new PixelSet2D<T>();
                 Sets.Add(root, set);
             }
 
@@ -52,7 +43,7 @@ namespace ImageProcessing.Pixels
 
         public ColorImage2D ColorizeSegmentation(int seed)
         {
-            var colors = SegmentationColors(seed, Sets.Keys);
+            var colors = SegmentationColors.Generate(seed, Sets.Keys);
 
             var image = new ColorImage2D(Image.Width, Image.Height);
 
@@ -69,5 +60,21 @@ namespace ImageProcessing.Pixels
             return image;
         }
 
+    }
+
+    public static class SegmentationColors
+    {
+        public static Dictionary<Vector2i, ColorRGB> Generate(int seed, IEnumerable<Vector2i> keys)
+        {
+            var rnd = new Random(seed);
+            var colors = new Dictionary<Vector2i, ColorRGB>();
+
+            foreach (var p in keys)
+            {
+                colors.TryAdd(p, rnd.NextColorRGB());
+            }
+
+            return colors;
+        }
     }
 }

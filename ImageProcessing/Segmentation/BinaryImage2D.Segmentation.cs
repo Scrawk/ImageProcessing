@@ -131,7 +131,7 @@ namespace ImageProcessing.Images
 				roots.Add(pixel.Index);
             }
 
-			var colors = PixelSegmentation2D.SegmentationColors(seed, roots);
+			var colors = SegmentationColors.Generate(seed, roots);
 			var pixels = new List<PixelIndex2D<bool>>();
 			var image2 = new ColorImage2D(image.Size);
 
