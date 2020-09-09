@@ -63,7 +63,7 @@ namespace ImageProcessing.Images
 		{
 			var image2 = new GreyScaleImage2D(image.Size);
 
-			image2.ParallelFill((x, y) =>
+			image2.Fill((x, y) =>
 			{
 				return Filter(x, y, image, k) * k.Scale;
 			});
@@ -97,6 +97,8 @@ namespace ImageProcessing.Images
 
 			return sum;
 		}
+
+		/*
 
 		/// <summary>
 		/// 
@@ -137,6 +139,8 @@ namespace ImageProcessing.Images
 
 			return image2;
 		}
+
+		*/
 
 		/// <summary>
 		/// 

@@ -92,7 +92,7 @@ namespace ImageProcessing.Images
 		{
 			var image = a.Copy();
 
-			a.ParallelIterate((x, y) =>
+			a.Iterate((x, y) =>
 			{
 				if (!a[x, y])
 					image[x, y] = Dilate(x, y, a, b);
@@ -155,7 +155,7 @@ namespace ImageProcessing.Images
 		{
 			var image = a.Copy();
 
-			a.ParallelIterate((x, y) =>
+			a.Iterate((x, y) =>
 			{
 				if (a[x, y])
 					image[x, y] = Erode(x, y, a, b);
@@ -251,13 +251,12 @@ namespace ImageProcessing.Images
 
 			//For each point in the list determine its value depending
 			//on if it matches the element b or not.
-			int blockSize = Math.Max(256, points.Count / 16);
-			ThreadingBlock1D.ParallelAction(points.Count, blockSize, (x) =>
+			for(int x = 0; x < points.Count; x++)
 			{
 				var p = points[x];
 				p.Value = true ^ HitAndMiss(p.Index.x, p.Index.y, a, b, i);
 				points[x] = p;
-			});
+			}
 
 			//Update the points by removing those with a false value
 			//and keeping those with a true value.
@@ -278,13 +277,12 @@ namespace ImageProcessing.Images
 
 			//For each point in the list determine its value depending
 			//on if it matches the element c or not.
-			blockSize = Math.Max(256, points1.Count / 16);
-			ThreadingBlock1D.ParallelAction(points1.Count, blockSize, (x) =>
+			for (int x = 0; x < points1.Count; x++)
 			{
 				var p = points1[x];
 				p.Value = true ^ HitAndMiss(p.Index.x, p.Index.y, a, c, i);
 				points1[x] = p;
-			});
+			}
 
 			var points2 = new List<PixelIndex2D<bool>>(points1.Count);
 			for (int x = 0; x < points1.Count; x++)
@@ -314,7 +312,7 @@ namespace ImageProcessing.Images
 		{
 			var image = a.Copy();
 
-			a.ParallelIterate((x, y) =>
+			a.Iterate((x, y) =>
 			{
 				if (a[x, y])
 					image[x, y] = HitAndMiss(x, y, a, b);
@@ -333,7 +331,7 @@ namespace ImageProcessing.Images
 		{
 			var image = a.Copy();
 
-			a.ParallelIterate((x, y) =>
+			a.Iterate((x, y) =>
 			{
 				if (a[x, y])
 					image[x, y] = HitAndMiss4(x, y, a, b);
@@ -353,7 +351,7 @@ namespace ImageProcessing.Images
 		{
 			var image = a.Copy();
 
-			a.ParallelIterate((x, y) =>
+			a.Iterate((x, y) =>
 			{
 				if (a[x, y])
 					image[x, y] = HitAndMiss4(x, y, a, b, c);

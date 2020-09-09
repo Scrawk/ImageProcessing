@@ -179,7 +179,7 @@ namespace ImageProcessing.Images
         /// </summary>
         public void ToHSV()
         {
-            ParallelModify(c =>
+            Modify(c =>
             {
                 var hsv = c.hsv;
                 return new ColorRGB(hsv.h, hsv.s, hsv.v);
@@ -192,7 +192,7 @@ namespace ImageProcessing.Images
         /// </summary>
         public void ToRGB()
         {
-            ParallelModify(c =>
+            Modify(c =>
             {
                 return ColorHSV.ToRGB(c.r, c.g, c.b);
             });

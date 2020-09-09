@@ -15,7 +15,7 @@ namespace ImageProcessing.Images
         /// <param name="min"></param>
         public void Min(float min)
         {
-            ParallelModify((v) =>
+            Modify((v) =>
             {
                 return ColorRGB.Min(v, min);
             });
@@ -27,7 +27,7 @@ namespace ImageProcessing.Images
         /// <param name="max"></param>
         public void Max(float max)
         {
-            ParallelModify((v) =>
+            Modify((v) =>
             {
                 return ColorRGB.Max(v, max);
             });
@@ -40,7 +40,7 @@ namespace ImageProcessing.Images
         /// <param name="max"></param>
         public void Clamp(float min, float max)
         {
-            ParallelModify((v) =>
+            Modify((v) =>
             {
                 return ColorRGB.Clamp(v, min, max);
             });
@@ -52,7 +52,7 @@ namespace ImageProcessing.Images
         /// <param name="value"></param>
         public void Multiply(ColorRGB value)
         {
-            ParallelModify((v) =>
+            Modify((v) =>
             {
                 return v * value;
             });
@@ -67,7 +67,7 @@ namespace ImageProcessing.Images
             if (Size != image.Size)
                 throw new ArgumentException("Images must be the same size.");
 
-            ParallelFill((x, y) =>
+            Fill((x, y) =>
             {
                 return this[x, y] * image[x, y];
             });
@@ -82,7 +82,7 @@ namespace ImageProcessing.Images
             if (Size != image.Size)
                 throw new ArgumentException("Images must be the same size.");
 
-            ParallelFill((x, y) =>
+            Fill((x, y) =>
             {
                 return this[x, y] * image[x, y];
             });
@@ -97,7 +97,7 @@ namespace ImageProcessing.Images
             if (Size != image.Size)
                 throw new ArgumentException("Images must be the same size.");
 
-            ParallelFill((x, y) =>
+            Fill((x, y) =>
             {
                 return this[x, y] * image.GetValue(x, y);
             });
@@ -109,7 +109,7 @@ namespace ImageProcessing.Images
         /// <param name="value"></param>
         public void Add(ColorRGB value)
         {
-            ParallelModify((v) =>
+            Modify((v) =>
             {
                 return v + value;
             });
@@ -124,7 +124,7 @@ namespace ImageProcessing.Images
             if (Size != image.Size)
                 throw new ArgumentException("Images must be the same size.");
 
-            ParallelFill((x, y) =>
+            Fill((x, y) =>
             {
                 return this[x, y] + image[x, y];
             });
@@ -139,7 +139,7 @@ namespace ImageProcessing.Images
             if (Size != image.Size)
                 throw new ArgumentException("Images must be the same size.");
 
-            ParallelFill((x, y) =>
+            Fill((x, y) =>
             {
                 return this[x, y] + image[x, y];
             });
@@ -151,7 +151,7 @@ namespace ImageProcessing.Images
         /// <param name="value"></param>
         public void Subtract(ColorRGB value)
         {
-            ParallelModify((v) =>
+            Modify((v) =>
             {
                 return v - value;
             });
@@ -166,7 +166,7 @@ namespace ImageProcessing.Images
             if (Size != image.Size)
                 throw new ArgumentException("Images must be the same size.");
 
-            ParallelFill((x, y) =>
+            Fill((x, y) =>
             {
                 return this[x, y] - image[x, y];
             });
@@ -181,7 +181,7 @@ namespace ImageProcessing.Images
             if (Size != image.Size)
                 throw new ArgumentException("Images must be the same size.");
 
-            ParallelFill((x, y) =>
+            Fill((x, y) =>
             {
                 return this[x, y] - image[x, y];
             });
