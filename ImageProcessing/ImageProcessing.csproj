@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>D:\Projects\Visual Studio Projects\ImageProcessing\ImageProcessing\bin\Release\ImageProcessing.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.dll&quot; &quot;D:\Projects\Unity Projects\ImageProcessingUnity\Assets\Common\Plugins&quot; /y&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.dll&quot; &quot;D:\Projects\Unity Projects\GeoMorphUnity\Assets\Common\Plugins&quot; /y" />
+    <Exec Command="xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.dll&quot; &quot;D:\Projects\Unity Projects\ImageProcessingUnity\Assets\Common\Plugins&quot; /y&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.pdb&quot; &quot;D:\Projects\Unity Projects\ImageProcessingUnity\Assets\Common\Plugins&quot; /y&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.xml&quot; &quot;D:\Projects\Unity Projects\ImageProcessingUnity\Assets\Common\Plugins&quot; /y&#xD;&#xA;&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.dll&quot; &quot;D:\Projects\Unity Projects\GeoMorphUnity\Assets\Common\Plugins&quot; /y&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.pdb&quot; &quot;D:\Projects\Unity Projects\GeoMorphUnity\Assets\Common\Plugins&quot; /y&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.xml&quot; &quot;D:\Projects\Unity Projects\GeoMorphUnity\Assets\Common\Plugins&quot; /y&#xD;&#xA;&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.dll&quot; &quot;D:\Projects\Unity Projects\EverShire\Assets\Common\Plugins&quot; /y&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.pdb&quot; &quot;D:\Projects\Unity Projects\EverShire\Assets\Common\Plugins&quot; /y&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.xml&quot; &quot;D:\Projects\Unity Projects\EverShire\Assets\Common\Plugins&quot; /y" />
   </Target>
 
 </Project>
