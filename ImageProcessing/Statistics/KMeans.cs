@@ -114,7 +114,7 @@ namespace ImageProcessing.Statistics
                 return d;
             });
 
-            weights.Multiply(1.0f / sum);
+            weights.Modify( x => x / sum);
         }
 
         private ColorRGB ChoosePixel(ColorImage2D image, GreyScaleImage2D weights, double t)
