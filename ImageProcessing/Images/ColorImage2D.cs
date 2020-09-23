@@ -47,7 +47,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="width"></param>
         /// <param name="height"></param>
-        /// <param name="vaule"></param>
+        /// <param name="value"></param>
         public ColorImage2D(int width, int height, ColorRGB value)
             : base(width, height, value)
         {
@@ -63,6 +63,11 @@ namespace ImageProcessing.Images
         {
 
         }
+
+        /// <summary>
+        /// The number of channels in the images pixel.
+        /// </summary>
+        public override int Channels => 3;
 
         /// <summary>
         /// 
@@ -175,9 +180,9 @@ namespace ImageProcessing.Images
 
         /// <summary>
         /// Presuming the image color space is rgb 
-        /// convert al pixels to hsv color space.
+        /// convert all pixels to hsv color space.
         /// </summary>
-        public void ToHSV()
+        public void MakeHSV()
         {
             Modify(c =>
             {
@@ -188,9 +193,9 @@ namespace ImageProcessing.Images
 
         /// <summary>
         /// Presuming the image color space is hsv 
-        /// convert al pixels to rgb color space.
+        /// convert all pixels to rgb color space.
         /// </summary>
-        public void ToRGB()
+        public void MakeRGB()
         {
             Modify(c =>
             {

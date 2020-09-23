@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="Common.Collections">
       <HintPath>..\..\Common\Common.Collections\bin\Release\netstandard2.0\Common.Collections.dll</HintPath>
     </Reference>

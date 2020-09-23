@@ -19,10 +19,10 @@ namespace ImageProcessing.Images
     {
 
         /// <summary>
-        /// Create a new array.
+        /// Create a new image.
         /// </summary>
-        /// <param name="width">The size of the arrays 1st dimention.</param>
-        /// <param name="height">The size of the arrays 2st dimention.</param>
+        /// <param name="width">The width of the image.</param>
+        /// <param name="height">The height of the image.</param>
         public Image2D(int width, int height)
             : base(width, height)
         {
@@ -30,9 +30,9 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Create a new array.
+        /// Create a new image.
         /// </summary>
-        /// <param name="size">The size of the array.</param>
+        /// <param name="size">The size of the image.</param>
         public Image2D(Vector2i size)
              : base(size)
         {
@@ -52,14 +52,19 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Create a new array.
+        /// Create a new image.
         /// </summary>
-        /// <param name="data">The data form the array. Will be deep copied.</param>
+        /// <param name="data">The data for the image. Will be deep copied.</param>
         public Image2D(T[,] data)
             : base(data)
         {
 
         }
+
+        /// <summary>
+        /// The number of channels in the images pixel.
+        /// </summary>
+        public abstract int Channels { get; }
 
         /// <summary>
         /// The size of the image as a vector.
@@ -85,6 +90,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
+        /// <param name="mode"></param>
         /// <returns></returns>
         public abstract float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
@@ -93,6 +99,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="u"></param>
         /// <param name="v"></param>
+        /// <param name="mode"></param>
         /// <returns></returns>
         public abstract float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
@@ -101,6 +108,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
+        /// <param name="mode"></param>
         /// <returns></returns>
         public abstract ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
@@ -109,6 +117,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="u"></param>
         /// <param name="v"></param>
+        /// <param name="mode"></param>
         /// <returns></returns>
         public abstract ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
 

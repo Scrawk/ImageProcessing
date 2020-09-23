@@ -50,14 +50,17 @@ namespace ImageProcessing.Images
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
         /// <param name="data"></param>
         public BinaryImage2D(bool[,] data)
             : base(data)
         {
 
         }
+
+        /// <summary>
+        /// The number of channels in the images pixel.
+        /// </summary>
+        public override int Channels => 1;
 
         /// <summary>
         /// 

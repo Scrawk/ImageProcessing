@@ -47,7 +47,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="width"></param>
         /// <param name="height"></param>
-        /// <param name="vaule"></param>
+        /// <param name="value"></param>
         public GreyScaleImage2D(int width, int height, float value)
             : base(width, height, value)
         {
@@ -65,6 +65,11 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// The number of channels in the images pixel.
+        /// </summary>
+        public override int Channels => 1;
+
+        /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
@@ -78,6 +83,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
+        /// <param name="mode"></param>
         /// <returns></returns>
         public override float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
