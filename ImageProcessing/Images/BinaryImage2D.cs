@@ -9,16 +9,24 @@ using Common.Geometry.Shapes;
 namespace ImageProcessing.Images
 {
     /// <summary>
-    /// 
+    /// A 2D image containing only true or false values.
     /// </summary>
     public partial class BinaryImage2D : Image2D<bool>
     {
+        /// <summary>
+        /// Create a default of image.
+        /// </summary>
+        public BinaryImage2D()
+            : base(0, 0)
+        {
+
+        }
 
         /// <summary>
-        /// 
+        /// Create a image of a given width and height.
         /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
+        /// <param name="width">The width of the image.</param>
+        /// <param name="height">The height of the image.</param>
         public BinaryImage2D(int width, int height)
             : base(width, height)
         {
@@ -26,9 +34,9 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Create a image of a given size.
         /// </summary>
-        /// <param name="size"></param>
+        /// <param name="size">The size of the image. x is the width and y is the height.</param>
         public BinaryImage2D(Vector2i size)
             : base(size)
         {
@@ -36,11 +44,11 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Create a image of a given width and height and filled with a value.
         /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <param name="value"></param>
+        /// <param name="width">The width of the image.</param>
+        /// <param name="height">The height of the image.</param>
+        /// <param name="value">The value to fill the image with.</param>
         public BinaryImage2D(int width, int height, bool value)
              : base(width, height, value)
         {
@@ -48,9 +56,9 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Create a image from the given data.
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data">The images data.</param>
         public BinaryImage2D(bool[,] data)
             : base(data)
         {
@@ -63,7 +71,7 @@ namespace ImageProcessing.Images
         public override int Channels => 1;
 
         /// <summary>
-        /// 
+        /// Return the image description.
         /// </summary>
         /// <returns></returns>
         public override string ToString()
@@ -72,11 +80,12 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Get a value from the image at index x,y.
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The value at index x,y.</returns>
         public override float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             if (mode == WRAP_MODE.CLAMP)
@@ -88,8 +97,12 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Sample the image by bilinear interpolation.
+        /// Get a value from the image at normalized index u,v.
         /// </summary>
+        /// <param name="u">The first index.</param>
+        /// <param name="v">The second index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The value at index x,y.</returns>
         public override float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float x = u * (Width-1);
@@ -107,11 +120,12 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Get a pixel from the image at index x,y.
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The pixel at index x,y.</returns>
         public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             var value = GetValue(x, y, mode);
@@ -119,11 +133,12 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Get a pixel from the image at normalized index u,v.
         /// </summary>
-        /// <param name="u"></param>
-        /// <param name="v"></param>
-        /// <returns></returns>
+        /// <param name="u">The first index.</param>
+        /// <param name="v">The second index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The pixel at index x,y.</returns>
         public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             var value = GetValue(u, v, mode);
@@ -131,18 +146,18 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Set the pixel at index x,y.
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="pixel"></param>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="pixel">The pixel.</param>
         public override void SetPixel(int x, int y, ColorRGB pixel)
         {
             this[x, y] = pixel.Intensity > 0;
         }
 
         /// <summary>
-        /// 
+        /// Return a copy of the image.
         /// </summary>
         /// <returns></returns>
         public BinaryImage2D Copy()
@@ -151,7 +166,7 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Return the image as a float array.
         /// </summary>
         /// <returns></returns>
         public float[,] ToFloatArray()

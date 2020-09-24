@@ -77,7 +77,7 @@ namespace ImageProcessing.Images
         public Box2i Bounds => new Box2i((0, 0), Size);
 
         /// <summary>
-        /// 
+        /// The images description.
         /// </summary>
         /// <returns></returns>
         public override string ToString()
@@ -86,53 +86,65 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Get a value from the image at index x,y.
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="mode"></param>
-        /// <returns></returns>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The value at index x,y.</returns>
         public abstract float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
-        /// 
+        /// Get a value from the image at normalized index u,v.
         /// </summary>
-        /// <param name="u"></param>
-        /// <param name="v"></param>
-        /// <param name="mode"></param>
-        /// <returns></returns>
+        /// <param name="u">The first index.</param>
+        /// <param name="v">The second index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The value at index x,y.</returns>
         public abstract float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
-        /// 
+        /// Set the value at index x,y.
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="mode"></param>
-        /// <returns></returns>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="value">The value to set.</param>
+        public void SetValue(int x, int y, T value)
+        {
+            this[x, y] = value;
+        }
+
+        /// <summary>
+        /// Get a pixel from the image at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The pixel at index x,y.</returns>
         public abstract ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
-        /// 
+        /// Get a pixel from the image at normalized index u,v.
         /// </summary>
-        /// <param name="u"></param>
-        /// <param name="v"></param>
-        /// <param name="mode"></param>
-        /// <returns></returns>
+        /// <param name="u">The first index.</param>
+        /// <param name="v">The second index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The pixel at index x,y.</returns>
         public abstract ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
-        /// 
+        /// Set the pixel at index x,y.
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="pixel"></param>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="pixel">The pixel.</param>
         public abstract void SetPixel(int x, int y, ColorRGB pixel);
 
         /// <summary>
-        /// 
+        /// Return a index list of all pixels that match the predicate.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="list">The list the pixels will be added to.</param>
+        /// <param name="predicate">The predicate that decides what pixels to include.</param>
         public void ToIndexList(List<Vector2i> list, Func<T, bool> predicate)
         {
             for (int y = 0; y < Height; y++)
@@ -147,9 +159,10 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Return a index list of all pixels that match the predicate.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="list">The list the pixels will be added to.</param>
+        /// <param name="predicate">The predicate that decides what pixels to include.</param>
         public void ToPixelIndexList(List<PixelIndex2D<T>>  list, Func<T, bool> predicate)
         {
             for (int y = 0; y < Height; y++)
@@ -164,44 +177,38 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Fill the image with the values at the provided indices.
         /// </summary>
-        /// <param name="points"></param>
-        public void Fill(IList<PixelIndex2D<T>> points)
+        /// <param name="indices">The indices and value to fill.</param>
+        public void Fill(IList<PixelIndex2D<T>> indices)
         {
-            for (int i = 0; i < points.Count; i++)
+            for (int i = 0; i < indices.Count; i++)
             {
-                var p = points[i];
+                var p = indices[i];
                 this[p.Index] = p.Value;
             }
         }
 
         /// <summary>
-        /// 
+        /// Fill the image with the value at the provided indices.
         /// </summary>
-        /// <param name="points"></param>
-        /// <param name="value"></param>
-        public void Fill(IList<PixelIndex2D<T>> points, T value)
+        /// <param name="indices">The indices to fill.</param>
+        /// <param name="value">The value to fill.</param>
+        public void Fill(IList<Vector2i> indices, T value)
         {
-            for (int i = 0; i < points.Count; i++)
+            for (int i = 0; i < indices.Count; i++)
             {
-                var p = points[i];
-                this[p.Index] = value;
+                var j = indices[i];
+                this[j] = value;
             }
         }
 
         /// <summary>
-        /// 
+        /// Copy this image to another image of the same size.
         /// </summary>
-        /// <param name="dest"></param>
+        /// <param name="dest">The image to copy to.</param>
         public void CopyTo(Image2D<T> dest)
         {
-            if (dest.Width != Width)
-                throw new ArgumentException("dest.Width != Width");
-
-            if (dest.Height != Height)
-                throw new ArgumentException("dest.Height != Height");
-
             for (int y = 0; y < Height; y++)
             {
                 for (int x = 0; x < Width; x++)

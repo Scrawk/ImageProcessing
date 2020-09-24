@@ -8,12 +8,12 @@ using Common.Geometry.Shapes;
 namespace ImageProcessing.Images
 {
     /// <summary>
-    /// 
+    /// A 2D image containing RGB color values.
     /// </summary>
     public partial class ColorImage2D : Image2D<ColorRGB>
     {
         /// <summary>
-        /// 
+        /// Create a default of image.
         /// </summary>
         public ColorImage2D()
              : base(0, 0)
@@ -22,10 +22,10 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Create a image of a given width and height.
         /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
+        /// <param name="width">The width of the image.</param>
+        /// <param name="height">The height of the image.</param>
         public ColorImage2D(int width, int height)
             : base(width, height)
         {
@@ -33,9 +33,9 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Create a image of a given size.
         /// </summary>
-        /// <param name="size"></param>
+        /// <param name="size">The size of the image. x is the width and y is the height.</param>
         public ColorImage2D(Vector2i size)
             : base(size)
         {
@@ -43,11 +43,11 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Create a image of a given width and height and filled with a value.
         /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <param name="value"></param>
+        /// <param name="width">The width of the image.</param>
+        /// <param name="height">The height of the image.</param>
+        /// <param name="value">The value to fill the image with.</param>
         public ColorImage2D(int width, int height, ColorRGB value)
             : base(width, height, value)
         {
@@ -55,9 +55,9 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Create a image from the given data.
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data">The images data.</param>
         public ColorImage2D(ColorRGB[,] data)
             : base(data)
         {
@@ -70,7 +70,7 @@ namespace ImageProcessing.Images
         public override int Channels => 3;
 
         /// <summary>
-        /// 
+        /// Return the image description.
         /// </summary>
         /// <returns></returns>
         public override string ToString()
@@ -79,33 +79,36 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Get a value from the image at index x,y.
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The value at index x,y.</returns>
         public override float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             return GetPixel(x, y, mode).Intensity;
         }
 
         /// <summary>
-        /// 
+        /// Get a value from the image at normalized index u,v.
         /// </summary>
-        /// <param name="u"></param>
-        /// <param name="v"></param>
-        /// <returns></returns>
+        /// <param name="u">The first index.</param>
+        /// <param name="v">The second index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The value at index x,y.</returns>
         public override float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             return GetPixel(u, v, mode).Intensity;
         }
 
         /// <summary>
-        /// 
+        /// Get a pixel from the image at index x,y.
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The pixel at index x,y.</returns>
         public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             if (mode == WRAP_MODE.CLAMP)
@@ -117,8 +120,12 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Sample the image by bilinear interpolation.
+        /// Get a pixel from the image at normalized index u,v.
         /// </summary>
+        /// <param name="u">The first index.</param>
+        /// <param name="v">The second index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The pixel at index x,y.</returns>
         public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float x = u * (Width-1);
@@ -159,48 +166,23 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Set the pixel at index x,y.
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="pixel"></param>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="pixel">The pixel.</param>
         public override void SetPixel(int x, int y, ColorRGB pixel)
         {
             this[x, y] = pixel;
         }
 
         /// <summary>
-        /// 
+        /// Return a copy of the image.
         /// </summary>
         /// <returns></returns>
         public ColorImage2D Copy()
         {
             return new ColorImage2D(Data);
-        }
-
-        /// <summary>
-        /// Presuming the image color space is rgb 
-        /// convert all pixels to hsv color space.
-        /// </summary>
-        public void MakeHSV()
-        {
-            Modify(c =>
-            {
-                var hsv = c.hsv;
-                return new ColorRGB(hsv.h, hsv.s, hsv.v);
-            });
-        }
-
-        /// <summary>
-        /// Presuming the image color space is hsv 
-        /// convert all pixels to rgb color space.
-        /// </summary>
-        public void MakeRGB()
-        {
-            Modify(c =>
-            {
-                return ColorHSV.ToRGB(c.r, c.g, c.b);
-            });
         }
 
     }

@@ -11,10 +11,10 @@ namespace ImageProcessing.Images
     {
 
         /// <summary>
-        /// 
+        /// Returen a copy of the image rotated 90 degrees.
         /// </summary>
-        /// <param name="image"></param>
-        /// <returns></returns>
+        /// <param name="image">The image to rotate.</param>
+        /// <returns>The rotated image.</returns>
         public static IMAGE Rotate90<IMAGE>(IMAGE image)
             where IMAGE : Image2D<T>, new()
         {
@@ -25,10 +25,10 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Returen a copy of the image rotated 180 degrees.
         /// </summary>
-        /// <param name="image"></param>
-        /// <returns></returns>
+        /// <param name="image">The image to rotate.</param>
+        /// <returns>The rotated image.</returns>
         public static IMAGE Rotate180<IMAGE>(IMAGE image)
             where IMAGE : Image2D<T>, new()
         {
@@ -39,10 +39,10 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Returen a copy of the image rotated 270 degrees.
         /// </summary>
-        /// <param name="image"></param>
-        /// <returns></returns>
+        /// <param name="image">The image to rotate.</param>
+        /// <returns>The rotated image.</returns>
         public static IMAGE Rotate270<IMAGE>(IMAGE image)
             where IMAGE : Image2D<T>, new()
         {
@@ -53,12 +53,12 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Return a copy of the image cropped to the bounds.
         /// </summary>
-        /// <param name="image"></param>
-        /// <param name="bounds"></param>
-        /// <param name="mode"></param>
-        /// <returns></returns>
+        /// <param name="image">The image to crop.</param>
+        /// <param name="bounds">The bounds to crop.</param>
+        /// <param name="mode">The wrap mode to use for pixels outside the bounds.</param>
+        /// <returns>The cropped image.</returns>
         public static IMAGE Crop<IMAGE>(IMAGE image, Box2i bounds, WRAP_MODE mode = WRAP_MODE.CLAMP)
             where IMAGE : Image2D<T>, new()
         {
