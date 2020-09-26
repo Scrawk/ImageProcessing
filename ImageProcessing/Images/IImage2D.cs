@@ -11,6 +11,9 @@ using ImageProcessing.Pixels;
 namespace ImageProcessing.Images
 {
 
+    /// <summary>
+    /// Wrap mode options for when sampling a image.
+    /// </summary>
     public enum WRAP_MODE {  CLAMP, WRAP, MIRROR};
 
     /// <summary>
@@ -19,13 +22,9 @@ namespace ImageProcessing.Images
     /// <typeparam name="T">The element type</typeparam>
     public interface  IImage2D<T> : IArray2<T>, IImageSampler2D
     {
-        float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
+        ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
-        float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
-
-        //ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
-
-        //ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
+        ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         void SetPixel(int x, int y, ColorRGB pixel);
 

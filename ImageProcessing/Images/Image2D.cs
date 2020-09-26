@@ -86,35 +86,6 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Get a value from the image at index x,y.
-        /// </summary>
-        /// <param name="x">The first index.</param>
-        /// <param name="y">The second index.</param>
-        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        /// <returns>The value at index x,y.</returns>
-        public abstract float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
-
-        /// <summary>
-        /// Get a value from the image at normalized index u,v.
-        /// </summary>
-        /// <param name="u">The first index.</param>
-        /// <param name="v">The second index.</param>
-        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        /// <returns>The value at index x,y.</returns>
-        public abstract float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
-
-        /// <summary>
-        /// Set the value at index x,y.
-        /// </summary>
-        /// <param name="x">The first index.</param>
-        /// <param name="y">The second index.</param>
-        /// <param name="value">The value to set.</param>
-        public void SetValue(int x, int y, T value)
-        {
-            this[x, y] = value;
-        }
-
-        /// <summary>
         /// Get a pixel from the image at index x,y.
         /// </summary>
         /// <param name="x">The first index.</param>

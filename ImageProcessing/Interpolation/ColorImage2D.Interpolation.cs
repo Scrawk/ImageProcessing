@@ -17,6 +17,7 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="image"></param>
 		/// <param name="width"></param>
 		/// <param name="height"></param>
 		/// <returns></returns>
@@ -28,6 +29,7 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="image"></param>
 		/// <param name="width"></param>
 		/// <param name="height"></param>
 		/// <returns></returns>
@@ -39,6 +41,7 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="image"></param>
 		/// <param name="width"></param>
 		/// <param name="height"></param>
 		/// <returns></returns>
@@ -50,6 +53,7 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="image"></param>
 		/// <param name="width"></param>
 		/// <param name="height"></param>
 		/// <param name="func"></param>

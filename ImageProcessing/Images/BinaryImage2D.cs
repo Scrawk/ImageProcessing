@@ -86,7 +86,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public override float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             if (mode == WRAP_MODE.CLAMP)
                 return GetClamped(x, y) ? 1 : 0;
@@ -103,20 +103,31 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public override float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float x = u * (Width-1);
             float y = v * (Height-1);
 
-            int xi = (int)x;
-            int yi = (int)y;
+            int ix = (int)x;
+            int iy = (int)y;
 
-            var v00 = GetValue(xi, yi, mode);
-            var v10 = GetValue(xi + 1, yi, mode);
-            var v01 = GetValue(xi, yi + 1, mode);
-            var v11 = GetValue(xi + 1, yi + 1, mode);
+            var v00 = GetValue(ix, iy, mode);
+            var v10 = GetValue(ix + 1, iy, mode);
+            var v01 = GetValue(ix, iy + 1, mode);
+            var v11 = GetValue(ix + 1, iy + 1, mode);
 
-            return MathUtil.Blerp(v00, v10, v01, v11, x - xi, y - yi);
+            return MathUtil.Blerp(v00, v10, v01, v11, x - ix, y - iy);
+        }
+
+        /// <summary>
+        /// Set the value at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="value">The value.</param>
+        public void SetValue(int x, int y, bool value)
+        {
+            this[x, y] = value;
         }
 
         /// <summary>

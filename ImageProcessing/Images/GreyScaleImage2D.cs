@@ -85,7 +85,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public override float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             if(mode == WRAP_MODE.CLAMP)
                 return GetClamped(x, y);
@@ -102,39 +102,79 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public override float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float x = u * (Width-1);
             float y = v * (Height-1);
 
-            int xi = (int)x;
-            int yi = (int)y;
+            int ix = (int)x;
+            int iy = (int)y;
 
             float v00, v10, v01, v11;
 
             if (mode == WRAP_MODE.CLAMP)
             {
-                v00 = GetClamped(xi, yi);
-                v10 = GetClamped(xi + 1, yi);
-                v01 = GetClamped(xi, yi + 1);
-                v11 = GetClamped(xi + 1, yi + 1);
+                v00 = GetClamped(ix, iy);
+                v10 = GetClamped(ix + 1, iy);
+                v01 = GetClamped(ix, iy + 1);
+                v11 = GetClamped(ix + 1, iy + 1);
             }
             else if (mode == WRAP_MODE.WRAP)
             {
-                v00 = GetWrapped(xi, yi);
-                v10 = GetWrapped(xi + 1, yi);
-                v01 = GetWrapped(xi, yi + 1);
-                v11 = GetWrapped(xi + 1, yi + 1);
+                v00 = GetWrapped(ix, iy);
+                v10 = GetWrapped(ix + 1, iy);
+                v01 = GetWrapped(ix, iy + 1);
+                v11 = GetWrapped(ix + 1, iy + 1);
             }
             else
             {
-                v00 = GetMirrored(xi, yi);
-                v10 = GetMirrored(xi + 1, yi);
-                v01 = GetMirrored(xi, yi + 1);
-                v11 = GetMirrored(xi + 1, yi + 1);
+                v00 = GetMirrored(ix, iy);
+                v10 = GetMirrored(ix + 1, iy);
+                v01 = GetMirrored(ix, iy + 1);
+                v11 = GetMirrored(ix + 1, iy + 1);
             }
 
-            return MathUtil.Blerp(v00, v10, v01, v11, x - xi, y - yi);
+            return MathUtil.Blerp(v00, v10, v01, v11, x - ix, y - iy);
+        }
+
+        /// <summary>
+        /// Set the value at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="value">The value.</param>
+        public void SetValue(int x, int y, float value)
+        {
+            this[x, y] = value;
+        }
+
+        /// <summary>
+        /// Set the value at normalized index u,v.
+        /// </summary>
+        /// <param name="u">The first index.</param>
+        /// <param name="v">The second index.</param>
+        /// <param name="value">The value.</param>
+        public void SetValue(float u, float v, float value)
+        {
+            float x = u * (Width - 1);
+            float y = v * (Height - 1);
+
+            int ix = (int)x;
+            int iy = (int)y;
+            float fx = x - ix;
+            float fy = y - iy;
+
+            if (InBounds(ix, iy))
+                this[ix, iy] = value * (1 - fx) * (1 - fy);
+
+            if (InBounds(ix + 1, iy))
+                this[ix + 1, iy] = value * fx * (1 - fy);
+
+            if (InBounds(ix, iy + 1))
+                this[ix, iy + 1] = value * (1 - fx) * fy;
+
+            if (InBounds(ix + 1, iy + 1))
+                this[ix + 1, iy + 1] = value * fx * fy;
         }
 
         /// <summary>

@@ -79,27 +79,73 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Get a value from the image at index x,y.
+        /// Get a channels value from the image at index x,y.
         /// </summary>
         /// <param name="x">The first index.</param>
         /// <param name="y">The second index.</param>
+        /// <param name="c">The channel index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public override float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public float GetChannel(int x, int y, int c, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return GetPixel(x, y, mode).Intensity;
+            return GetPixel(x, y, mode)[c];
         }
 
         /// <summary>
-        /// Get a value from the image at normalized index u,v.
+        /// Get a channels value from the image at normalized index u,v.
         /// </summary>
         /// <param name="u">The first index.</param>
         /// <param name="v">The second index.</param>
+        /// <param name="c">The channel index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public override float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public float GetChannel(float u, float v, int c, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return GetPixel(u, v, mode).Intensity;
+            float x = u * (Width - 1);
+            float y = v * (Height - 1);
+
+            int xi = (int)x;
+            int yi = (int)y;
+
+            ColorRGB v00, v10, v01, v11;
+
+            if (mode == WRAP_MODE.CLAMP)
+            {
+                v00 = GetClamped(xi, yi);
+                v10 = GetClamped(xi + 1, yi);
+                v01 = GetClamped(xi, yi + 1);
+                v11 = GetClamped(xi + 1, yi + 1);
+            }
+            else if (mode == WRAP_MODE.WRAP)
+            {
+                v00 = GetWrapped(xi, yi);
+                v10 = GetWrapped(xi + 1, yi);
+                v01 = GetWrapped(xi, yi + 1);
+                v11 = GetWrapped(xi + 1, yi + 1);
+            }
+            else
+            {
+                v00 = GetMirrored(xi, yi);
+                v10 = GetMirrored(xi + 1, yi);
+                v01 = GetMirrored(xi, yi + 1);
+                v11 = GetMirrored(xi + 1, yi + 1);
+            }
+
+            return MathUtil.Blerp(v00[c], v10[c], v01[c], v11[c], x - xi, y - yi);
+        }
+
+        /// <summary>
+        /// Set the channel value at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="c">The channel index.</param>
+        /// <param name="value">The value.</param>
+        public void SetChannel(int x, int y, int c, float value)
+        {
+            var pixel = this[x, y];
+            pixel[c] = value;
+            this[x, y] = pixel;
         }
 
         /// <summary>
@@ -174,6 +220,35 @@ namespace ImageProcessing.Images
         public override void SetPixel(int x, int y, ColorRGB pixel)
         {
             this[x, y] = pixel;
+        }
+
+        /// <summary>
+        /// Set the pixel at normalized index u,v.
+        /// </summary>
+        /// <param name="u">The first index.</param>
+        /// <param name="v">The second index.</param>
+        /// <param name="pixel">The value.</param>
+        public void SetPixel(float u, float v, ColorRGB pixel)
+        {
+            float x = u * (Width - 1);
+            float y = v * (Height - 1);
+
+            int ix = (int)x;
+            int iy = (int)y;
+            float fx = x - ix;
+            float fy = y - iy;
+
+            if (InBounds(ix, iy))
+                this[ix, iy] = (1 - fx) * (1 - fy) * pixel;
+
+            if (InBounds(ix + 1, iy))
+                this[ix + 1, iy] = fx * (1 - fy) * pixel;
+
+            if (InBounds(ix, iy + 1))
+                this[ix, iy + 1] = (1 - fx) * fy * pixel;
+
+            if (InBounds(ix + 1, iy + 1))
+                this[ix + 1, iy + 1] = fx * fy * pixel;
         }
 
         /// <summary>
