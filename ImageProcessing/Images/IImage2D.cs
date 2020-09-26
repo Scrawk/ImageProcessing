@@ -14,7 +14,12 @@ namespace ImageProcessing.Images
     /// <summary>
     /// Wrap mode options for when sampling a image.
     /// </summary>
-    public enum WRAP_MODE {  CLAMP, WRAP, MIRROR};
+    public enum WRAP_MODE {  CLAMP, WRAP, MIRROR };
+
+    /// <summary>
+    /// Mode use to blend pixels.
+    /// </summary>
+    public enum BLEND_MODE { BLEND, ADDITIVE, SUBTRACTIVE, SUBTRACTIVE_CLAMPED };
 
     /// <summary>
     /// General interface for a 2 dimensional image.
