@@ -42,10 +42,10 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="mean"></param>
         /// <returns></returns>
-        public Matrix Covariance(ColorRGB mean)
+        public float[,] Covariance(ColorRGB mean)
         {
             const int dimensions = 3;
-            var cv = new Matrix(dimensions, dimensions);
+            var cv = new float[dimensions, dimensions];
 
             int size = Size.Product;
             if (size == 0) return cv;

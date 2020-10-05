@@ -190,14 +190,6 @@ namespace ImageProcessing.Statistics
                 cluster.Mean = cluster.Set.Mean();
         }
 
-        private bool Contains(ColorRGB col)
-        {
-            foreach (var cluster in Clusters)
-                if (cluster.Mean == col) return true;
-
-            return false;
-        }
-
         private KMeansCluster Closest(ColorRGB col)
         {
             KMeansCluster closest = null;
