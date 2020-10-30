@@ -50,7 +50,7 @@ namespace ImageProcessing.Images
                 // Interpolate
                 for (var t = step; t <= 1; t += step)
                 {
-                    var p = curve.Position(t);
+                    var p = curve.Point(t);
 
                     tx2 = (int)Math.Round(p.x);
                     ty2 = (int)Math.Round(p.y);

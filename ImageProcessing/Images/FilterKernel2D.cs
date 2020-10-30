@@ -14,6 +14,7 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="scale"></param>
 		/// <param name="size"></param>
 		public FilterKernel2D(int size, float scale)
 		{
@@ -25,6 +26,7 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="scale"></param>
 		/// <param name="size"></param>
 		/// <param name="value"></param>
 		public FilterKernel2D(int size, float scale, float value)
@@ -38,7 +40,7 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="size"></param>
+		/// <param name="scale"></param>
 		/// <param name="data"></param>
 		private FilterKernel2D(float[,] data, float scale)
 		{

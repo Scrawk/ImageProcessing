@@ -9,7 +9,7 @@ namespace ImageProcessing.Images
     public partial class GreyScaleImage2D
     {
         /// <summary>
-        /// 
+        /// The minimum and maximum values in the image.
         /// </summary>
         /// <returns></returns>
         public (float min, float max) MinMax()
@@ -31,7 +31,7 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// The sum of all values in the image.
         /// </summary>
         public float Sum()
         {
@@ -48,7 +48,7 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// The mean of the values in the image.
         /// </summary>
         /// <returns></returns>
         public float Mean()
@@ -59,9 +59,9 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// The variance of the values in the image.
         /// </summary>
-        /// <param name="mean"></param>
+        /// <param name="mean">The mean of the values in the image.</param>
         /// <returns></returns>
         public float Variance(float mean)
         {

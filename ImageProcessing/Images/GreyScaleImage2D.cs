@@ -264,7 +264,7 @@ namespace ImageProcessing.Images
             var d = GetFirstDerivative(x, y, w, mode);
             float p = d.x * d.x + d.y * d.y;
             float g = MathUtil.SafeSqrt(p);
-            return MathUtil.Atan(g) * MathUtil.Rad2Deg / 90.0f;
+            return MathUtil.Atan(g) * MathUtil.RAD_TO_DEG_32 / 90.0f;
         }
 
         /// <summary>
@@ -280,7 +280,7 @@ namespace ImageProcessing.Images
             var d = GetFirstDerivative(u, v, w, mode);
             float p = d.x * d.x + d.y * d.y;
             float g = MathUtil.SafeSqrt(p);
-            return MathUtil.Atan(g) * MathUtil.Rad2Deg / 90.0f;
+            return MathUtil.Atan(g) * MathUtil.RAD_TO_DEG_32 / 90.0f;
         }
 
         /// <summary>

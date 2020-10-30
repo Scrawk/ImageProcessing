@@ -66,7 +66,7 @@ namespace ImageProcessing.Pixels
         {
             float area = Area();
             float p2 = perimeter * perimeter;
-            float pi = MathUtil.PI;
+            float pi = MathUtil.PI_32;
 
             return MathUtil.Clamp01(pi * 4.0f * area / p2);
         }

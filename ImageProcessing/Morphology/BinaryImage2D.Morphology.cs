@@ -29,6 +29,7 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// Open the image by performing a erode followed by a dilate.
 		/// </summary>
+		/// <param name="a">The image.</param>
 		/// <param name="b">The structure element.</param>
 		/// <returns></returns>
 		public static BinaryImage2D Open(BinaryImage2D a, StructureElement2D b)
@@ -52,6 +53,7 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// Close the image by performing a dilate followed by a erode.
 		/// </summary>
+		/// <param name="a">The image.</param>
 		/// <param name="b">The structure element.</param>
 		/// <returns></returns>
 		public static BinaryImage2D Close(BinaryImage2D a, StructureElement2D b)
@@ -86,6 +88,7 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// Diluate all true values in a image by the structure element.
 		/// </summary>
+		/// <param name="a">The image.</param>
 		/// <param name="b">The structure element.</param>
 		/// <returns></returns>
 		public static BinaryImage2D Dilate(BinaryImage2D a, StructureElement2D b)
@@ -149,6 +152,7 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// Erode all true values in a image by the structure element.
 		/// </summary>
+		/// <param name="a">The image.</param>
 		/// <param name="b">The structure element.</param>
 		/// <returns></returns>
 		public static BinaryImage2D Erode(BinaryImage2D a, StructureElement2D b)
@@ -202,6 +206,7 @@ namespace ImageProcessing.Images
 		/// if they match the structure element.
 		/// Will exit early if image can not be thinned anymore.
 		/// </summary>
+		/// <param name="a">The image.</param>
 		/// <param name="iterations">The number of times to thin the image.</param>
 		/// <returns></returns>
 		public static BinaryImage2D Thinning(BinaryImage2D a, int iterations = int.MaxValue)
@@ -306,6 +311,7 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// Remove all pixels in the image that matchs the structure element.
 		/// </summary>
+		/// <param name="a">The image.</param>
 		/// <param name="b">The structure element.</param>
 		/// <returns></returns>
 		public static BinaryImage2D HitAndMiss(BinaryImage2D a, StructureElement2D b)
@@ -325,6 +331,7 @@ namespace ImageProcessing.Images
 		/// Remove all pixels in the image that match the structure element
 		/// in any of its 4 rotations.
 		/// </summary>
+		/// <param name="a">The image.</param>
 		/// <param name="b">The structure element.</param>
 		/// <returns></returns>
 		public static BinaryImage2D HitAndMiss4(BinaryImage2D a, StructureElement2D b)
@@ -344,6 +351,7 @@ namespace ImageProcessing.Images
 		/// Remove all pixels in the image that match either of the two 
 		/// structure elements in any of there 4 rotations.
 		/// </summary>
+		/// <param name="a">The image.</param>
 		/// <param name="b">The structure element b.</param>
 		/// <param name="c">The structure element c.</param>
 		/// <returns></returns>

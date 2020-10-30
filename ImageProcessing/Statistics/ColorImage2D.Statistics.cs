@@ -10,7 +10,7 @@ namespace ImageProcessing.Images
     public partial class ColorImage2D
     {
         /// <summary>
-        /// 
+        /// The sum of all pixels in the image.
         /// </summary>
         public ColorRGB Sum()
         {
@@ -27,7 +27,7 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// The mean of the pixels in the image.
         /// </summary>
         /// <returns></returns>
         public ColorRGB Mean()
@@ -37,50 +37,5 @@ namespace ImageProcessing.Images
             return Sum() / size;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="mean"></param>
-        /// <returns></returns>
-        public float[,] Covariance(ColorRGB mean)
-        {
-            const int dimensions = 3;
-            var cv = new float[dimensions, dimensions];
-
-            int size = Size.Product;
-            if (size == 0) return cv;
-            
-            ColorRGB[,] deviations = new ColorRGB[Width, Height];
-
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    deviations[x, y] = this[x, y] - mean;
-                }
-            }
-
-            for (int j = 0; j < dimensions; j++)
-            {
-                for (int i = 0; i < dimensions; i++)
-                {
-                    for (int y = 0; y < Height; y++)
-                    {
-                        for (int x = 0; x < Width; x++)
-                        {
-                            cv[i, j] += deviations[x,y][i] * deviations[x,y][j];
-                        }
-                    }
-                }
-            }
-
-            for (int i = 0; i < dimensions; i++)
-            {
-                for (int j = 0; j < dimensions; j++)
-                    cv[i, j] /= size;
-            }
-
-            return cv;
-        }
     }
 }

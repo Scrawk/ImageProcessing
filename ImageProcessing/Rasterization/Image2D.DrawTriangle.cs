@@ -52,7 +52,7 @@ namespace ImageProcessing.Images
 
                     var bc = triangle.Barycentric(new Vector2f(x, y));
 
-                    if (bc.u >= 0 && bc.v >= 0 && bc.w >= 0)
+                    if (bc.x >= 0 && bc.y >= 0 && bc.z >= 0)
                         SetPixel(x, y, color);
                 }
             }

@@ -36,7 +36,6 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="size"></param>
 		/// <param name="data"></param>
 		private StructureElement2D(int[,] data) 
 		{

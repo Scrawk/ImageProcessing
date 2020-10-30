@@ -146,7 +146,7 @@ namespace ImageProcessing.Interpolation
 				return 0;
 			else if (0 < ax && ax < n)
 			{
-				float factor = MathUtil.PI * x / n;
+				float factor = MathUtil.PI_32 * x / n;
 				return MathUtil.Sin(factor) / factor;
 			}
 			else

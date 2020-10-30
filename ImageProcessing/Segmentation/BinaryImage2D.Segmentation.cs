@@ -119,7 +119,9 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="segmentation"></param>
+		/// <param name="image"></param>
+		/// <param name="seed"></param>
+		/// <param name="forest"></param>
 		/// <returns></returns>
 		public static ColorImage2D ColorizeForest(BinaryImage2D image, int seed, GraphForest forest)
 		{
