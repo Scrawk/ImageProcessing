@@ -17,7 +17,8 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public byte[] ToBytes(int bitDepth, bool bigEndian = false)
         {
-            var bytes = new byte[Width * Height * Channels];
+            int numBytes = bitDepth / 8;
+            var bytes = new byte[Width * Height * Channels * numBytes];
 
             for (int y = 0; y < Height; y++)
             {

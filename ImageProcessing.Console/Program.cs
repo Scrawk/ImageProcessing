@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 using Common.Core.Numerics;
 using Common.Core.Time;
@@ -15,9 +16,31 @@ namespace ImageProcessing.Console
         static void Main(string[] args)
         {
 
-            var k = FilterKernel2D.GaussianKernel(0.75f);
+            string fileIn = "D:/Terrain/Esperance/Cut1/Esperance_WaterMask_4m.raw";
+            string fileOut = "D:/Terrain/Esperance/Cut1/Esperance_WaterDepth_4m.raw";
 
-            CONSOLE.WriteLine("Sum = " + k.Sum());
+            var bytes = File.ReadAllBytes(fileIn);
+
+            var binary = new BinaryImage2D(512, 512);
+            binary.FromBytes(bytes, 8);
+
+            int border = 256;
+            var bounds = binary.Bounds;
+
+            var expand = Box2i.Expand(bounds, border);
+
+            binary = BinaryImage2D.Crop(binary, expand);
+
+            var distance = BinaryImage2D.ApproxEuclideanDistance(binary);
+
+            distance = GreyScaleImage2D.Crop(distance, bounds + (border, border));
+
+            distance.Modify(x => MathUtil.Log(1.0f + x * 0.1f));
+
+            distance.Normalize();
+
+            bytes = distance.ToBytes(16);
+            File.WriteAllBytes(fileOut, bytes);
 
         }
     }
