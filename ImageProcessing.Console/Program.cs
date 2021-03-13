@@ -16,12 +16,12 @@ namespace ImageProcessing.Console
         static void Main(string[] args)
         {
 
-            string fileIn = "D:/Terrain/Esperance/Cut1/Esperance_WaterMask_4m.raw";
-            string fileOut = "D:/Terrain/Esperance/Cut1/Esperance_WaterDepth_4m.raw";
+            string fileIn = "D:/Terrain/Esperance/Cut2/Esperance_WaterMask_Co_4m.raw";
+            string fileOut = "D:/Terrain/Esperance/Cut2/Esperance_WaterDepth_Co_4m.raw";
 
             var bytes = File.ReadAllBytes(fileIn);
 
-            var binary = new BinaryImage2D(512, 512);
+            var binary = new BinaryImage2D(256, 256);
             binary.FromBytes(bytes, 8);
 
             int border = 256;

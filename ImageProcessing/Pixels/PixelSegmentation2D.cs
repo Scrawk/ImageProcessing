@@ -71,7 +71,8 @@ namespace ImageProcessing.Pixels
 
             foreach (var p in keys)
             {
-                colors.TryAdd(p, rnd.NextColorRGB());
+                if(!colors.ContainsKey(p))
+                    colors.Add(p, rnd.NextColorRGB());
             }
 
             return colors;

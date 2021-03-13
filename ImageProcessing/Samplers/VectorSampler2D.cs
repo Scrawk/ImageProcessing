@@ -6,10 +6,10 @@ using ImageProcessing.Images;
 
 namespace ImageProcessing.Samplers
 {
-    public class MagnitudeSampler2D : ImageSampler2D
+    public class VectorSampler2D : ImageSampler2D
     {
 
-        public MagnitudeSampler2D(IImageSampler2D image, float scale = 1)
+        public VectorSampler2D(IImageSampler2D image, float scale = 1)
         {
             Image = image;
             Scale = scale;
@@ -21,12 +21,14 @@ namespace ImageProcessing.Samplers
 
         public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return new ColorRGB(Image.GetPixel(x, y, mode).Magnitude * Scale);
+            var vec = Image.GetPixel(x, y, mode) * Scale;
+            return new ColorRGB(vec.r * 0.5f + 0.5f, vec.g * 0.5f + 0.5f, 0);
         }
 
         public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return new ColorRGB(Image.GetPixel(u, v, mode).Magnitude * Scale);
+            var vec = Image.GetPixel(u, v, mode) * Scale;
+            return new ColorRGB(vec.r * 0.5f + 0.5f, vec.g * 0.5f + 0.5f, 0);
         }
 
     }
