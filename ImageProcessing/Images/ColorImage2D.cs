@@ -229,7 +229,7 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="pixel">The value.</param>
         /// <param name="mode">The blend mode used to combine value with current value.</param>
-        public void SetPixel(float u, float v, ColorRGB pixel, BLEND_MODE mode)
+        public void SetPixel(float u, float v, ColorRGB pixel, BLEND_MODE mode = BLEND_MODE.ADDITIVE)
         {
             float x = u * (Width - 1);
             float y = v * (Height - 1);
