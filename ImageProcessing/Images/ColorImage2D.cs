@@ -36,7 +36,7 @@ namespace ImageProcessing.Images
         /// Create a image of a given size.
         /// </summary>
         /// <param name="size">The size of the image. x is the width and y is the height.</param>
-        public ColorImage2D(Vector2i size)
+        public ColorImage2D(Point2i size)
             : base(size)
         {
 

@@ -15,21 +15,21 @@ namespace ImageProcessing.Pixels
         public PixelSegmentation2D(Image2D<T> image)
         {
             Image = image;
-            Sets = new Dictionary<Vector2i, PixelSet2D<T>>();
+            Sets = new Dictionary<Point2i, PixelSet2D<T>>();
         }
 
         public Image2D<T> Image { get; private set; }
 
         public int Count => Sets.Count;
 
-        public Dictionary<Vector2i, PixelSet2D<T>> Sets { get; private set; }
+        public Dictionary<Point2i, PixelSet2D<T>> Sets { get; private set; }
 
         public override string ToString()
         {
             return string.Format("[PixelSegmentation2D: Count={0}]", Count);
         }
 
-        public void AddPixel(Vector2i root, PixelIndex2D<T> pixel)
+        public void AddPixel(Point2i root, PixelIndex2D<T> pixel)
         {
             PixelSet2D<T> set;
             if (!Sets.TryGetValue(root, out set))
@@ -64,10 +64,10 @@ namespace ImageProcessing.Pixels
 
     public static class SegmentationColors
     {
-        public static Dictionary<Vector2i, ColorRGB> Generate(int seed, IEnumerable<Vector2i> keys)
+        public static Dictionary<Point2i, ColorRGB> Generate(int seed, IEnumerable<Point2i> keys)
         {
             var rnd = new Random(seed);
-            var colors = new Dictionary<Vector2i, ColorRGB>();
+            var colors = new Dictionary<Point2i, ColorRGB>();
 
             foreach (var p in keys)
             {

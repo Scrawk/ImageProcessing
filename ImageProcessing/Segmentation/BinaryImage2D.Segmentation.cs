@@ -74,15 +74,15 @@ namespace ImageProcessing.Images
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		public static GraphForest MinimumSpanningForest(BinaryImage2D image, Func<Vector2i, Vector2i, float> weights = null)
+		public static GraphForest MinimumSpanningForest(BinaryImage2D image, Func<Point2i, Point2i, float> weights = null)
         {
 			if (weights == null)
-				weights = (a, b) => (float)Vector2i.Distance(a, b);
+				weights = (a, b) => (float)Point2i.Distance(a, b);
 
-			var pixels = new List<Vector2i>();
+			var pixels = new List<Point2i>();
 			image.ToIndexList(pixels, (v) => v == true);
 
-			var table = new Dictionary<Vector2i, int>();
+			var table = new Dictionary<Point2i, int>();
 			var graph = new UndirectedGraph(pixels.Count);
 			for (int i = 0; i < pixels.Count; i++)
 			{
@@ -103,12 +103,12 @@ namespace ImageProcessing.Images
 					int yi = pixel.y + D8.OFFSETS[i, 1];
 
 					if (image.NotInBounds(xi, yi)) continue;
-					var idx2 = new Vector2i(xi, yi);
+					var idx2 = new Point2i(xi, yi);
 
 					if (table.TryGetValue(idx2, out int b) && !graph.ContainsEdge(a, b))
                     {
 						float weight = weights(pixel, idx2);
-						graph.AddEdge(a, b, weight);
+						graph.AddUndirectedEdge(a, b, weight);
                     }
 				}
 			}
@@ -125,7 +125,7 @@ namespace ImageProcessing.Images
 		/// <returns></returns>
 		public static ColorImage2D ColorizeForest(BinaryImage2D image, int seed, GraphForest forest)
 		{
-			var roots = new List<Vector2i>();
+			var roots = new List<Point2i>();
 			foreach(var tree in forest.Trees)
             {
 				int root = tree.Root;

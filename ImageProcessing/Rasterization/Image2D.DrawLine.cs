@@ -15,7 +15,7 @@ namespace ImageProcessing.Images
             DrawLine(line.Positions, color);
         }
 
-        public void DrawLine(IList<Vector2f> line, ColorRGB color)
+        public void DrawLine(IList<Point2f> line, ColorRGB color)
         {
             int points = line.Count;
             for (int i = 0; i < points - 1; i++)
@@ -41,7 +41,7 @@ namespace ImageProcessing.Images
             DrawLine(x1, y1, x2, y2, color);
         }
 
-        public void DrawLine(Vector2f a, Vector2f b, ColorRGB color)
+        public void DrawLine(Point2f a, Point2f b, ColorRGB color)
         {
             int x1 = (int)Math.Round(a.x);
             int y1 = (int)Math.Round(a.y);

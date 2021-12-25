@@ -14,7 +14,7 @@ namespace ImageProcessing.Images
             DrawTriangle(triangle.A, triangle.B, triangle.C, color, filled);
         }
 
-        public void DrawTriangle(Vector2f a, Vector2f b, Vector2f c, ColorRGB color, bool filled)
+        public void DrawTriangle(Point2f a, Point2f b, Point2f c, ColorRGB color, bool filled)
         {
             if (filled)
             {
@@ -31,7 +31,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// http://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
         /// </summary>
-        private void DrawFilledTriangle(Vector2f a, Vector2f b, Vector2f c, ColorRGB color)
+        private void DrawFilledTriangle(Point2f a, Point2f b, Point2f c, ColorRGB color)
         {
             int width1 = Width - 1;
             int height1 = Height - 1;
@@ -50,7 +50,7 @@ namespace ImageProcessing.Images
                     if (x < 0 || x > width1) continue;
                     if (y < 0 || y > height1) continue;
 
-                    var bc = triangle.Barycentric(new Vector2f(x, y));
+                    var bc = triangle.Barycentric(new Point2f(x, y));
 
                     if (bc.x >= 0 && bc.y >= 0 && bc.z >= 0)
                         SetPixel(x, y, color);

@@ -33,7 +33,7 @@ namespace ImageProcessing.Images
         /// Create a new image.
         /// </summary>
         /// <param name="size">The size of the image.</param>
-        public Image2D(Vector2i size)
+        public Image2D(Point2i size)
              : base(size)
         {
 
@@ -69,7 +69,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// The size of the image as a vector.
         /// </summary>
-        public Vector2i Size => new Vector2i(Width, Height);
+        public Point2i Size => new Point2i(Width, Height);
 
         /// <summary>
         /// The size of the image as a box.
@@ -116,7 +116,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="list">The list the pixels will be added to.</param>
         /// <param name="predicate">The predicate that decides what pixels to include.</param>
-        public void ToIndexList(List<Vector2i> list, Func<T, bool> predicate)
+        public void ToIndexList(List<Point2i> list, Func<T, bool> predicate)
         {
             for (int y = 0; y < Height; y++)
             {
@@ -124,7 +124,7 @@ namespace ImageProcessing.Images
                 {
                     var v = this[x, y];
                     if (predicate(v))
-                        list.Add(new Vector2i(x, y));
+                        list.Add(new Point2i(x, y));
                 }
             }
         }
@@ -165,7 +165,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="indices">The indices to fill.</param>
         /// <param name="value">The value to fill.</param>
-        public void Fill(IList<Vector2i> indices, T value)
+        public void Fill(IList<Point2i> indices, T value)
         {
             for (int i = 0; i < indices.Count; i++)
             {

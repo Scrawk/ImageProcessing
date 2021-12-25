@@ -37,7 +37,7 @@ namespace ImageProcessing.Images
         /// Create a image of a given size.
         /// </summary>
         /// <param name="size">The size of the image. x is the width and y is the height.</param>
-        public BinaryImage2D(Vector2i size)
+        public BinaryImage2D(Point2i size)
             : base(size)
         {
 

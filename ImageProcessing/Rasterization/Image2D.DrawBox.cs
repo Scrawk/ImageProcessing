@@ -10,7 +10,7 @@ namespace ImageProcessing.Images
     public partial class Image2D<T>
     {
 
-        public void DrawPoint(Vector2f center, float size, ColorRGB color)
+        public void DrawPoint(Point2f center, float size, ColorRGB color)
         {
             float half = size * 0.5f;
             DrawBox(center - half, center + half, color, true);
@@ -21,7 +21,7 @@ namespace ImageProcessing.Images
             DrawBox(box.Min, box.Max, color, filled);
         }
 
-        public void DrawBox(Vector2f min, Vector2f max, ColorRGB color, bool filled)
+        public void DrawBox(Point2f min, Point2f max, ColorRGB color, bool filled)
         {
             int x1 = (int)Math.Round(min.x);
             int y1 = (int)Math.Round(min.y);

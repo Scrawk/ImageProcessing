@@ -14,7 +14,7 @@ namespace ImageProcessing.Images
             DrawPolygon(polygon.Positions, color, filled);
         }
 
-        public void DrawPolygon(IList<Vector2f> polygon, ColorRGB color, bool filled)
+        public void DrawPolygon(IList<Point2f> polygon, ColorRGB color, bool filled)
         {
             int count = polygon.Count;
 

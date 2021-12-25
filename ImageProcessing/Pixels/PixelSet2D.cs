@@ -47,8 +47,8 @@ namespace ImageProcessing.Pixels
 
         public Box2i Bounds()
         {
-            Vector2i min = Vector2i.MaxInt;
-            Vector2i max = Vector2i.MinInt;
+            Point2i min = Point2i.MaxValue;
+            Point2i max = Point2i.MinValue;
 
             for(int i = 0; i < Pixels.Count; i++)
             {
@@ -71,9 +71,9 @@ namespace ImageProcessing.Pixels
             return MathUtil.Clamp01(pi * 4.0f * area / p2);
         }
 
-        public Vector2f Centroid()
+        public Point2f Centroid()
         {
-            Vector2f centroid = new Vector2f();
+            Point2f centroid = new Point2f();
 
             for (int i = 0; i < Pixels.Count; i++)
             {

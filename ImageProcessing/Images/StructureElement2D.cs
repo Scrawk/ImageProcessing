@@ -94,7 +94,7 @@ namespace ImageProcessing.Images
 			{
 				for (int x = 0; x < Size; x++)
 				{
-					var p = new Vector2f(x, y);
+					var p = new Point2f(x, y);
 					if (center) p += 0.5f;
 
 					if (shape.Contains(p))

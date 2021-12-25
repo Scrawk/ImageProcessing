@@ -14,12 +14,12 @@ namespace ImageProcessing.Images
             DrawEllipse(circle.Center, circle.Radius, circle.Radius, color, filled);
         }
 
-        public void DrawCircle(Vector2f center, float radius, ColorRGB color, bool filled)
+        public void DrawCircle(Point2f center, float radius, ColorRGB color, bool filled)
         {
             DrawEllipse(center, radius, radius, color, filled);
         }
 
-        public void DrawEllipse(Vector2f center, float radiusX, float radiusY, ColorRGB color, bool filled)
+        public void DrawEllipse(Point2f center, float radiusX, float radiusY, ColorRGB color, bool filled)
         {
             int xc = (int)Math.Round(center.x);
             int yc = (int)Math.Round(center.y);
