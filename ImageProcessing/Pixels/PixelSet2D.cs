@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 using Common.Core.Numerics;
-using Common.Geometry.Shapes;
+using Common.Core.Shapes;
 
 namespace ImageProcessing.Pixels
 {

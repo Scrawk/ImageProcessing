@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 using Common.Core.Numerics;
-using Common.Geometry.Shapes;
+using Common.Core.Shapes;
 
 namespace ImageProcessing.Images
 {
@@ -88,7 +88,7 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="shape"></param>
 		/// <param name="center"></param>
-		public void Fill(IShape2f shape, bool center = true)
+		public void Fill(Circle2f shape, bool center = true)
 		{
 			for (int y = 0; y < Size; y++)
 			{

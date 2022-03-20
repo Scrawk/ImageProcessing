@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 using Common.Core.Numerics;
 using Common.Core.Colors;
-using Common.Geometry.Shapes;
+using Common.Core.Shapes;
 
 namespace ImageProcessing.Images
 {

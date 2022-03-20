@@ -3,7 +3,7 @@ using System.IO;
 
 using Common.Core.Numerics;
 using Common.Core.Time;
-using Common.Geometry.Shapes;
+using Common.Core.Shapes;
 
 using ImageProcessing.Images;
 

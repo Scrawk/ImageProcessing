@@ -105,7 +105,7 @@ namespace ImageProcessing.Images
 					if (image.NotInBounds(xi, yi)) continue;
 					var idx2 = new Point2i(xi, yi);
 
-					if (table.TryGetValue(idx2, out int b) && !graph.ContainsEdge(a, b))
+					if (table.TryGetValue(idx2, out int b) && !graph.HasEdge(a, b))
                     {
 						float weight = weights(pixel, idx2);
 						graph.AddUndirectedEdge(a, b, weight);

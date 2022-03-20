@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Common.Core.Numerics;
 using Common.Core.Colors;
 using Common.Collections.Arrays;
-using Common.Geometry.Shapes;
+using Common.Core.Shapes;
 
 using ImageProcessing.Pixels;
 
