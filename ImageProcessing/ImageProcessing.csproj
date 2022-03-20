@@ -27,6 +27,10 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Synthesis\" />
+  </ItemGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.dll&quot; &quot;F:\Projects\Unity Projects\ImageProcessingUnity\Assets\Common\Plugins&quot; /y&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.pdb&quot; &quot;F:\Projects\Unity Projects\ImageProcessingUnity\Assets\Common\Plugins&quot; /y&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.xml&quot; &quot;F:\Projects\Unity Projects\ImageProcessingUnity\Assets\Common\Plugins&quot; /y&#xD;&#xA;&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.dll&quot; &quot;F:\Projects\Unity Projects\CommonUnity\Assets\Common\Plugins&quot; /y&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.pdb&quot; &quot;F:\Projects\Unity Projects\CommonUnity\Assets\Common\Plugins&quot; /y&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\$(ConfigurationName)\netstandard2.0\ImageProcessing.xml&quot; &quot;F:\Projects\Unity Projects\CommonUnity\Assets\Common\Plugins&quot; /y&#xD;&#xA;" />
   </Target>

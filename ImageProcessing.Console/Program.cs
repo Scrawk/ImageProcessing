@@ -1,9 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Drawing;
 
 using Common.Core.Numerics;
 using Common.Core.Time;
 using Common.Core.Shapes;
+using Common.Core.Colors;
+using Common.GraphTheory.AdjacencyGraphs;
 
 using ImageProcessing.Images;
 
@@ -16,32 +19,68 @@ namespace ImageProcessing.Console
         static void Main(string[] args)
         {
 
-            string fileIn = "D:/Terrain/Esperance/Cut2/Esperance_WaterMask_Co_4m.raw";
-            string fileOut = "D:/Terrain/Esperance/Cut2/Esperance_WaterDepth_Co_4m.raw";
 
-            var bytes = File.ReadAllBytes(fileIn);
+            int bufferSize = 32;
 
-            var binary = new BinaryImage2D(256, 256);
-            binary.FromBytes(bytes, 8);
+            var bitmap1 = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/Grass1.png"));
+            var bitmap2 = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/Grass2.png"));
 
-            int border = 256;
-            var bounds = binary.Bounds;
+            int width1 = bitmap1.Width;
+            int height1 = bitmap1.Height;
 
-            var expand = Box2i.Expand(bounds, border);
+            int width2 = bitmap2.Width;
+            int height2 = bitmap2.Height;
 
-            binary = BinaryImage2D.Crop(binary, expand);
+            int width = bitmap1.Width + bitmap2.Width;
+            int height = bitmap1.Height;
 
-            var distance = BinaryImage2D.ApproxEuclideanDistance(binary);
+            var image = new ColorImage2D(width - bufferSize, height);
 
-            distance = GreyScaleImage2D.Crop(distance, bounds + (border, border));
+            image.Fill((x, y) => 
+            {
 
-            distance.Modify(x => MathUtil.Log(1.0f + x * 0.1f));
+                ColorRGB pixel = new ColorRGB();
 
-            distance.Normalize();
+                if (x < width1 - bufferSize)
+                {
+                    pixel = ToColorRGB(bitmap1.GetPixel(x, y));
+                }
+                else if (x >= width1 - bufferSize && x < width1)
+                {
+                    var pixel1 = bitmap1.GetPixel(x, y);
+                    var pixel2 = bitmap2.GetPixel(x - width1 + bufferSize, y);
 
-            bytes = distance.ToBytes(16);
-            File.WriteAllBytes(fileOut, bytes);
+                    var col1 = ToColorRGB(pixel1);
+                    var col2 = ToColorRGB(pixel2);
 
+                    var sd = ColorRGB.SqrDistance(col1, col2);
+
+                    pixel = new ColorRGB(sd);
+
+                }
+                else if(x >= width1)
+                {
+                    pixel = ToColorRGB(bitmap2.GetPixel(x - width1, y));
+                }
+
+                return pixel; 
+            });
+
+           
+
+
+            var bytes = image.ToBytes(8);
+            File.WriteAllBytes("C:/Users/Justin/OneDrive/Desktop/Test.raw", bytes);
+
+        }
+
+        private static ColorRGB ToColorRGB(Color pixel)
+        {
+            float r = pixel.R / 255.0f;
+            float g = pixel.G / 255.0f;
+            float b = pixel.B / 255.0f;
+
+            return new ColorRGB(r, g, b);
         }
     }
 }
