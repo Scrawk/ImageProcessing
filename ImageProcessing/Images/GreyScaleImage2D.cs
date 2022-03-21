@@ -85,7 +85,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public float GetValue(int x, int y, WRAP_MODE mode)
         {
             if(mode == WRAP_MODE.CLAMP)
                 return GetClamped(x, y);
@@ -102,7 +102,7 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public float GetValue(float u, float v, WRAP_MODE mode)
         {
             float x = u * (Width-1);
             float y = v * (Height-1);
@@ -155,7 +155,7 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="value">The value.</param>
         /// <param name="mode">The blend mode used to combine value with current value.</param>
-        public void SetValue(float u, float v, float value, BLEND_MODE mode = BLEND_MODE.ADDITIVE)
+        public void SetValue(float u, float v, float value, BLEND_MODE mode)
         {
             float x = u * (Width - 1);
             float y = v * (Height - 1);
@@ -212,7 +212,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode)
         {
             float value = GetValue(x, y, mode);
             return new ColorRGB(value);
@@ -225,7 +225,7 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode)
         {
             var value = GetValue(u, v, mode);
             return new ColorRGB(value);
@@ -259,7 +259,7 @@ namespace ImageProcessing.Images
         /// <param name="w">The size of the pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns></returns>
-        public float GetSlope(int x, int y, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public float GetSlope(int x, int y, Vector2f w, WRAP_MODE mode)
         {
             var d = GetFirstDerivative(x, y, w, mode);
             float p = d.x * d.x + d.y * d.y;
@@ -275,7 +275,7 @@ namespace ImageProcessing.Images
         /// <param name="w">The size of the pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns></returns>
-        public float GetSlope(float u, float v, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public float GetSlope(float u, float v, Vector2f w, WRAP_MODE mode)
         {
             var d = GetFirstDerivative(u, v, w, mode);
             float p = d.x * d.x + d.y * d.y;
@@ -291,7 +291,7 @@ namespace ImageProcessing.Images
         /// <param name="w">The size of the pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns></returns>
-        public Vector3f GetNormal(int x, int y, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public Vector3f GetNormal(int x, int y, Vector2f w, WRAP_MODE mode)
         {
             var d = GetFirstDerivative(x, y, w, mode);
             var n = new Vector3f(d.x, 1, d.y);
@@ -306,7 +306,7 @@ namespace ImageProcessing.Images
         /// <param name="w">The size of the pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns></returns>
-        public Vector3f GetNormal(float u, float v, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public Vector3f GetNormal(float u, float v, Vector2f w, WRAP_MODE mode)
         {
             var d = GetFirstDerivative(u, v, w, mode);
             var n = new Vector3f(d.x, 1, d.y);
@@ -321,7 +321,7 @@ namespace ImageProcessing.Images
         /// <param name="w">The size of the pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns></returns>
-        public Vector2f GetFirstDerivative(int x, int y, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public Vector2f GetFirstDerivative(int x, int y, Vector2f w, WRAP_MODE mode)
         {
             float z1 = GetValue(x - 1, y + 1, mode);
             float z2 = GetValue(x + 0, y + 1, mode);
@@ -347,7 +347,7 @@ namespace ImageProcessing.Images
         /// <param name="w">The size of the pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns></returns>
-        public Vector2f GetFirstDerivative(float u, float v, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public Vector2f GetFirstDerivative(float u, float v, Vector2f w, WRAP_MODE mode)
         {
             float x1 = 1.0f / Width;
             float y1 = 1.0f / Height;
@@ -375,7 +375,7 @@ namespace ImageProcessing.Images
         /// <param name="w">The size of the pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns></returns>
-        public (Vector2f d1, Vector3f d2) GetFirstAndSecondDerivative(int x, int y, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public (Vector2f d1, Vector3f d2) GetFirstAndSecondDerivative(int x, int y, Vector2f w, WRAP_MODE mode)
         {
             float wx2 = w.x * w.x;
             float wy2 = w.y * w.y;
@@ -413,7 +413,7 @@ namespace ImageProcessing.Images
         /// <param name="w">The size of the pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns></returns>
-        public (Vector2f d1, Vector3f d2) GetFirstAndSecondDerivative(float u, float v, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public (Vector2f d1, Vector3f d2) GetFirstAndSecondDerivative(float u, float v, Vector2f w, WRAP_MODE mode)
         {
             float x1 = 1.0f / Width;
             float y1 = 1.0f / Height;

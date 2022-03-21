@@ -86,7 +86,7 @@ namespace ImageProcessing.Images
         /// <param name="c">The channel index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public float GetChannel(int x, int y, int c, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public float GetChannel(int x, int y, int c, WRAP_MODE mode)
         {
             return GetVector(x, y, mode)[c];
         }
@@ -99,7 +99,7 @@ namespace ImageProcessing.Images
         /// <param name="c">The channel index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public float GetChannel(float u, float v, int c, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public float GetChannel(float u, float v, int c, WRAP_MODE mode)
         {
             float x = u * (Width - 1);
             float y = v * (Height - 1);
@@ -155,7 +155,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The vector at index x,y.</returns>
-        public Vector2f GetVector(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public Vector2f GetVector(int x, int y, WRAP_MODE mode)
         {
             if (mode == WRAP_MODE.CLAMP)
                 return GetClamped(x, y);
@@ -172,7 +172,7 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The vector at index x,y.</returns>
-        public Vector2f GetVector(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public Vector2f GetVector(float u, float v, WRAP_MODE mode)
         {
             float x = u * (Width - 1);
             float y = v * (Height - 1);
@@ -228,7 +228,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode)
         {
             var vec = GetVector(x, y, mode);
             return new ColorRGB(vec.x, vec.y, 0);
@@ -241,7 +241,7 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode)
         {
             var vec = GetVector(u, v, mode);
             return new ColorRGB(vec.x, vec.y, 0);

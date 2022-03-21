@@ -27,9 +27,9 @@ namespace ImageProcessing.Images
     /// <typeparam name="T">The element type</typeparam>
     public interface  IImage2D<T> : IArray2<T>, IImageSampler2D
     {
-        new ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
+        new ColorRGB GetPixel(int x, int y, WRAP_MODE mode);
 
-        new ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
+        new ColorRGB GetPixel(float u, float v, WRAP_MODE mode);
 
         void SetPixel(int x, int y, ColorRGB pixel);
 

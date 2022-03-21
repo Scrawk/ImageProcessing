@@ -92,7 +92,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public abstract ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
+        public abstract ColorRGB GetPixel(int x, int y, WRAP_MODE mode);
 
         /// <summary>
         /// Get a pixel from the image at normalized index u,v.
@@ -101,7 +101,7 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public abstract ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
+        public abstract ColorRGB GetPixel(float u, float v, WRAP_MODE mode);
 
         /// <summary>
         /// Set the pixel at index x,y.

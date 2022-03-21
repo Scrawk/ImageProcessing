@@ -24,7 +24,7 @@ namespace ImageProcessing.Images
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    ColorRGB pixel = GetPixel(x, y);
+                    ColorRGB pixel = GetPixel(x, y, WRAP_MODE.CLAMP);
 
                     for (int c = 0; c < Channels; c++)
                     {
