@@ -19,14 +19,21 @@ namespace ImageProcessing.Console
 {
     class Program
     {
+        static void WriteLine(object obj)
+        {
+            if(obj == null)
+                System.Console.WriteLine("Null");
+            else
+                System.Console.WriteLine(obj.ToString());
+        }
+
         static void Main(string[] args)
         {
 
+            int bufferSize = 8;
 
-            int bufferSize = 32;
-
-            var bitmap1 = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/Grass1.png"));
-            var bitmap2 = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/Grass2.png"));
+            var bitmap1 = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/Grass1_32.png"));
+            var bitmap2 = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/Grass2_32.png"));
 
             int width1 = bitmap1.Width;
             int height1 = bitmap1.Height;
@@ -38,6 +45,8 @@ namespace ImageProcessing.Console
             int height = bitmap1.Height;
 
             var image = new ColorImage2D(width - bufferSize, height);
+
+            WriteLine(image);
 
             image.Fill((x, y) => 
             {
@@ -70,67 +79,106 @@ namespace ImageProcessing.Console
             });
 
 
-            var graph = new GridGraph(bufferSize, height);
+            var grid_graph = new GridGraph(bufferSize, height);
 
             int offset = width1 - bufferSize;
 
-            for(int x = 0; x < graph.Width; x++)
+            grid_graph.Iterate((x, y) =>
             {
-                for (int y = 0; y < graph.Height; y++)
+                float w1 = image.GetChannel(offset + x, y, 0);
+
+                for (int i = 0; i < 8; i++)
                 {
-                    float w1 = image.GetChannel(offset + x, y, 0);
+                    int xi = x + D8.OFFSETS[i, 0];
+                    int yi = y + D8.OFFSETS[i, 1];
 
-                    for(int i = 0; i < 8; i++)
-                    {
-                        int xi = x + D8.OFFSETS[i, 0];
-                        int yi = y + D8.OFFSETS[i, 1];
+                    if (xi < 0 || xi > grid_graph.Width - 1) continue;
+                    if (yi < 0 || yi > grid_graph.Height - 1) continue;
 
-                        if (xi < 0 || xi > graph.Width - 1) continue;
-                        if (yi < 0 || yi > graph.Height - 1) continue;
+                    float w2 = image.GetChannel(offset + xi, yi, 0);
 
-                        float w2 = image.GetChannel(offset + xi, yi, 0);
+                    int w = Math.Min(1, (int)((w1 + w2) * 255));
 
-                        int w = (int)((w1 + w2) * 128);
-
-                        graph.AddDirectedWeightedEdge(x, y, i, w);
-    
-                    }
-                    
+                    grid_graph.AddDirectedWeightedEdge(x, y, i, w);
                 }
-            }
+            });
 
-            var source = new Point2i(0, graph.Height / 2);
-            var target = new Point2i(graph.Width-1, graph.Height / 2);
-
-            //var source = new Point2i(graph.Width / 2, 0);
-            //var target = new Point2i(graph.Width / 2, graph.Height-1);
-
-            image.SetPixel(offset + source.x, source.y, ColorRGB.Red);
-            image.SetPixel(offset + target.x, target.y, ColorRGB.Red);
+            int scale = 5;
+            image = image.Rescale(scale, RESCALE.POINT);
 
             /*
-            GridSearch search = new GridSearch(graph.Width, graph.Height);
-            //graph.PrimsMinimumSpanningTree(search, source.x, source.y);
-            //graph.BreadthFirst(search, source.x, source.y);
+            var adj_graph = grid_graph.ToDirectedGraph();
 
-            var path = new List<Point2i>();
-            search.GetPath(target, path);
+            //adj_graph.Print();
 
-            foreach(var p in path)
+            var source = adj_graph.AddVertex();
+            var target = adj_graph.AddVertex();
+
+            //WriteLine("Source " + source);
+            //WriteLine("Target " + target);
+
+            for (int y = 0; y < grid_graph.Height; y++)
             {
-                image.SetPixel(offset + p.x, p.y, ColorRGB.Red);
+                int len = (grid_graph.Width - 1);
+                int i = y * len;
+                int j = len + y * len;
+
+                int w1 = 255;
+                int w2 = 255;  
+
+                adj_graph.AddDirectedEdge(source.Index, i, w1);
+                adj_graph.AddDirectedEdge(j, target.Index, w2);
+            }
+
+            var edges = adj_graph.MinCut(source.Index, target.Index);
+            //WriteLine("Edges " + edges.Count);
+
+            Point2i S = new Point2i(offset - 10, image.Height / 2);
+            Point2i T = new Point2i(offset + 10, image.Height / 2);
+
+            foreach (var e in edges)
+            {
+
+                var from = adj_graph.GetVertex(e.From);
+                var to = adj_graph.GetVertex(e.To);
+
+                if (from == source)
+                {
+                    var to_edges = adj_graph.GetEdges(to.Index);
+                    if (to_edges == null || to_edges.Count == 0)
+                        continue;
+
+                    var gridData = to_edges[0].Data as GridEdge;
+                    if (gridData == null) continue;
+
+                    var v = gridData.To;
+                    v.x += offset;
+
+                    image.DrawLine(S, v, ColorRGB.Red);
+
+
+                }
+                else if(from == target)
+                {
+
+                }
+                else
+                {
+                    var gridData = e.Data as GridEdge;
+                    if (gridData == null) continue;
+                    if (image.NotInBounds(gridData.From)) continue;
+                    if (image.NotInBounds(gridData.To)) continue;
+
+                    var u = gridData.From;
+                    var v = gridData.To;
+
+                    image.SetPixel(offset + u.x, u.y, ColorRGB.Red);
+                    image.SetPixel(offset + v.x, v.y, ColorRGB.Red);
+                }
+
+
             }
             */
-
-            var edges = graph.MinCut2(source, target);
-            CONSOLE.WriteLine("Edges " + edges.Count);
-
-            foreach (var edge in edges)
-            {
-                var e = edge.Data as GridEdge;
-
-                image.SetPixel(offset + e.From.x, e.From.y, ColorRGB.Red);
-            }
 
             var filename = "C:/Users/Justin/OneDrive/Desktop/Test.raw";
             var bytes = image.ToBytes(8);

@@ -88,14 +88,14 @@ namespace ImageProcessing.Images
 			{
 				var pixel = pixels[i];
 
-				graph.Vertices[i].Data = pixel;
+				graph.GetVertex(i).Data = pixel;
 				table.Add(pixel, i);
 			}
 			
 			for (int j = 0; j < pixels.Count; j++)
             {
 				var pixel = pixels[j];
-				var a = graph.Vertices[j].Index;
+				var a = graph.GetVertex(j).Index;
 
 				for (int i = 0; i < 8; i++)
 				{

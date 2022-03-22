@@ -9,10 +9,55 @@ using ImageProcessing.Interpolation;
 
 namespace ImageProcessing.Images
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public partial class ColorImage2D
+
+	public enum RESCALE
+    {
+		BILINEAR,
+		BICUBIC,
+		BSPLINE,
+		POINT
+    }
+
+	public static class RescaleColorImage2D
+	{
+		public static ColorImage2D Rescale(this ColorImage2D image, int scale, RESCALE method)
+		{
+			int width = image.Width * scale;
+			int height = image.Height * scale;
+			return Rescale(image, width, height, method);
+		}
+
+		public static ColorImage2D Rescale(this ColorImage2D image, int width, int height, RESCALE method)
+        {
+			ColorImage2D image2 = null;
+
+            switch (method)
+            {
+                case RESCALE.BILINEAR:
+					image = ColorImage2D.BilinearRescale(image, width, height);
+					break;
+
+                case RESCALE.BICUBIC:
+					image = ColorImage2D.BicubicRescale(image, width, height);
+					break;
+
+                case RESCALE.BSPLINE:
+					image = ColorImage2D.BSplineRescale(image, width, height);
+					break;
+
+                case RESCALE.POINT:
+					image = ColorImage2D.PointRescale(image, width, height);
+					break;
+            }
+
+            return image2;
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public partial class ColorImage2D
 	{
 		/// <summary>
 		/// 
@@ -37,7 +82,7 @@ namespace ImageProcessing.Images
 		{
 			return Rescale(image, width, height, CubicInterpolation.Default);
 		}
-	
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -48,6 +93,31 @@ namespace ImageProcessing.Images
 		public static ColorImage2D BSplineRescale(ColorImage2D image, int width, int height)
 		{
 			return Rescale(image, width, height, SplineInterpolation.MitchellNetravli);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="image"></param>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
+		/// <returns></returns>
+		public static ColorImage2D PointRescale(ColorImage2D image, int width, int height)
+		{
+			var image2 = new ColorImage2D(width, height);
+
+			int scaleX = image2.Width / image.Width;
+			int scaleY = image2.Height / image.Height;
+
+			image2.Fill((x, y) =>
+			{
+				int X = x / scaleX;
+				int Y = y / scaleY;
+
+				return image.GetPixel(X, Y, WRAP_MODE.CLAMP);
+			});
+
+			return image2;
 		}
 
 		/// <summary>
