@@ -1,2 +1,8 @@
 
 A image processing libarary for personal use.
+
+Depends on this [common code project](https://github.com/Scrawk/Common).
+
+Base from the book [Image-Processing-Mathematical-Morphology-Fundamentals](https://www.amazon.com/Image-Processing-Mathematical-Morphology-Fundamentals/dp/1420089439/ref=sr_1_1?crid=E6DGG5JJ6TRQ&keywords=image+processing+and+mathematical+morphology&qid=1648299647&s=books&sprefix=image+processing+and+mathematical+morphology%2Cstripbooks-intl-ship%2C309&sr=1-1)
+
+
