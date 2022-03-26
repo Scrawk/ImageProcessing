@@ -52,6 +52,11 @@ namespace ImageProcessing.Images
             DrawLine(x1, y1, x2, y2, color);
         }
 
+        public void DrawLine(Point2i a, Point2i b, ColorRGB color)
+        {
+            DrawLine(a.x, a.y, b.x, b.y, color);
+        }
+
         public void DrawLine(int x1, int y1, int x2, int y2, ColorRGB color)
         {
             DrawLineDDA(x1, y1, x2, y2, color);

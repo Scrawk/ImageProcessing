@@ -108,7 +108,7 @@ namespace ImageProcessing.Images
 					if (table.TryGetValue(idx2, out int b) && !graph.HasEdge(a, b))
                     {
 						float weight = weights(pixel, idx2);
-						graph.AddUndirectedEdge(a, b, weight);
+						graph.AddUndirectedWeightedEdge(a, b, weight);
                     }
 				}
 			}
