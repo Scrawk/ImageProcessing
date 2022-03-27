@@ -103,7 +103,7 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public float GetValue(float u, float v, WRAP_MODE mode)
+        public float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float x = u * (Width-1);
             float y = v * (Height-1);
@@ -137,7 +137,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode)
+        public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             var value = GetValue(x, y, mode);
             return new ColorRGB(value);
@@ -150,7 +150,7 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode)
+        public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             var value = GetValue(u, v, mode);
             return new ColorRGB(value);

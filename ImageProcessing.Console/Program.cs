@@ -36,96 +36,119 @@ namespace ImageProcessing.Console
             return new ColorRGB(r, g, b);
         }
 
-        private static float GetWeight(Bitmap bm, ColorImage2D ci, int x, int y)
-        {
-            var col1 = ToColorRGB(bm.GetPixel(x, y));
-            var col2 = ci.GetPixel(x, y, WRAP_MODE.CLAMP);
-
-            var sd = ColorRGB.SqrDistance(col1, col2);
-
-            return sd;
-        }
-
         static void Main(string[] args)
         {
 
-            const int cutSize = 32;
-            const int bufferSize = 2;
-
+            const int imageSize = 256;
+            const int graphSize = 32;
+       
             var bitmap = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/Test_Gravel_512.png"));
-
             int width = bitmap.Width;
             int height = bitmap.Height;
 
             var image = new ColorImage2D(width, height);
+            image.Fill((x, y) =>
+            {
+                return ToColorRGB(bitmap.GetPixel(x, y));
+            });
+
+            var image1 = ColorImage2D.Crop(image, new Box2i(0, 0, width / 2, height / 2));
+            var image2 = ColorImage2D.Crop(image, new Box2i(width / 2, 0, width, height / 2));
+            var image3 = ColorImage2D.Crop(image, new Box2i(0, height / 2, width / 2, height));
+            var image4 = ColorImage2D.Crop(image, new Box2i(width / 2, height / 2, width, height));
+
+            image = new ColorImage2D(imageSize * 2 - graphSize, imageSize);
+            int offset = imageSize - graphSize;
 
             WriteLine("Image " + image);
 
-            image.Fill((x, y) =>
+            image1.Iterate((x, y) =>
             {
-
-                ColorRGB pixel = new ColorRGB();
-
-                if (x < width - cutSize)
-                {
-                    pixel = ToColorRGB(bitmap.GetPixel(x, y));
-                }
-                else if (x >= width - cutSize)
-                {
-                    pixel = ToColorRGB(bitmap.GetPixel(width - 1 - x, y));
-                }
-
-                return pixel;
+                image[x, y] = image1[x, y];
             });
 
-            var graph = new GridGraph(cutSize - bufferSize, height);
-            int offset = width - cutSize;
+            image4.Iterate((x, y) =>
+            {
+                image[offset + x, y] = image4[x, y];
+            });
+
+            var graph = new GridGraph(graphSize, imageSize);
 
             graph.Iterate((x, y, i) =>
              {
                  int xi = x + D8.OFFSETS[i, 0];
                  int yi = y + D8.OFFSETS[i, 1];
 
+                 var col1 = image1[offset + x, y];
+                 var col4 = image4[x, y];
+
+                 var w1 = ColorRGB.SqrDistance(col1, col4);
+
                  if (graph.InBounds(xi, yi))
                  {
-                     float w1 = GetWeight(bitmap, image, offset + x, y);
-                     float w2 = GetWeight(bitmap, image, offset + xi, yi);
-                     float w = Math.Max(1, (int)((w1 + w2) * 255));
+                     var col1i = image1[offset + xi, yi];
+                     var col4i = image4[xi, yi];
+
+                     var w2 = ColorRGB.SqrDistance(col1i, col4i);
+                     var w = Math.Max(1, (w1+w2) * 255);
 
                      graph.AddDirectedWeightedEdge(x, y, i, w);
                  }
-
              });
 
-            //graph.Print();
-            
-            var source = new Point2i(graph.Width/2, 0);
-            var target = new Point2i(graph.Width / 2, graph.Height-1);
 
-            var search = graph.PrimsMinimumSpanningTree(source.x, source.y);
+            var search = new GridSearch(graph.Width, graph.Height);
+            var path = new List<Point2i>();
+            float cost = float.PositiveInfinity;
+            int samples = 4;
 
-            //search.Print();
-
-            var path = search.GetPath(target);
-
-            foreach(var p in path)
+            for (int x = 0; x < samples; x++)
             {
-                for (int i = p.x; i >= 0; i--)
+                for (int y = 0; y < samples; y++)
                 {
-                    var pixel = ToColorRGB(bitmap.GetPixel(offset + i, p.y));
-                    image.SetPixel(offset + i, p.y, pixel);
-                }
+                    int incrementS = (graph.Width / samples) * x;
+                    int incrementT = (graph.Width / samples) * y;
 
-                for (int i = p.x; i < graph.Width; i++)
-                {
-                    //var pixel = ToColorRGB(bitmap.GetPixel(i, p.y));
-                    //image.SetPixel(offset + i, p.y, pixel);
+                    var source = new Point2i(incrementS, 0);
+                    var target = new Point2i(incrementT, graph.Height - 1);
+
+                    search.Clear();
+                    graph.PrimsMinimumSpanningTree(search, source.x, source.y);
+
+                    var p = search.GetPath(target);
+
+                    if (p.Count == 0)
+                    {
+                        //WriteLine("Empty path");
+                        continue;
+                    }
+
+                    if (p[0] != target)
+                    {
+                        //WriteLine("Path did not reach target");
+                        continue;
+                    }
+
+                    float c = search.GetPathCost(p, graph);
+
+                    if (c < cost)
+                    {
+                        cost = c;
+                        path = p;
+                    }
                 }
             }
 
-            //WriteLine("Path " + path.Count);
-            //DrawPath(graph, path, image, offset);
+            foreach (var p in path)
+            {
+                for (int i = 0; i < p.x; i++)
+                {
+                    var pixel = image1[offset + i, p.y];
+                    image.SetPixel(offset + i, p.y, pixel);
+                }
+            }
 
+            //DrawPath(graph, path, image, offset);
 
             var filename = "C:/Users/Justin/OneDrive/Desktop/Test.raw";
             var bytes = image.ToBytes(8);

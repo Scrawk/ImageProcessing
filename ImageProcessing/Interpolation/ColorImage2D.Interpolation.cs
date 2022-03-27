@@ -18,62 +18,58 @@ namespace ImageProcessing.Images
 		POINT
     }
 
-	public static class RescaleColorImage2D
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="image"></param>
-		/// <param name="scale"></param>
-		/// <param name="method"></param>
-		/// <returns></returns>
-		public static ColorImage2D Rescale(this ColorImage2D image, int scale, RESCALE method)
-		{
-			int width = image.Width * scale;
-			int height = image.Height * scale;
-			return Rescale(image, width, height, method);
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="image"></param>
-		/// <param name="width"></param>
-		/// <param name="height"></param>
-		/// <param name="method"></param>
-		/// <returns></returns>
-		public static ColorImage2D Rescale(this ColorImage2D image, int width, int height, RESCALE method)
-        {
-			ColorImage2D image2 = null;
-
-            switch (method)
-            {
-                case RESCALE.BILINEAR:
-					image2 = ColorImage2D.BilinearRescale(image, width, height);
-					break;
-
-                case RESCALE.BICUBIC:
-					image2 = ColorImage2D.BicubicRescale(image, width, height);
-					break;
-
-                case RESCALE.BSPLINE:
-					image2 = ColorImage2D.BSplineRescale(image, width, height);
-					break;
-
-                case RESCALE.POINT:
-					image2 = ColorImage2D.PointRescale(image, width, height);
-					break;
-            }
-
-            return image2;
-        }
-    }
-
     /// <summary>
     /// 
     /// </summary>
     public partial class ColorImage2D
 	{
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="scale"></param>
+		/// <param name="method"></param>
+		/// <returns></returns>
+		public void Rescale(int scale, RESCALE method = RESCALE.BICUBIC)
+		{
+			int width = Width * scale;
+			int height = Height * scale;
+			Rescale(width, height, method);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
+		/// <param name="method"></param>
+		/// <returns></returns>
+		public void Rescale(int width, int height, RESCALE method = RESCALE.BICUBIC)
+		{
+			ColorImage2D image2 = null;
+
+			switch (method)
+			{
+				case RESCALE.BILINEAR:
+					image2 = ColorImage2D.BilinearRescale(this, width, height);
+					break;
+
+				case RESCALE.BICUBIC:
+					image2 = ColorImage2D.BicubicRescale(this, width, height);
+					break;
+
+				case RESCALE.BSPLINE:
+					image2 = ColorImage2D.BSplineRescale(this, width, height);
+					break;
+
+				case RESCALE.POINT:
+					image2 = ColorImage2D.PointRescale(this, width, height);
+					break;
+			}
+
+			Resize(image2.Width, image2.Height);
+			image2.CopyTo(this);
+		}
+
 		/// <summary>
 		/// 
 		/// </summary>

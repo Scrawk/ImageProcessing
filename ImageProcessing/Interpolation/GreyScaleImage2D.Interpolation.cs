@@ -17,6 +17,52 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="scale"></param>
+		/// <param name="method"></param>
+		/// <returns></returns>
+		public GreyScaleImage2D Rescale(int scale, RESCALE method = RESCALE.BICUBIC)
+		{
+			int width = Width * scale;
+			int height = Height * scale;
+			return Rescale(width, height, method);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
+		/// <param name="method"></param>
+		/// <returns></returns>
+		public GreyScaleImage2D Rescale(int width, int height, RESCALE method = RESCALE.BICUBIC)
+		{
+			GreyScaleImage2D image2 = null;
+
+			switch (method)
+			{
+				case RESCALE.BILINEAR:
+					image2 = GreyScaleImage2D.BilinearRescale(this, width, height);
+					break;
+
+				case RESCALE.BICUBIC:
+					image2 = GreyScaleImage2D.BicubicRescale(this, width, height);
+					break;
+
+				case RESCALE.BSPLINE:
+					image2 = GreyScaleImage2D.BSplineRescale(this, width, height);
+					break;
+
+				case RESCALE.POINT:
+					image2 = GreyScaleImage2D.PointRescale(this, width, height);
+					break;
+			}
+
+			return image2;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
 		/// <param name="image"></param>
 		/// <param name="width"></param>
 		/// <param name="height"></param>
@@ -48,6 +94,31 @@ namespace ImageProcessing.Images
 		public static GreyScaleImage2D BSplineRescale(GreyScaleImage2D image, int width, int height)
 		{
 			return Rescale(image, width, height, SplineInterpolation.MitchellNetravli);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="image"></param>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
+		/// <returns></returns>
+		public static GreyScaleImage2D PointRescale(GreyScaleImage2D image, int width, int height)
+		{
+			var image2 = new GreyScaleImage2D(width, height);
+
+			int scaleX = image2.Width / image.Width;
+			int scaleY = image2.Height / image.Height;
+
+			image2.Fill((x, y) =>
+			{
+				int X = x / scaleX;
+				int Y = y / scaleY;
+
+				return image.GetValue(X, Y, WRAP_MODE.CLAMP);
+			});
+
+			return image2;
 		}
 
 		/// <summary>
