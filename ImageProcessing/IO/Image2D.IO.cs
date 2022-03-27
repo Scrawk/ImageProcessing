@@ -10,6 +10,17 @@ namespace ImageProcessing.Images
     {
 
         /// <summary>
+        /// Save the file as raw bytes.
+        /// </summary>
+        /// <param name="filename">The filename.</param>
+        /// <param name="bitDepth">The bitdepth of the file.</param>
+        public void SaveAsRaw(string filename, int bitDepth = 8)
+        {
+            var bytes = ToBytes(8);
+            System.IO.File.WriteAllBytes(filename, bytes);
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="bitDepth"></param>

@@ -24,8 +24,7 @@ namespace ImageProcessing.Images
     /// <summary>
     /// General interface for a 2 dimensional image.
     /// </summary>
-    /// <typeparam name="T">The element type</typeparam>
-    public interface  IImage2D<T> : IArray2<T>, IImageSampler2D
+    public interface  IImage2D : IImageSampler2D
     {
         new ColorRGB GetPixel(int x, int y, WRAP_MODE mode);
 

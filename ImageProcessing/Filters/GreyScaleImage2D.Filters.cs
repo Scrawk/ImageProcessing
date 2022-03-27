@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 
 using Common.Core.Numerics;
+using Common.Core.Shapes;
 
 namespace ImageProcessing.Images
 {
@@ -13,11 +14,13 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="image">The input image.</param>
 		/// <param name="size">The size in pixels of the kernel.</param>
+		/// <param name="bounds">The area to apply filter.</param>
+		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
 		/// <returns>The new image.</returns>
-		public static GreyScaleImage2D BoxBlur(GreyScaleImage2D image, int size)
+		public static GreyScaleImage2D BoxBlur(GreyScaleImage2D image, int size, Box2i? bounds = null, GreyScaleImage2D mask = null)
 		{
 			var k = FilterKernel2D.BoxKernel(size);
-			return Filter(image, k);
+			return Filter(image, k, bounds, mask);
 		}
 
 		/// <summary>
@@ -25,33 +28,39 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="image">The input image.</param>
 		/// <param name="sigma">The standard deviation of the blur kernel.</param>
+		/// <param name="bounds">The area to apply filter.</param>
+		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
 		/// <returns>The new image.</returns>
-		public static GreyScaleImage2D GaussianBlur(GreyScaleImage2D image, float sigma)
+		public static GreyScaleImage2D GaussianBlur(GreyScaleImage2D image, float sigma, Box2i? bounds = null, GreyScaleImage2D mask = null)
 		{
 			var k = FilterKernel2D.GaussianKernel(sigma);
-			return Filter(image, k);
+			return Filter(image, k, bounds, mask);
 		}
 
 		/// <summary>
 		/// Apply a sharpen filter and return as a new image.
 		/// </summary>
 		/// <param name="image">The input image.</param>
+		/// <param name="bounds">The area to apply filter.</param>
+		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
 		/// <returns>The new image.</returns>
-		public static GreyScaleImage2D SharpenFilter(GreyScaleImage2D image)
+		public static GreyScaleImage2D SharpenFilter(GreyScaleImage2D image, Box2i? bounds = null, GreyScaleImage2D mask = null)
 		{
 			var k = FilterKernel2D.SharpenKernel();
-			return Filter(image, k);
+			return Filter(image, k, bounds, mask);
 		}
 
 		/// <summary>
 		/// Apply a unsharpen filter and return as a new image.
 		/// </summary>
 		/// <param name="image">The input image.</param>
+		/// <param name="bounds">The area to apply filter.</param>
+		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
 		/// <returns>The new image.</returns>
-		public static GreyScaleImage2D UnsharpenFilter(GreyScaleImage2D image)
+		public static GreyScaleImage2D UnsharpenFilter(GreyScaleImage2D image, Box2i? bounds = null, GreyScaleImage2D mask = null)
 		{
 			var k = FilterKernel2D.UnsharpenKernel();
-			return Filter(image, k);
+			return Filter(image, k, bounds, mask);
 		}
 
 		/// <summary>
@@ -59,44 +68,37 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="image">The input image.</param>
 		/// <param name="k">The filter to apply.</param>
-		/// <returns>The new image.</returns>
-		public static GreyScaleImage2D Filter(GreyScaleImage2D image, FilterKernel2D k)
+		/// <param name="bounds">The area to apply filter.</param>
+		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
+		/// <returns></returns>
+		public static GreyScaleImage2D Filter(GreyScaleImage2D image, FilterKernel2D k, Box2i? bounds, GreyScaleImage2D mask)
 		{
-			var image2 = new GreyScaleImage2D(image.Size);
+			if (bounds == null)
+				bounds = new Box2i(0, 0, image.Width, image.Height);
 
-			image2.Fill((x, y) =>
+			var image2 = image.Copy();
+
+			foreach (var p in bounds.Value.EnumerateBounds())
 			{
-				return Filter(x, y, image, k) * k.Scale;
-			});
-
-			return image2;
-		}
-
-		/// <summary>
-		/// Apply a filter to the image at index i,j.
-		/// </summary>
-		/// <param name="i">The first index.</param>
-		/// <param name="j">The second index.</param>
-		/// <param name="image">The input image.</param>
-		/// <param name="k">The filter to apply.</param>
-		/// <returns>The filter result.</returns>
-		private static float Filter(int i, int j, GreyScaleImage2D image, FilterKernel2D k)
-		{
-			int half = k.Size / 2;
-
-			float sum = 0;
-			for (int y = 0; y < k.Size; y++)
-			{
-				for (int x = 0; x < k.Size; x++)
+				if (image.InBounds(p))
 				{
-					int xi = MathUtil.Clamp(x + i - half, 0, image.Width - 1);
-					int yj = MathUtil.Clamp(y + j - half, 0, image.Height - 1);
+					if (mask == null)
+					{
+						image2[p] = Filter(p.x, p.y, image, k) * k.Scale;
+					}
+					else
+					{
+						var value1 = image.GetValue(p.x, p.y);
+						var value2 = Filter(p.x, p.y, image, k) * k.Scale;
 
-					sum += image[xi, yj] * k[x, y];
+						var a = MathUtil.Clamp01(mask[p]);
+						image2[p] = MathUtil.Lerp(value1, value2, a);
+					}
 				}
+
 			}
 
-			return sum;
+			return image2;
 		}
 
 		/// <summary>
@@ -133,6 +135,33 @@ namespace ImageProcessing.Images
 			}
 
 			return image2;
+		}
+
+		/// <summary>
+		/// Apply a filter to the image at index i,j.
+		/// </summary>
+		/// <param name="i">The first index.</param>
+		/// <param name="j">The second index.</param>
+		/// <param name="image">The input image.</param>
+		/// <param name="k">The filter to apply.</param>
+		/// <returns>The filter result.</returns>
+		private static float Filter(int i, int j, GreyScaleImage2D image, FilterKernel2D k)
+		{
+			int half = k.Size / 2;
+
+			float sum = 0;
+			for (int y = 0; y < k.Size; y++)
+			{
+				for (int x = 0; x < k.Size; x++)
+				{
+					int xi = MathUtil.Clamp(x + i - half, 0, image.Width - 1);
+					int yj = MathUtil.Clamp(y + j - half, 0, image.Height - 1);
+
+					sum += image[xi, yj] * k[x, y];
+				}
+			}
+
+			return sum;
 		}
 
 		/// <summary>

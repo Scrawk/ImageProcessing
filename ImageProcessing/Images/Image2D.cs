@@ -15,7 +15,7 @@ namespace ImageProcessing.Images
     /// Base class for 2D images.
     /// </summary>
     /// <typeparam name="T">The element type</typeparam>
-    public abstract partial class Image2D<T> : Array2<T>, IImage2D<T>
+    public abstract partial class Image2D<T> : Array2<T>, IImage2D
     {
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="list">The list the pixels will be added to.</param>
         /// <param name="predicate">The predicate that decides what pixels to include.</param>
-        public void ToPixelIndexList(List<PixelIndex2D<T>>  list, Func<T, bool> predicate)
+        public void ToPixelIndexList(List<PixelIndex2D<T>> list, Func<T, bool> predicate)
         {
             for (int y = 0; y < Height; y++)
             {
@@ -187,6 +187,31 @@ namespace ImageProcessing.Images
                     dest[x, y] = this[x, y];
                 }
             }
+        }
+
+        /// <summary>
+        /// Do these two images contain the the same contents.
+        /// </summary>
+        /// <param name="image">The other image.</param>
+        /// <returns>Do these two images contain the the same contents.</returns>
+        public bool AreEqual(Image2D<T> image)
+        {
+            if (image == this) return true;
+            if (image.Size != Size) return false;
+            
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    var p1 = this[x, y];
+                    var p2 = image[x, y];
+
+                    if (p1.Equals(p2))
+                        return false;
+                }
+            }
+
+            return true;
         }
 
 

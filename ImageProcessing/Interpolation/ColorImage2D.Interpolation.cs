@@ -115,6 +115,9 @@ namespace ImageProcessing.Images
 		/// <returns></returns>
 		public static ColorImage2D PointRescale(ColorImage2D image, int width, int height)
 		{
+			if (image.Width == width && image.Height == height)
+				return image.Copy();
+
 			var image2 = new ColorImage2D(width, height);
 
 			int scaleX = image2.Width / image.Width;
@@ -141,6 +144,9 @@ namespace ImageProcessing.Images
 		/// <returns></returns>
 		public static ColorImage2D Rescale(ColorImage2D image, int width, int height, InterpolationFunction func)
 		{
+			if (image.Width == width && image.Height == height)
+				return image.Copy();
+
 			var image2 = new ColorImage2D(width, height);
 			var tmp = new ColorImage2D(width, image.Height);
 

@@ -194,6 +194,22 @@ namespace ImageProcessing.Images
 
             return array;
         }
+
+        /// <summary>
+        /// Convert to a greyscale image.
+        /// </summary>
+        /// <returns>The greayscale image.</returns>
+        public GreyScaleImage2D ToGreyScaleImage()
+        {
+            var image = new GreyScaleImage2D(Width, Height);
+
+            image.Fill((x, y) =>
+            {
+                return this[x, y] ? 1 : 0;
+            });
+
+            return image;
+        }
     }
 
 }

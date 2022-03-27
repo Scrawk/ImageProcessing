@@ -19,12 +19,11 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="scale"></param>
 		/// <param name="method"></param>
-		/// <returns></returns>
-		public GreyScaleImage2D Rescale(int scale, RESCALE method = RESCALE.BICUBIC)
+		public void Rescale(int scale, RESCALE method = RESCALE.BICUBIC)
 		{
 			int width = Width * scale;
 			int height = Height * scale;
-			return Rescale(width, height, method);
+			Rescale(width, height, method);
 		}
 
 		/// <summary>
@@ -33,8 +32,7 @@ namespace ImageProcessing.Images
 		/// <param name="width"></param>
 		/// <param name="height"></param>
 		/// <param name="method"></param>
-		/// <returns></returns>
-		public GreyScaleImage2D Rescale(int width, int height, RESCALE method = RESCALE.BICUBIC)
+		public void Rescale(int width, int height, RESCALE method = RESCALE.BICUBIC)
 		{
 			GreyScaleImage2D image2 = null;
 
@@ -57,7 +55,8 @@ namespace ImageProcessing.Images
 					break;
 			}
 
-			return image2;
+			Resize(image2.Width, image2.Height);
+			image2.CopyTo(this);
 		}
 
 		/// <summary>
@@ -105,6 +104,9 @@ namespace ImageProcessing.Images
 		/// <returns></returns>
 		public static GreyScaleImage2D PointRescale(GreyScaleImage2D image, int width, int height)
 		{
+			if (image.Width == width && image.Height == height)
+				return image.Copy();
+
 			var image2 = new GreyScaleImage2D(width, height);
 
 			int scaleX = image2.Width / image.Width;
@@ -131,6 +133,9 @@ namespace ImageProcessing.Images
 		/// <returns></returns>
 		public static GreyScaleImage2D Rescale(GreyScaleImage2D image, int width, int height, InterpolationFunction func)
 		{
+			if (image.Width == width && image.Height == height)
+				return image.Copy();
+
 			var image2 = new GreyScaleImage2D(width, height);
 			var tmp = new GreyScaleImage2D(width, image.Height);
 
