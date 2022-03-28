@@ -30,6 +30,21 @@ namespace ImageProcessing.Images
             }
         }
 
+        public void DrawLine(IList<Point2i> line, ColorRGB color)
+        {
+            int points = line.Count;
+            for (int i = 0; i < points - 1; i++)
+            {
+                int x1 = line[i * 2 + 0].x;
+                int y1 = line[i * 2 + 0].y;
+
+                int x2 = line[i * 2 + 1].x;
+                int y2 = line[i * 2 + 1].y;
+
+                DrawLine(x1, y1, x2, y2, color);
+            }
+        }
+
         public void DrawLine(Segment2f segment, ColorRGB color)
         {
             int x1 = (int)Math.Round(segment.A.x);

@@ -15,73 +15,108 @@ namespace ImageProcessing.Synthesis
 
     public static class ImageSynthesis
     {
-
-        public static ColorImage2D CreateSeamlessImage(ColorImage2D source, int exemplarSize, int overlap, int shift)
+        public static (ColorImage2D, ColorImage2D) CreateSeamlessImageTest(ColorImage2D source, int width, int height, int exemplarSize, int overlap)
         {
-            const int pathSamples = 4;
-
             var exemplars = CreateExemplars(source, exemplarSize);
-            var exemplar = exemplars[0];
+            exemplars.Shuffle(0);
 
-            var image = new ColorImage2D(512, exemplarSize);
+            var image1 = new ColorImage2D(width, height);
+            var image2 = new ColorImage2D(width, height);
+            var mask = new GreyScaleImage2D(width, height);
 
-            int totalOffset = 0;
+            int offset = exemplarSize - overlap;
+            int count = width / (exemplarSize - overlap);
+            int startX = 0;
 
-            for (int j = 0; j < 3; j++)
+            var matches = new ColorImage2D[count];
+
+            for (int j = 0; j < count; j++)
             {
-                var match_pair = FindBestMatch(exemplar, exemplars, shift, overlap);
-                var match = match_pair.Item1;
-                var new_overlap = match_pair.Item2;
+                ColorImage2D match = null;
 
-                int offset = exemplarSize - new_overlap;
-                totalOffset += offset;
-
-                if (j == 0)
+                if(j == 0)
                 {
-                    exemplar.Iterate((x, y) =>
-                    {
-                        image[x, y] = exemplar[x, y];
-                    });
+                    match = exemplars[0].Item2;
+                }
+                else
+                {
+                    match = FindBestMatch(image1, mask, startX, 0, exemplars);
                 }
 
-                match.Iterate((x, y) =>
+                for (int y = 0; y < image1.Height; y++)
                 {
-                    image[totalOffset + x, y] = match[x, y];
-                });
-
-                var cut_pair = FindBestCut(exemplar, match, new_overlap, pathSamples);
-
-                var path = cut_pair.Item1;
-                var graph = cut_pair.Item2;
-
-                foreach (var p in path)
-                {
-                    for (int i = 0; i < p.x; i++)
+                    for (int x = 0; x < match.Width; x++)
                     {
-                        var pixel = exemplar[offset + i, p.y];
-                        image.SetPixel(totalOffset + i, p.y, pixel);
+                        int i = startX + x;
+                        i = MathUtil.Wrap(i, image1.Width);
+
+                        image1[i, y] = match[x, y];
+                        mask[i, y] = 1;
                     }
                 }
 
-                image = BlurSeams(image, graph, path, totalOffset, exemplarSize);
+                startX += offset;
+                matches[j] = match;
+            }
 
-                exemplar = match;
+            for(int j = 0; j < count; j++)
+            {
+                startX -= offset;
+
+                var match = matches[count-1-j];
+
+                for (int y = 0; y < image2.Height; y++)
+                {
+                    for (int x = 0; x < match.Width; x++)
+                    {
+                        int i = startX + x;
+                        i = MathUtil.Wrap(i, image2.Width);
+
+                        image2[i, y] = match[x, y];
+                    }
+                }
+               
+            }
+
+            startX = 0;
+
+            for (int j = 0; j < count; j++)
+            {
+                var bounds = new Box2i(startX, 0, startX + overlap, height);
+                
+                var graph = CreateGraph(image1, image2, bounds);
+                var path = FindBestCut(graph, 4);
+
+                if(j != 0)
+                {
+                    foreach (var p in path)
+                        for (int i = 0; i < p.x; i++)
+                            image1[startX + i, p.y] = image2[startX + i, p.y];
+                }
+                else
+                {
+                    foreach (var p in path)
+                        for (int i = p.x; i < overlap; i++)
+                            image1[startX + i, p.y] = image2[startX + i, p.y];
+                }
+
+                //DrawPath(graph, path, image1, ColorRGB.Red, startX);
+
+                image1 = BlurSeams(image1, graph, path, bounds);
+
+                startX += offset;
             }
 
             
 
-            return image;
-
+            return (image1, image2);
         }
 
-        private static ColorImage2D BlurSeams(ColorImage2D image, GridGraph graph, List<Point2i> path, int offset, int exemplarSize)
+        private static ColorImage2D BlurSeams(ColorImage2D image, GridGraph graph, List<Point2i> path, Box2i bounds)
         {
-            var min = new Point2i(offset, 0);
-            var max = new Point2i(offset + exemplarSize, exemplarSize);
-            var bounds = new Box2i(min, max);
 
             var binary = new BinaryImage2D(image.Width, image.Height);
-            DrawPath(graph, path, binary, ColorRGB.White, offset);
+            DrawPath(graph, path, binary, ColorRGB.White, bounds.Min.x);
 
             binary = BinaryImage2D.Dilate(binary, 2);
 
@@ -110,24 +145,69 @@ namespace ImageProcessing.Synthesis
         }
 
 
-        public static List<ColorImage2D> CreateExemplars(ColorImage2D image, int exemplarSize)
+        public static List<Tuple<string, ColorImage2D>> CreateExemplars(ColorImage2D image, int exemplarSize)
         {
 
             var exemplars = ColorImage2D.Crop(image, image.Width / exemplarSize, image.Height / exemplarSize);
 
-            var images = new List<ColorImage2D>();
+            var images = new List<Tuple<string, ColorImage2D>>();
 
             foreach (var exemplar in exemplars)
             {
-                images.Add(exemplar);
-                images.Add(ColorImage2D.Rotate90(exemplar));
-                images.Add(ColorImage2D.Rotate180(exemplar));
-                images.Add(ColorImage2D.Rotate270(exemplar));
-                //images.Add(ColorImage2D.FlipHorizontal(exemplar));
-                //images.Add(ColorImage2D.FlipVertical(exemplar));
+                images.Add(new Tuple<string, ColorImage2D>("Original", exemplar));
+                images.Add(new Tuple<string, ColorImage2D>("Rotate90", ColorImage2D.Rotate90(exemplar)));
+                images.Add(new Tuple<string, ColorImage2D>("Rotate180", ColorImage2D.Rotate180(exemplar)));
+                images.Add(new Tuple<string, ColorImage2D>("Rotate270", ColorImage2D.Rotate270(exemplar)));
+                images.Add(new Tuple<string, ColorImage2D>("FlipHorizontal", ColorImage2D.FlipHorizontal(exemplar)));
+                images.Add(new Tuple<string, ColorImage2D>("FlipVertical", ColorImage2D.FlipVertical(exemplar)));
             }
 
             return images;
+        }
+
+        public static ColorImage2D FindBestMatch(ColorImage2D image, GreyScaleImage2D mask, int startX, int startY, List<Tuple<string, ColorImage2D>> exemplars)
+        {
+            ColorImage2D match = null;
+            float cost = float.PositiveInfinity;
+
+            foreach (var tuple in exemplars)
+            {
+                var exemplar = tuple.Item2;
+
+                float c = 0;
+                int count = 0;
+
+                for (int x = 0; x < exemplar.Width; x++)
+                {
+                    for (int y = 0; y < exemplar.Height; y++)
+                    {
+                        int i = startX + x;
+                        i = MathUtil.Wrap(i, image.Width);
+
+                        int j = startY + y;
+
+                        if (mask[i, j] == 0) continue;
+                        
+                        var pixel1 = image[i, j];
+                        var pixel2 = exemplar[x, y];
+
+                        c += ColorRGB.SqrDistance(pixel1, pixel2);
+                        count++;
+                    }
+                }
+
+                if (count == 0) continue;
+
+                c /= count;
+
+                if (c < cost)
+                {
+                    cost = c;
+                    match = exemplar;
+                }
+            }
+
+            return match;
         }
 
 
@@ -219,46 +299,24 @@ namespace ImageProcessing.Synthesis
             return (best_match, best_overlap);
         }
 
-        public static bool HasDuplicates(List<ColorImage2D> images)
+        public static GridGraph CreateGraph(ColorImage2D image1, ColorImage2D image2, Box2i bounds)
         {
-            for (int x = 0; x < images.Count; x++)
-            {
-                for (int y = 0; y < images.Count; y++)
-                {
-                    if(x == y) continue;
-                    
-                    var image1 = images[x];
-                    var image2 = images[y];
-
-                    if(image1.AreEqual(image2))
-                        return true;
-
-                }
-            }
-
-            return false;
-
-        }
-
-        public static (List<Point2i>, GridGraph) FindBestCut(ColorImage2D image, ColorImage2D match, int overlap, int samples)
-        {
-            var graph = new GridGraph(overlap, image.Height);
-            int offset = image.Width - overlap;
+            var graph = new GridGraph(bounds.Width, bounds.Height);
 
             graph.Iterate((x, y, i) =>
             {
                 int xi = x + D8.OFFSETS[i, 0];
                 int yi = y + D8.OFFSETS[i, 1];
 
-                var col1 = image[offset + x, y];
-                var col2 = match[x, y];
+                var col1 = image1[bounds.Min.x + x, bounds.Min.y + y];
+                var col2 = image2[bounds.Min.x + x, bounds.Min.y + y];
 
                 var w1 = ColorRGB.SqrDistance(col1, col2);
 
                 if (graph.InBounds(xi, yi))
                 {
-                    var col1i = image[offset + xi, yi];
-                    var col2i = match[xi, yi];
+                    var col1i = image1[bounds.Min.x + xi, bounds.Min.y + yi];
+                    var col2i = image2[bounds.Min.x + xi, bounds.Min.y + yi];
 
                     var w2 = ColorRGB.SqrDistance(col1i, col2i);
                     var w = Math.Max(1, (w1 + w2) * 255);
@@ -266,6 +324,12 @@ namespace ImageProcessing.Synthesis
                     graph.AddDirectedWeightedEdge(x, y, i, w);
                 }
             });
+
+            return graph;
+        }
+
+        public static List<Point2i> FindBestCut(GridGraph graph, int samples)
+        {
 
             var search = new GridSearch(graph.Width, graph.Height);
             var path = new List<Point2i>();
@@ -308,7 +372,7 @@ namespace ImageProcessing.Synthesis
                 }
             }
 
-            return (path, graph);
+            return path;
         }
 
     }

@@ -48,14 +48,13 @@ namespace ImageProcessing.Console
                 return ToColorRGB(bitmap.GetPixel(x, y));
             });
 
-            image = ImageSynthesis.CreateSeamlessImage(image, 128, 8, 6);
+            var pair = ImageSynthesis.CreateSeamlessImageTest(image, 480, 128, 128, 8);
 
-            var filename = "C:/Users/Justin/OneDrive/Desktop/Test.raw";
-            var bytes = image.ToBytes(8);
-            File.WriteAllBytes(filename, bytes);
+            pair.Item1.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Test.raw");
 
-            CONSOLE.WriteLine(filename);
+            pair.Item2.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Test2.raw");
 
+            WriteLine("Done");
         }
 
         private static void DrawPath(GridGraph graph, List<Point2i> path, ColorImage2D image, int offset)
