@@ -34,7 +34,7 @@ namespace ImageProcessing.Images
 
         new ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
-        void SetPixel(int x, int y, ColorRGB pixel);
+        void SetPixel(int x, int y, ColorRGB pixel, WRAP_MODE mode = WRAP_MODE.NONE);
 
     }
 }

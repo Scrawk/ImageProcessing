@@ -51,6 +51,11 @@ namespace ImageProcessing.Synthesis
 
             TileHorizontally(image1, image2, mask, y, exemplars, overlap);
             GraphCutVertical(image1, image2, y, exemplars.Size, overlap);
+            GraphCutHorizontally(image1, image2, y, exemplars.Size, overlap);
+
+            y = 0;
+
+            GraphCutHorizontally(image1, image2, y, exemplars.Size, overlap);
 
             return (image1, image2, mask);
 
@@ -91,13 +96,10 @@ namespace ImageProcessing.Synthesis
                     for (int x = 0; x < match.Width; x++)
                     {
                         int i = startX + x;
-                        i = MathUtil.Wrap(i, image1.Width);
-
                         int j = startY + y;
-                        j = MathUtil.Wrap(j, image1.Height);
-
-                        image1[i, j] = match[x, y];
-                        mask[i, j] = 1;
+   
+                        image1.SetPixel(i, j, match[x, y], WRAP_MODE.WRAP);
+                        mask.SetPixel(i, j, ColorRGB.White, WRAP_MODE.WRAP);
                     }
                 }
 
@@ -106,21 +108,106 @@ namespace ImageProcessing.Synthesis
 
             for (int k = 0; k < count; k++)
             {
-                int startX = offset * (count-1) - offset * k;
- 
-                var match = matches[count-1-k];
+                int startX = offset * k;
+                var match = matches[k];
 
-                for (int y = 0; y < exemplars.Size; y++)
+                if(indexY == 0)
                 {
-                    for (int x = 0; x < match.Item2.Width; x++)
+                    for (int y = 0; y < exemplars.Size; y++)
                     {
-                        int i = startX + x;
-                        i = MathUtil.Wrap(i, image2.Width);
-
-                        int j = startY + y;
-                        j = MathUtil.Wrap(j, image2.Height);
-
-                        image2[i, j] = match.Item2[x, y];
+                        if (k == 0)
+                        {
+                            for (int x = 0; x < match.Item2.Width; x++)
+                            {
+                                int i = startX + x;
+                                int j = startY + y;
+                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                            }
+                        }
+                        if (k == count - 1)
+                        {
+                            for (int x = overlap; x < match.Item2.Width - overlap; x++)
+                            {
+                                int i = startX + x;
+                                int j = startY + y;
+                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                            }
+                        }
+                        else
+                        {
+                            for (int x = overlap; x < match.Item2.Width; x++)
+                            {
+                                int i = startX + x;
+                                int j = startY + y;
+                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                            }
+                        }
+                    }
+                }
+                else if (indexY == count-1)
+                {
+                    for (int y = overlap; y < exemplars.Size - overlap; y++)
+                    {
+                        if (k == 0)
+                        {
+                            for (int x = 0; x < match.Item2.Width; x++)
+                            {
+                                int i = startX + x;
+                                int j = startY + y;
+                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                            }
+                        }
+                        if (k == count - 1)
+                        {
+                            for (int x = overlap; x < match.Item2.Width - overlap; x++)
+                            {
+                                int i = startX + x;
+                                int j = startY + y;
+                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                            }
+                        }
+                        else
+                        {
+                            for (int x = overlap; x < match.Item2.Width; x++)
+                            {
+                                int i = startX + x;
+                                int j = startY + y;
+                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (int y = overlap; y < exemplars.Size; y++)
+                    {
+                        if (k == 0)
+                        {
+                            for (int x = 0; x < match.Item2.Width; x++)
+                            {
+                                int i = startX + x;
+                                int j = startY + y;
+                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                            }
+                        }
+                        if (k == count - 1)
+                        {
+                            for (int x = overlap; x < match.Item2.Width - overlap; x++)
+                            {
+                                int i = startX + x;
+                                int j = startY + y;
+                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                            }
+                        }
+                        else
+                        {
+                            for (int x = overlap; x < match.Item2.Width; x++)
+                            {
+                                int i = startX + x;
+                                int j = startY + y;
+                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                            }
+                        }
                     }
                 }
                
@@ -141,19 +228,30 @@ namespace ImageProcessing.Synthesis
                 var bounds = new Box2i(startX, startY, startX + overlap, startY + exemplarsSize);
 
                 var graph = CreateGraph(image1, image2, bounds);
-                var path = FindBestCut(graph, 4);
+                var path = FindBestCut(graph, 4, true);
 
                 if (j != 0)
                 {
                     foreach (var p in path)
+                    {
                         for (int i = 0; i < p.x; i++)
-                            image1[startX + i, startY + p.y] = image2[startX + i, startY + p.y];
+                        {
+                            var pixel = image2.GetPixel(startX + i, startY + p.y, WRAP_MODE.WRAP);
+                            image1.SetPixel(startX + i, startY + p.y, pixel, WRAP_MODE.WRAP);
+                        }
+                    }
+                            
                 }
                 else
                 {
                     foreach (var p in path)
+                    {
                         for (int i = p.x; i < overlap; i++)
-                            image1[startX + i, startY + p.y] = image2[startX + i, startY + p.y];
+                        {
+                            var pixel = image2.GetPixel(startX + i, startY + p.y, WRAP_MODE.WRAP);
+                            image1.SetPixel(startX + i, startY + p.y, pixel, WRAP_MODE.WRAP);
+                        }
+                    }       
                 }
 
                 //DrawPath(graph, path, image1, ColorRGB.Red, startX, startY);
@@ -168,7 +266,35 @@ namespace ImageProcessing.Synthesis
 
             var bounds = new Box2i(0, startY, image1.Width, startY + overlap);
 
-            image1.DrawBox(bounds, ColorRGB.Red, true);
+            //image1.DrawBox(bounds, ColorRGB.Red, true);
+
+            var graph = CreateGraph(image1, image2, bounds);
+            var path = FindBestCut(graph, 4, false);
+
+            if(indexY != 0)
+            {
+                foreach (var p in path)
+                {
+                    for (int i = 0; i < p.y; i++)
+                    {
+                        var pixel = image2.GetPixel(p.x, startY + i, WRAP_MODE.WRAP);
+                        image1.SetPixel(p.x, startY + i, pixel, WRAP_MODE.WRAP);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var p in path)
+                {
+                    for (int i = p.y; i < overlap; i++)
+                    {
+                        var pixel = image2.GetPixel(p.x, startY + i, WRAP_MODE.WRAP);
+                        image1.SetPixel(p.x, startY + i, pixel, WRAP_MODE.WRAP);
+                    }
+                }
+            }
+
+            //DrawPath(graph, path, image1, ColorRGB.Red, 0, startY);
 
         }
 
@@ -213,15 +339,15 @@ namespace ImageProcessing.Synthesis
                 int xi = x + D8.OFFSETS[i, 0];
                 int yi = y + D8.OFFSETS[i, 1];
 
-                var col1 = image1[bounds.Min.x + x, bounds.Min.y + y];
-                var col2 = image2[bounds.Min.x + x, bounds.Min.y + y];
+                var col1 = image1.GetPixel(bounds.Min.x + x, bounds.Min.y + y, WRAP_MODE.WRAP);
+                var col2 = image2.GetPixel(bounds.Min.x + x, bounds.Min.y + y, WRAP_MODE.WRAP);
 
                 var w1 = ColorRGB.SqrDistance(col1, col2);
 
                 if (graph.InBounds(xi, yi))
                 {
-                    var col1i = image1[bounds.Min.x + xi, bounds.Min.y + yi];
-                    var col2i = image2[bounds.Min.x + xi, bounds.Min.y + yi];
+                    var col1i = image1.GetPixel(bounds.Min.x + xi, bounds.Min.y + yi, WRAP_MODE.WRAP);
+                    var col2i = image2.GetPixel(bounds.Min.x + xi, bounds.Min.y + yi, WRAP_MODE.WRAP);
 
                     var w2 = ColorRGB.SqrDistance(col1i, col2i);
                     var w = Math.Max(1, (w1 + w2) * 255);
@@ -233,22 +359,53 @@ namespace ImageProcessing.Synthesis
             return graph;
         }
 
-        public static List<Point2i> FindBestCut(GridGraph graph, int samples)
+        public static List<Point2i> FindBestCut(GridGraph graph, int samples, bool vertical)
         {
+            //if (samples > 1 && MathUtil.IsOdd(samples))
+             //   samples++;
 
             var search = new GridSearch(graph.Width, graph.Height);
             var path = new List<Point2i>();
             float cost = float.PositiveInfinity;
-
+          
             for (int x = 0; x < samples; x++)
             {
                 for (int y = 0; y < samples; y++)
                 {
-                    int incrementS = (graph.Width / samples) * x;
-                    int incrementT = (graph.Width / samples) * y;
+                    int incrementS, incrementT;
+                    Point2i source, target;
 
-                    var source = new Point2i(incrementS, 0);
-                    var target = new Point2i(incrementT, graph.Height - 1);
+                    if (vertical)
+                    {
+                        if (samples <= 1)
+                        {
+                            source = new Point2i(graph.Width / 2, 0);
+                            target = new Point2i(graph.Width / 2, graph.Height - 1);
+                        }
+                        else
+                        {
+                            incrementS = (graph.Width / samples) * x;
+                            incrementT = (graph.Width / samples) * y;
+                            source = new Point2i(incrementS, 0);
+                            target = new Point2i(incrementT, graph.Height - 1);
+                        }
+                    }
+                    else
+                    {
+                        if (samples <= 1)
+                        {
+                            source = new Point2i(0, graph.Height / 2);
+                            target = new Point2i(graph.Height - 1, graph.Height / 2);
+                        }
+                        else
+                        {
+                            incrementS = (graph.Height / samples) * x;
+                            incrementT = (graph.Height / samples) * y;
+
+                            source = new Point2i(0, incrementS);
+                            target = new Point2i(graph.Width - 1, incrementT);
+                        }
+                    }
 
                     search.Clear();
                     graph.PrimsMinimumSpanningTree(search, source.x, source.y);

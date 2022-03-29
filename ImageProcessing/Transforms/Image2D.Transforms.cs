@@ -24,6 +24,7 @@ namespace ImageProcessing.Images
             return image2;
         }
 
+        /// <summary>
         /// Flip the image on the y axis.
         /// </summary>
         /// <typeparam name="IMAGE"></typeparam>

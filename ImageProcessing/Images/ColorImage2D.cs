@@ -16,7 +16,7 @@ namespace ImageProcessing.Images
         /// Create a default of image.
         /// </summary>
         public ColorImage2D()
-             : base(0, 0)
+             : this(0, 0)
         {
 
         }
@@ -27,9 +27,8 @@ namespace ImageProcessing.Images
         /// <param name="width">The width of the image.</param>
         /// <param name="height">The height of the image.</param>
         public ColorImage2D(int width, int height)
-            : base(width, height)
         {
-
+            Data = new ColorRGB[width, height];
         }
 
         /// <summary>
@@ -37,9 +36,8 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="size">The size of the image. x is the width and y is the height.</param>
         public ColorImage2D(Point2i size)
-            : base(size)
         {
-
+            Data = new ColorRGB[size.x, size.y];
         }
 
         /// <summary>
@@ -49,9 +47,9 @@ namespace ImageProcessing.Images
         /// <param name="height">The height of the image.</param>
         /// <param name="value">The value to fill the image with.</param>
         public ColorImage2D(int width, int height, ColorRGB value)
-            : base(width, height, value)
         {
-
+            Data = new ColorRGB[width, height];
+            Fill(value);
         }
 
         /// <summary>
@@ -59,15 +57,52 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="data">The images data.</param>
         public ColorImage2D(ColorRGB[,] data)
-            : base(data)
         {
-
+            Data = data.Copy();
         }
+
+        /// <summary>
+        /// The images pixels.
+        /// </summary>
+        private ColorRGB[,] Data;
+
+        /// <summary>
+        /// The number of elements in the array.
+        /// </summary>
+        public override int Count => Data.Length;
+
+        /// <summary>
+        /// The size of the arrays 1st dimention.
+        /// </summary>
+        public override int Width => Data.GetLength(0);
+
+        /// <summary>
+        /// The size of the arrays 2st dimention.
+        /// </summary>
+        public override int Height => Data.GetLength(1);
 
         /// <summary>
         /// The number of channels in the images pixel.
         /// </summary>
         public override int Channels => 3;
+
+        /// <summary>
+        /// Access a element at index x,y.
+        /// </summary>
+        public override ColorRGB this[int x, int y]
+        {
+            get { return Data[x, y]; }
+            set { Data[x, y] = value; }
+        }
+
+        /// <summary>
+        /// Access a element at index x,y.
+        /// </summary>
+        public override ColorRGB this[Point2i i]
+        {
+            get { return Data[i.x, i.y]; }
+            set { Data[i.x, i.y] = value; }
+        }
 
         /// <summary>
         /// Return the image description.
@@ -76,6 +111,30 @@ namespace ImageProcessing.Images
         public override string ToString()
         {
             return string.Format("[ColorImage2D: Width={0}, Height={1}]", Width, Height);
+        }
+
+        /// <summary>
+        /// Sets all elements in the array to default value.
+        /// </summary>
+        public override void Clear()
+        {
+            Data.Clear();
+        }
+
+        /// <summary>
+        /// Resize the array. Will clear any existing data.
+        /// </summary>
+        public override void Resize(int width, int height)
+        {
+            Data = new ColorRGB[width, height];
+        }
+
+        /// <summary>
+        /// Resize the array. Will clear any existing data.
+        /// </summary>
+        public override void Resize(Point2i size)
+        {
+            Data = new ColorRGB[size.x, size.y];
         }
 
         /// <summary>
@@ -157,12 +216,23 @@ namespace ImageProcessing.Images
         /// <returns>The pixel at index x,y.</returns>
         public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            if (mode == WRAP_MODE.CLAMP)
-                return GetClamped(x, y);
-            else if (mode == WRAP_MODE.WRAP)
-                return GetWrapped(x, y);
-            else
-                return GetMirrored(x, y);
+            switch (mode)
+            {
+                case WRAP_MODE.CLAMP:
+                    return GetClamped(x, y);
+
+                case WRAP_MODE.WRAP:
+                    return GetWrapped(x, y);
+
+                case WRAP_MODE.MIRROR:
+                    return GetMirrored(x, y);
+
+                case WRAP_MODE.NONE:
+                    return this[x, y];
+
+                default:
+                    return this[x, y];
+            }
         }
 
         /// <summary>
@@ -196,12 +266,19 @@ namespace ImageProcessing.Images
                 v01 = GetWrapped(xi, yi + 1);
                 v11 = GetWrapped(xi + 1, yi + 1);
             }
-            else
+            else if (mode == WRAP_MODE.MIRROR)
             {
                 v00 = GetMirrored(xi, yi);
                 v10 = GetMirrored(xi + 1, yi);
                 v01 = GetMirrored(xi, yi + 1);
                 v11 = GetMirrored(xi + 1, yi + 1);
+            }
+            else
+            {
+                v00 = this[xi, yi];
+                v10 = this[xi + 1, yi];
+                v01 = this[xi, yi + 1];
+                v11 = this[xi + 1, yi + 1];
             }
 
             var col = new ColorRGB();
@@ -217,9 +294,32 @@ namespace ImageProcessing.Images
         /// <param name="x">The first index.</param>
         /// <param name="y">The second index.</param>
         /// <param name="pixel">The pixel.</param>
-        public override void SetPixel(int x, int y, ColorRGB pixel)
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        public override void SetPixel(int x, int y, ColorRGB pixel, WRAP_MODE mode = WRAP_MODE.NONE)
         {
-            this[x, y] = pixel;
+
+            switch (mode)
+            {
+                case WRAP_MODE.NONE:
+                    this[x, y] = pixel;
+                    break;
+
+                case WRAP_MODE.CLAMP:
+                    SetClamped(x, y, pixel);
+                    break;
+
+                case WRAP_MODE.WRAP:
+                    SetWrapped(x, y, pixel);
+                    break;
+
+                case WRAP_MODE.MIRROR:
+                    SetMirrored(x, y, pixel);
+                    break;
+
+                default:
+                    this[x, y] = pixel;
+                    break;
+            }
         }
 
         /// <summary>

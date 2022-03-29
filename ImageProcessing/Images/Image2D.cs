@@ -16,68 +16,24 @@ namespace ImageProcessing.Images
     /// Base class for 2D images.
     /// </summary>
     /// <typeparam name="T">The element type</typeparam>
-    public abstract partial class Image2D<T> : IImage2D, IEnumerable<T>
+    public abstract partial class Image2D<T> : IImage2D
     {
 
-        /// <summary>
-        /// Create a new image.
-        /// </summary>
-        /// <param name="width">The width of the image.</param>
-        /// <param name="height">The height of the image.</param>
-        public Image2D(int width, int height)
-        {
-            Data = new T[width, height];
-        }
-
-        /// <summary>
-        /// Create a new image.
-        /// </summary>
-        /// <param name="size">The size of the image.</param>
-        public Image2D(Point2i size)
-        {
-            Data = new T[size.x, size.y];
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <param name="value"></param>
-        public Image2D(int width, int height, T value)
-        {
-            Data = new T[width, height];
-            Data.Fill(value);
-        }
-
-        /// <summary>
-        /// Create a new image.
-        /// </summary>
-        /// <param name="data">The data for the image. Will be deep copied.</param>
-        public Image2D(T[,] data)
-        {
-            Data = data.Copy();
-        }
-
-        /// <summary>
-        /// The images data.
-        /// </summary>
-        public T[,] Data { get; private set; }
 
         /// <summary>
         /// The number of elements in the array.
         /// </summary>
-        public int Count { get { return Data.Length; } }
+        public abstract int Count { get; }
 
         /// <summary>
         /// The size of the arrays 1st dimention.
         /// </summary>
-        public int Width { get { return Data.GetLength(0); } }
+        public abstract int Width { get; }
 
         /// <summary>
         /// The size of the arrays 2st dimention.
         /// </summary>
-        public int Height { get { return Data.GetLength(1); } }
+        public abstract int Height { get; }
 
         /// <summary>
         /// The number of channels in the images pixel.
@@ -97,19 +53,19 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Access a element at index x,y.
         /// </summary>
-        public T this[int x, int y]
+        public abstract T this[int x, int y]
         {
-            get { return Data[x, y]; }
-            set { Data[x, y] = value; }
+            get;
+            set;
         }
 
         /// <summary>
         /// Access a element at index x,y.
         /// </summary>
-        public T this[Point2i i]
+        public abstract T this[Point2i i]
         {
-            get { return Data[i.x, i.y]; }
-            set { Data[i.x, i.y] = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -145,17 +101,18 @@ namespace ImageProcessing.Images
         /// <param name="x">The first index.</param>
         /// <param name="y">The second index.</param>
         /// <param name="pixel">The pixel.</param>
-        public abstract void SetPixel(int x, int y, ColorRGB pixel);
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        public abstract void SetPixel(int x, int y, ColorRGB pixel, WRAP_MODE mode = WRAP_MODE.NONE);
 
         /// <summary>
         /// Is this array the same size as the other array.
         /// </summary>
-        /// <param name="array"></param>
+        /// <param name="image"></param>
         /// <returns></returns>
-        public bool IsSameSize<S>(IImage2D array)
+        public bool IsSameSize(IImage2D image)
         {
-            if (Width != array.Width) return false;
-            if (Height != array.Height) return false;
+            if (Width != image.Width) return false;
+            if (Height != image.Height) return false;
             return true;
         }
 
@@ -193,49 +150,20 @@ namespace ImageProcessing.Images
             return !InBounds(i.x, i.y);
         }
 
-
-        /// <summary>
-        /// Enumerate all elements in the array.
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerator<T> GetEnumerator()
-        {
-            foreach (var t in Data)
-                yield return t;
-        }
-
-        /// <summary>
-        /// Enumerate all elements in the array.
-        /// </summary>
-        /// <returns></returns>
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
         /// <summary>
         /// Sets all elements in the array to default value.
         /// </summary>
-        public void Clear()
-        {
-            Data.Clear();
-        }
+        public abstract void Clear();
 
         /// <summary>
         /// Resize the array. Will clear any existing data.
         /// </summary>
-        public void Resize(int width, int height)
-        {
-            Data = new T[width, height];
-        }
+        public abstract void Resize(int width, int height);
 
         /// <summary>
         /// Resize the array. Will clear any existing data.
         /// </summary>
-        public void Resize(Point2i size)
-        {
-            Data = new T[size.x, size.y];
-        }
+        public abstract void Resize(Point2i size);
 
         /// <summary>
         /// Get the element at clamped index x,y.
@@ -244,7 +172,7 @@ namespace ImageProcessing.Images
         {
             x = MathUtil.Clamp(x, 0, Width - 1);
             y = MathUtil.Clamp(y, 0, Height - 1);
-            return Data[x, y];
+            return this[x, y];
         }
 
         /// <summary>
@@ -254,7 +182,7 @@ namespace ImageProcessing.Images
         {
             x = MathUtil.Wrap(x, Width);
             y = MathUtil.Wrap(y, Height);
-            return Data[x, y];
+            return this[x, y];
         }
 
         /// <summary>
@@ -264,7 +192,7 @@ namespace ImageProcessing.Images
         {
             x = MathUtil.Mirror(x, Width);
             y = MathUtil.Mirror(y, Height);
-            return Data[x, y];
+            return this[x, y];
         }
 
         /// <summary>
@@ -272,9 +200,9 @@ namespace ImageProcessing.Images
         /// </summary>
         public void SetClamped(int x, int y, T value)
         {
-            x = MathUtil.Clamp(x, 0, Count - 1);
-            y = MathUtil.Clamp(y, 0, Count - 1);
-            Data[x, y] = value;
+            x = MathUtil.Clamp(x, 0, Width - 1);
+            y = MathUtil.Clamp(y, 0, Height - 1);
+            this[x, y] = value;
         }
 
         /// <summary>
@@ -282,9 +210,9 @@ namespace ImageProcessing.Images
         /// </summary>
         public void SetWrapped(int x, int y, T value)
         {
-            x = MathUtil.Wrap(x, Count);
-            y = MathUtil.Wrap(y, Count);
-            Data[x, y] = value;
+            x = MathUtil.Wrap(x, Width);
+            y = MathUtil.Wrap(y, Height);
+            this[x, y] = value;
         }
 
         /// <summary>
@@ -292,9 +220,9 @@ namespace ImageProcessing.Images
         /// </summary>
         public void SetMirrored(int x, int y, T value)
         {
-            x = MathUtil.Mirror(x, Count);
-            y = MathUtil.Mirror(y, Count);
-            Data[x, y] = value;
+            x = MathUtil.Mirror(x, Width);
+            y = MathUtil.Mirror(y, Height);
+            this[x, y] = value;
         }
 
         /// <summary>
@@ -352,7 +280,13 @@ namespace ImageProcessing.Images
         /// </summary>
         public void Fill(T value)
         {
-            Data.Fill(value);
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    this[x, y] = value;
+                }
+            }
         }
 
         /// <summary>
@@ -364,7 +298,7 @@ namespace ImageProcessing.Images
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    Data[x, y] = func(x, y);
+                    this[x, y] = func(x, y);
                 }
             }
         }
@@ -389,7 +323,7 @@ namespace ImageProcessing.Images
                 {
                     for (int x = block.Min.x; x < block.Max.x; x++)
                     {
-                        Data[x, y] = func(x, y);
+                        this[x, y] = func(x, y);
                     }
                 }
             });
@@ -404,7 +338,7 @@ namespace ImageProcessing.Images
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    Data[x, y] = func(Data[x, y]);
+                    this[x, y] = func(this[x, y]);
                 }
             }
         }
@@ -429,7 +363,7 @@ namespace ImageProcessing.Images
                 {
                     for (int x = block.Min.x; x < block.Max.x; x++)
                     {
-                        Data[x, y] = func(Data[x, y]);
+                        this[x, y] = func(this[x, y]);
                     }
                 }
             });
