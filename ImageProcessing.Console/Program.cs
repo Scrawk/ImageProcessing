@@ -41,7 +41,7 @@ namespace ImageProcessing.Console
             var timer = new Timer();    
             timer.Start();
 
-            var bitmap = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/Test_Gravel_512.png"));
+            var bitmap = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/TexturesCom_Gravel0174_1_S.jpg"));
 
             var image = new ColorImage2D(bitmap.Width, bitmap.Height);
             image.Fill((x, y) =>
@@ -49,7 +49,10 @@ namespace ImageProcessing.Console
                 return ToColorRGB(bitmap.GetPixel(x, y));
             });
 
-            var pair = ImageSynthesis.CreateSeamlessImageTest(image, 128, 8);
+            var exemplars = new ExemplarSet(128);
+            exemplars.CreateExemplarFromRandom(image, 0, 32);
+
+            var pair = ImageSynthesis.CreateSeamlessImageTest(exemplars, 512, 8);
 
             pair.Item1.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Image1.raw");
             pair.Item2.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Image2.raw");

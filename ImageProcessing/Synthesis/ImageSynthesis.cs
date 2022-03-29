@@ -15,53 +15,52 @@ namespace ImageProcessing.Synthesis
 
     public static class ImageSynthesis
     {
-        public static (ColorImage2D, ColorImage2D, GreyScaleImage2D) CreateSeamlessImageTest(ColorImage2D source, int exemplarSize, int overlap)
+        public static (ColorImage2D, ColorImage2D, GreyScaleImage2D) CreateSeamlessImageTest(ExemplarSet exemplars, int imageSize, int overlap)
         {
 
-            var exemplars = new ExemplarSet(source, exemplarSize);
+            int tilesX = imageSize / exemplars.Size;
+            int tilesY = imageSize / exemplars.Size;
 
-            int tilesX = source.Width / exemplars.Size;
-            int tilesY = source.Height / exemplars.Size;
-
-            int width = source.Width - tilesX * overlap;
-            int height = source.Height - tilesY * overlap;
+            int width = imageSize - tilesX * overlap;
+            int height = imageSize - tilesY * overlap;
 
             var image1 = new ColorImage2D(width, height);
             var image2 = new ColorImage2D(width, height);
             var mask = new GreyScaleImage2D(width, height);
 
-            int y = 0;
+            int countX = image1.Width / (exemplars.Size - overlap);
+            int countY = image1.Height / (exemplars.Size - overlap);
 
-            TileHorizontally(image1, image2, mask, y, exemplars, overlap);
-            GraphCutVertical(image1, image2, y, exemplars.Size, overlap);
+            int cutSamples = 4;
 
-            y = 1;
+            var matches = new ColorImage2D[countX, countY];
 
-            TileHorizontally(image1, image2, mask, y, exemplars, overlap);
-            GraphCutVertical(image1, image2, y, exemplars.Size, overlap);
-            GraphCutHorizontally(image1, image2, y, exemplars.Size, overlap);
+            for (int y = 0; y <= countY; y++)
+            {
+                if(y == 0)
+                {
+                    TileHorizontally(image1, image2, mask, y, exemplars, matches, overlap);
+                    GraphCutVertical(image1, image2, y, exemplars.Size, overlap, cutSamples);
+                }
+                else if(y == countY)
+                {
+                    GraphCutHorizontally(image1, image2, 0, exemplars.Size, overlap, cutSamples);
+                }
+                else
+                {
+                    TileHorizontally(image1, image2, mask, y, exemplars, matches, overlap);
+                    GraphCutVertical(image1, image2, y, exemplars.Size, overlap, cutSamples);
+                    GraphCutHorizontally(image1, image2, y, exemplars.Size, overlap, cutSamples);
+                }
+            }
 
-            y = 2;
-
-            TileHorizontally(image1, image2, mask, y, exemplars, overlap);
-            GraphCutVertical(image1, image2, y, exemplars.Size, overlap);
-            GraphCutHorizontally(image1, image2, y, exemplars.Size, overlap);
-
-            y = 3;
-
-            TileHorizontally(image1, image2, mask, y, exemplars, overlap);
-            GraphCutVertical(image1, image2, y, exemplars.Size, overlap);
-            GraphCutHorizontally(image1, image2, y, exemplars.Size, overlap);
-
-            y = 0;
-
-            GraphCutHorizontally(image1, image2, y, exemplars.Size, overlap);
+            Console.WriteLine(image1);
 
             return (image1, image2, mask);
 
         }
 
-        private static void TileHorizontally(ColorImage2D image1, ColorImage2D image2, GreyScaleImage2D mask, int indexY, ExemplarSet exemplars, int overlap)
+        private static void TileHorizontally(ColorImage2D image1, ColorImage2D image2, GreyScaleImage2D mask, int indexY, ExemplarSet exemplars, ColorImage2D[,] matches, int overlap)
         {
 
             if (exemplars.Count == 0)
@@ -69,47 +68,43 @@ namespace ImageProcessing.Synthesis
 
             int offset = exemplars.Size - overlap;
             int count = image1.Width / (exemplars.Size - overlap);
-            int startY = offset * indexY;
-
-            var matches = new Tuple<string, ColorImage2D>[count];
-
+            Point2i start = new Point2i(0, offset * indexY);
+ 
             for (int k = 0; k < count; k++)
             {
-                int startX = offset * k;
+                start.x = offset * k;
 
-                Tuple<string, ColorImage2D> tuple = null;
+                ColorImage2D match = null;
 
                 if(k == 0 && indexY == 0)
                 {
-                    tuple = exemplars.GetExemplar(0);
+                    match = exemplars.GetExemplar(0);
                 }
                 else
                 {
-                    //var prevous = matches[j - 1].Item1;
-                    tuple = exemplars.FindBestMatch(image1, mask, "", startX, startY);
+                    var current = new Point2i(k, indexY);
+                    match = exemplars.FindBestMatch(image1, mask, matches, current, start);
                 }
-
-                var match = tuple.Item2;
 
                 for (int y = 0; y < exemplars.Size; y++)
                 {
                     for (int x = 0; x < match.Width; x++)
                     {
-                        int i = startX + x;
-                        int j = startY + y;
+                        int i = start.x + x;
+                        int j = start.y + y;
    
                         image1.SetPixel(i, j, match[x, y], WRAP_MODE.WRAP);
                         mask.SetPixel(i, j, ColorRGB.White, WRAP_MODE.WRAP);
                     }
                 }
 
-                matches[k] = tuple;
+                matches[k, indexY] = match;
             }
 
             for (int k = 0; k < count; k++)
             {
-                int startX = offset * k;
-                var match = matches[k];
+                start.x = offset * k;
+                var match = matches[k, indexY];
 
                 if(indexY == 0)
                 {
@@ -117,29 +112,29 @@ namespace ImageProcessing.Synthesis
                     {
                         if (k == 0)
                         {
-                            for (int x = 0; x < match.Item2.Width; x++)
+                            for (int x = 0; x < match.Width; x++)
                             {
-                                int i = startX + x;
-                                int j = startY + y;
-                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                                int i = start.x + x;
+                                int j = start.y + y;
+                                image2.SetPixel(i, j, match[x, y], WRAP_MODE.WRAP);
                             }
                         }
                         if (k == count - 1)
                         {
-                            for (int x = overlap; x < match.Item2.Width - overlap; x++)
+                            for (int x = overlap; x < match.Width - overlap; x++)
                             {
-                                int i = startX + x;
-                                int j = startY + y;
-                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                                int i = start.x + x;
+                                int j = start.y + y;
+                                image2.SetPixel(i, j, match[x, y], WRAP_MODE.WRAP);
                             }
                         }
                         else
                         {
-                            for (int x = overlap; x < match.Item2.Width; x++)
+                            for (int x = overlap; x < match.Width; x++)
                             {
-                                int i = startX + x;
-                                int j = startY + y;
-                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                                int i = start.x + x;
+                                int j = start.y + y;
+                                image2.SetPixel(i, j, match[x, y], WRAP_MODE.WRAP);
                             }
                         }
                     }
@@ -150,29 +145,29 @@ namespace ImageProcessing.Synthesis
                     {
                         if (k == 0)
                         {
-                            for (int x = 0; x < match.Item2.Width; x++)
+                            for (int x = 0; x < match.Width; x++)
                             {
-                                int i = startX + x;
-                                int j = startY + y;
-                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                                int i = start.x + x;
+                                int j = start.y + y;
+                                image2.SetPixel(i, j, match[x, y], WRAP_MODE.WRAP);
                             }
                         }
                         if (k == count - 1)
                         {
-                            for (int x = overlap; x < match.Item2.Width - overlap; x++)
+                            for (int x = overlap; x < match.Width - overlap; x++)
                             {
-                                int i = startX + x;
-                                int j = startY + y;
-                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                                int i = start.x + x;
+                                int j = start.y + y;
+                                image2.SetPixel(i, j, match[x, y], WRAP_MODE.WRAP);
                             }
                         }
                         else
                         {
-                            for (int x = overlap; x < match.Item2.Width; x++)
+                            for (int x = overlap; x < match.Width; x++)
                             {
-                                int i = startX + x;
-                                int j = startY + y;
-                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                                int i = start.x + x;
+                                int j = start.y + y;
+                                image2.SetPixel(i, j, match[x, y], WRAP_MODE.WRAP);
                             }
                         }
                     }
@@ -183,29 +178,29 @@ namespace ImageProcessing.Synthesis
                     {
                         if (k == 0)
                         {
-                            for (int x = 0; x < match.Item2.Width; x++)
+                            for (int x = 0; x < match.Width; x++)
                             {
-                                int i = startX + x;
-                                int j = startY + y;
-                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                                int i = start.x + x;
+                                int j = start.y + y;
+                                image2.SetPixel(i, j, match[x, y], WRAP_MODE.WRAP);
                             }
                         }
                         if (k == count - 1)
                         {
-                            for (int x = overlap; x < match.Item2.Width - overlap; x++)
+                            for (int x = overlap; x < match.Width - overlap; x++)
                             {
-                                int i = startX + x;
-                                int j = startY + y;
-                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                                int i = start.x + x;
+                                int j = start.y + y;
+                                image2.SetPixel(i, j, match[x, y], WRAP_MODE.WRAP);
                             }
                         }
                         else
                         {
-                            for (int x = overlap; x < match.Item2.Width; x++)
+                            for (int x = overlap; x < match.Width; x++)
                             {
-                                int i = startX + x;
-                                int j = startY + y;
-                                image2.SetPixel(i, j, matches[k].Item2[x, y], WRAP_MODE.WRAP);
+                                int i = start.x + x;
+                                int j = start.y + y;
+                                image2.SetPixel(i, j, match[x, y], WRAP_MODE.WRAP);
                             }
                         }
                     }
@@ -215,7 +210,7 @@ namespace ImageProcessing.Synthesis
 
         }
 
-        private static void GraphCutVertical(ColorImage2D image1, ColorImage2D image2, int indexY, int exemplarsSize, int overlap)
+        private static void GraphCutVertical(ColorImage2D image1, ColorImage2D image2, int indexY, int exemplarsSize, int overlap, int samples)
         {
             int offset = exemplarsSize - overlap;
             int count = image1.Width / (exemplarsSize - overlap);
@@ -226,9 +221,8 @@ namespace ImageProcessing.Synthesis
                 int startX = offset * j;
 
                 var bounds = new Box2i(startX, startY, startX + overlap, startY + exemplarsSize);
-
                 var graph = CreateGraph(image1, image2, bounds);
-                var path = FindBestCut(graph, 4, true);
+                var path = FindBestCut(graph, samples, true);
 
                 if (j != 0)
                 {
@@ -254,22 +248,19 @@ namespace ImageProcessing.Synthesis
                     }       
                 }
 
-                //DrawPath(graph, path, image1, ColorRGB.Red, startX, startY);
-                //image1 = BlurSeams(image1, graph, path, bounds);
+                BlurSeams(image1, path, bounds);
+                //DrawPath(path, image1, ColorRGB.Red, startX, startY);
             }
         }
 
-        private static void GraphCutHorizontally(ColorImage2D image1, ColorImage2D image2, int indexY, int exemplarsSize, int overlap)
+        private static void GraphCutHorizontally(ColorImage2D image1, ColorImage2D image2, int indexY, int exemplarsSize, int overlap, int samples)
         {
             int offset = exemplarsSize - overlap;
             int startY = offset * indexY;
 
             var bounds = new Box2i(0, startY, image1.Width, startY + overlap);
-
-            //image1.DrawBox(bounds, ColorRGB.Red, true);
-
             var graph = CreateGraph(image1, image2, bounds);
-            var path = FindBestCut(graph, 4, false);
+            var path = FindBestCut(graph, samples, false);
 
             if(indexY != 0)
             {
@@ -294,25 +285,27 @@ namespace ImageProcessing.Synthesis
                 }
             }
 
-            //DrawPath(graph, path, image1, ColorRGB.Red, 0, startY);
+            BlurSeams(image1, path, bounds);
+            //DrawPath(path, image1, ColorRGB.Red, 0, startY);
 
         }
 
-        private static ColorImage2D BlurSeams(ColorImage2D image, GridGraph graph, List<Point2i> path, Box2i bounds)
+        private static void BlurSeams(ColorImage2D image, List<Point2i> path, Box2i bounds)
         {
 
             var binary = new BinaryImage2D(image.Width, image.Height);
-            DrawPath(graph, path, binary, ColorRGB.White, bounds.Min.x);
+            DrawPath(path, binary, ColorRGB.White, bounds.Min.x, bounds.Min.y);
 
-            binary = BinaryImage2D.Dilate(binary, 2);
+            binary = BinaryImage2D.Dilate(binary, 3);
 
             var mask = binary.ToGreyScaleImage();
-            mask = GreyScaleImage2D.GaussianBlur(mask, 0.75f, bounds);
+            mask = GreyScaleImage2D.GaussianBlur(mask, 0.5f, bounds);
 
-            return ColorImage2D.GaussianBlur(image, 0.75f, bounds, mask);
+            var blurred = ColorImage2D.GaussianBlur(image, 0.75f, bounds, mask);
+            blurred.CopyTo(image);
         }
 
-        private static void DrawPath(GridGraph graph, List<Point2i> path, ColorImage2D image, ColorRGB col, int offsetX, int offsetY)
+        private static void DrawPath(List<Point2i> path, ColorImage2D image, ColorRGB col, int offsetX, int offsetY)
         {
             for (int i = 0; i < path.Count; i++)
             {
@@ -321,12 +314,12 @@ namespace ImageProcessing.Synthesis
             }
         }
 
-        private static void DrawPath(GridGraph graph, List<Point2i> path, BinaryImage2D image, ColorRGB col, int offset)
+        private static void DrawPath(List<Point2i> path, BinaryImage2D image, ColorRGB col, int offsetX, int offsetY)
         {
             for (int i = 0; i < path.Count; i++)
             {
                 var p = path[i];
-                image.SetPixel(offset + p.x, p.y, col);
+                image.SetPixel(offsetX + p.x, offsetY + p.y, col, WRAP_MODE.WRAP);
             }
         }
 

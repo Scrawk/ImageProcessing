@@ -15,37 +15,32 @@ namespace ImageProcessing.Synthesis
     public class ExemplarSet
     {
 
-        public ExemplarSet(ColorImage2D image, int exemplarSize)
+        public ExemplarSet(int exemplarSize)
         {
             Size = exemplarSize;
-            Exclude = CreateExcludeList();
-            Exemplars = CreateExemplars(image, exemplarSize);
+            Exemplars = new List<ColorImage2D>();
         }
 
         public int Count => Exemplars.Count;
 
         public int Size { get; private set; }
 
-        private List<Tuple<string, string>> Exclude { get; set; }
+        private List<ColorImage2D> Exemplars { get; set; }
 
-        private List<Tuple<string, ColorImage2D>> Exemplars { get; set; }
-
-        public Tuple<string, ColorImage2D> GetExemplar(int i)
+        public ColorImage2D GetExemplar(int i)
         {
             return Exemplars[i];
         }
 
-        public  Tuple<string, ColorImage2D> FindBestMatch(ColorImage2D image, GreyScaleImage2D mask, string previous, int startX, int startY)
+        public  ColorImage2D FindBestMatch(ColorImage2D image, GreyScaleImage2D mask, ColorImage2D[,] previous, Point2i current, Point2i start)
         {
-            Tuple<string, ColorImage2D> match = null;
+            ColorImage2D match = null;
             float cost = float.PositiveInfinity;
 
-            foreach (var tuple in Exemplars)
+            foreach (var exemplar in Exemplars)
             {
-                //if (previous == tuple.Item1) continue;
-                //if(IsExcluded(previous, tuple.Item1)) continue;
-
-                var exemplar = tuple.Item2;
+                if (IsNeighbour(exemplar, previous, current))
+                    continue;
 
                 float c = 0;
                 int count = 0;
@@ -54,15 +49,12 @@ namespace ImageProcessing.Synthesis
                 {
                     for (int y = 0; y < exemplar.Height; y++)
                     {
-                        int i = startX + x;
-                        i = MathUtil.Wrap(i, image.Width);
+                        int i = start.x + x;
+                        int j = start.y + y;
 
-                        int j = startY + y;
-                        j = MathUtil.Wrap(j, image.Height);
+                        if (mask.GetValue(i, j, WRAP_MODE.WRAP) == 0) continue;
 
-                        if (mask[i, j] == 0) continue;
-
-                        var pixel1 = image[i, j];
+                        var pixel1 = image.GetPixel(i, j, WRAP_MODE.WRAP);
                         var pixel2 = exemplar[x, y];
 
                         c += ColorRGB.SqrDistance(pixel1, pixel2);
@@ -77,62 +69,112 @@ namespace ImageProcessing.Synthesis
                 if (c < cost)
                 {
                     cost = c;
-                    match = tuple;
+                    match = exemplar;
                 }
             }
 
             return match;
         }
 
-        private bool IsExcluded(string image, string exemplar)
+        private bool IsNeighbour(ColorImage2D exemplar, ColorImage2D[,] previous, Point2i current)
         {
-            foreach(var tuple in Exclude)
+            int width = previous.GetLength(0);
+            int height = previous.GetLength(1);
+
+            for(int i = 0; i < 4; i++)
             {
-                if(image == tuple.Item1 && exemplar == tuple.Item2)
+                int x = current.x + D4.OFFSETS[i, 0];
+                int y = current.y + D4.OFFSETS[i, 1];
+
+                x = MathUtil.Wrap(x, width);
+                y = MathUtil.Wrap(y, height);
+
+                if (previous[x, y] == exemplar)
                     return true;
             }
 
             return false;
         }
 
-        private List<Tuple<string, string>> CreateExcludeList()
+        public void CreateExemplarFromCrop(ColorImage2D image)
         {
-            var list = new List<Tuple<string,string>>();
-
-            //list.Add(new Tuple<string, string>("Original", "FlipHorizontal"));
-            //list.Add(new Tuple<string, string>("FlipHorizontal", "Original"));
-
-            //list.Add(new Tuple<string, string>("Rotate180", "FlipVertical"));
-            //list.Add(new Tuple<string, string>("FlipVertical", "Rotate180"));
-
-            return list;
-
+            var croppedImages = ColorImage2D.Crop(image, image.Width / Size, image.Height / Size);
+            Exemplars = CreateVariants(croppedImages);
         }
 
-        private List<Tuple<string, ColorImage2D>> CreateExemplars(ColorImage2D image, int exemplarSize)
+        public void CreateExemplarFromRandom(ColorImage2D image, int seed, int count)
         {
-            var croppedImages = ColorImage2D.Crop(image, image.Width / exemplarSize, image.Height / exemplarSize);
+            var mask = new BinaryImage2D(image.Width, image.Height);
+            var exemplars = new List<ColorImage2D>();
 
-            var exemplars = new List<Tuple<string, ColorImage2D>>();
+            var rnd = new Random(seed);
+            int fails = 0;
 
-            foreach (var croppedImage in croppedImages)
+            while(exemplars.Count < count && fails < 1000)
             {
+                int x = rnd.Next(0, image.Width - Size - 1);
+                int y = rnd.Next(0, image.Height - Size - 1);
 
-                var tmp = new List<Tuple<string, ColorImage2D>>();
+                var coverage = GetCoverage(mask, x, y);
 
-                tmp.Add(new Tuple<string, ColorImage2D>("Original", croppedImage));
-                tmp.Add(new Tuple<string, ColorImage2D>("Rotate90", ColorImage2D.Rotate90(croppedImage)));
-                tmp.Add(new Tuple<string, ColorImage2D>("Rotate180", ColorImage2D.Rotate180(croppedImage)));
-                tmp.Add(new Tuple<string, ColorImage2D>("Rotate270", ColorImage2D.Rotate270(croppedImage)));
-                //tmp.Add(new Tuple<string, ColorImage2D>("FlipHorizontal", ColorImage2D.FlipHorizontal(croppedImage)));
-                //tmp.Add(new Tuple<string, ColorImage2D>("FlipVertical", ColorImage2D.FlipVertical(croppedImage)));
+                if (coverage > 0.5f)
+                {
+                    fails++;
+                    continue;
+                }
 
-                exemplars.AddRange(tmp);
+                AddCoverage(mask, x, y);
+
+                var exemplar = ColorImage2D.Crop(image, new Box2i(x, y, x + Size, y + Size));
+                exemplars.Add(exemplar);
             }
 
-            exemplars.Shuffle(0);
+            Console.WriteLine("Exemplars = " + exemplars.Count);
+            Console.WriteLine("Fails = " + fails);
 
-            return exemplars;
+            Exemplars = CreateVariants(exemplars);
+        }
+
+        private float GetCoverage(BinaryImage2D mask, int x, int y)
+        {
+            int count = 0;
+
+            for(int j = 0; j < Size; j++)
+            {
+                for (int i = 0; i < Size; i++)
+                {
+                    if(mask[x + i, y + j])
+                        count++;
+                }
+            }
+
+            return count / (float)(Size * Size);
+        }
+
+        private void AddCoverage(BinaryImage2D mask, int x, int y)
+        {
+            for (int j = 0; j < Size; j++)
+            {
+                for (int i = 0; i < Size; i++)
+                {
+                    mask[x + i, y + j] = true;
+                }
+            }
+        }
+
+        private List<ColorImage2D> CreateVariants(List<ColorImage2D> exemplars)
+        {
+            var variants = new List<ColorImage2D>();
+
+            foreach (var exemplar in exemplars)
+            {
+                variants.Add(exemplar);
+                variants.Add(ColorImage2D.Rotate90(exemplar));
+                variants.Add(ColorImage2D.Rotate180(exemplar));
+                variants.Add(ColorImage2D.Rotate270(exemplar));
+            }
+
+            return variants;
         }
     }
 }
