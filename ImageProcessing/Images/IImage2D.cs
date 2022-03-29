@@ -14,7 +14,7 @@ namespace ImageProcessing.Images
     /// <summary>
     /// Wrap mode options for when sampling a image.
     /// </summary>
-    public enum WRAP_MODE {  CLAMP, WRAP, MIRROR };
+    public enum WRAP_MODE {  CLAMP, WRAP, MIRROR, NONE };
 
     /// <summary>
     /// Mode used to blend pixels.
@@ -26,9 +26,13 @@ namespace ImageProcessing.Images
     /// </summary>
     public interface  IImage2D : IImageSampler2D
     {
-        new ColorRGB GetPixel(int x, int y, WRAP_MODE mode);
+        int Width { get; }
 
-        new ColorRGB GetPixel(float u, float v, WRAP_MODE mode);
+        int Height { get; }
+
+        new ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
+
+        new ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         void SetPixel(int x, int y, ColorRGB pixel);
 

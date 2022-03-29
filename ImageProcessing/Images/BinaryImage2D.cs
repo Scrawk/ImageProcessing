@@ -86,14 +86,25 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public bool GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            if (mode == WRAP_MODE.CLAMP)
-                return GetClamped(x, y) ? 1 : 0;
-            else if (mode == WRAP_MODE.WRAP)
-                return GetWrapped(x, y) ? 1 : 0;
-            else
-                return GetMirrored(x, y) ? 1 : 0;
+            switch (mode)
+            {
+                case WRAP_MODE.CLAMP:
+                    return GetClamped(x, y);
+
+                case WRAP_MODE.WRAP:
+                    return GetWrapped(x, y);
+
+                case WRAP_MODE.MIRROR:
+                    return GetMirrored(x, y);
+
+                case WRAP_MODE.NONE:
+                    return this[x, y];
+
+                default:
+                    return this[x, y];
+            }
         }
 
         /// <summary>
@@ -103,7 +114,7 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public bool GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float x = u * (Width-1);
             float y = v * (Height-1);
@@ -111,12 +122,12 @@ namespace ImageProcessing.Images
             int ix = (int)x;
             int iy = (int)y;
 
-            var v00 = GetValue(ix, iy, mode);
-            var v10 = GetValue(ix + 1, iy, mode);
-            var v01 = GetValue(ix, iy + 1, mode);
-            var v11 = GetValue(ix + 1, iy + 1, mode);
+            var v00 = GetValue(ix, iy, mode) ? 1.0f : 0.0f;
+            var v10 = GetValue(ix + 1, iy, mode) ? 1.0f : 0.0f;
+            var v01 = GetValue(ix, iy + 1, mode) ? 1.0f : 0.0f;
+            var v11 = GetValue(ix + 1, iy + 1, mode) ? 1.0f : 0.0f;
 
-            return MathUtil.Blerp(v00, v10, v01, v11, x - ix, y - iy);
+            return MathUtil.Blerp(v00, v10, v01, v11, x - ix, y - iy) > 0;
         }
 
         /// <summary>
@@ -139,7 +150,7 @@ namespace ImageProcessing.Images
         /// <returns>The pixel at index x,y.</returns>
         public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            var value = GetValue(x, y, mode);
+            var value = GetValue(x, y, mode) ? 1.0f : 0.0f; ;
             return new ColorRGB(value);
         }
 
@@ -152,7 +163,7 @@ namespace ImageProcessing.Images
         /// <returns>The pixel at index x,y.</returns>
         public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            var value = GetValue(u, v, mode);
+            var value = GetValue(u, v, mode) ? 1.0f : 0.0f;
             return new ColorRGB(value);
         }
 

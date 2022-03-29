@@ -15,101 +15,161 @@ namespace ImageProcessing.Synthesis
 
     public static class ImageSynthesis
     {
-        public static (ColorImage2D, ColorImage2D) CreateSeamlessImageTest(ColorImage2D source, int width, int height, int exemplarSize, int overlap)
+        public static (ColorImage2D, ColorImage2D, GreyScaleImage2D) CreateSeamlessImageTest(ColorImage2D source, int exemplarSize, int overlap)
         {
-            var exemplars = CreateExemplars(source, exemplarSize);
-            exemplars.Shuffle(0);
+
+            var exemplars = new ExemplarSet(source, exemplarSize);
+
+            int tilesX = source.Width / exemplars.Size;
+            int tilesY = source.Height / exemplars.Size;
+
+            int width = source.Width - tilesX * overlap;
+            int height = source.Height - tilesY * overlap;
 
             var image1 = new ColorImage2D(width, height);
             var image2 = new ColorImage2D(width, height);
             var mask = new GreyScaleImage2D(width, height);
 
-            int offset = exemplarSize - overlap;
-            int count = width / (exemplarSize - overlap);
-            int startX = 0;
+            int y = 0;
 
-            var matches = new ColorImage2D[count];
+            TileHorizontally(image1, image2, mask, y, exemplars, overlap);
+            GraphCutVertical(image1, image2, y, exemplars.Size, overlap);
 
-            for (int j = 0; j < count; j++)
+            y = 1;
+
+            TileHorizontally(image1, image2, mask, y, exemplars, overlap);
+            GraphCutVertical(image1, image2, y, exemplars.Size, overlap);
+            GraphCutHorizontally(image1, image2, y, exemplars.Size, overlap);
+
+            y = 2;
+
+            TileHorizontally(image1, image2, mask, y, exemplars, overlap);
+            GraphCutVertical(image1, image2, y, exemplars.Size, overlap);
+            GraphCutHorizontally(image1, image2, y, exemplars.Size, overlap);
+
+            y = 3;
+
+            TileHorizontally(image1, image2, mask, y, exemplars, overlap);
+            GraphCutVertical(image1, image2, y, exemplars.Size, overlap);
+
+            return (image1, image2, mask);
+
+        }
+
+        private static void TileHorizontally(ColorImage2D image1, ColorImage2D image2, GreyScaleImage2D mask, int indexY, ExemplarSet exemplars, int overlap)
+        {
+
+            if (exemplars.Count == 0)
+                throw new ArgumentException("Exemplar set empty");
+
+            int offset = exemplars.Size - overlap;
+            int count = image1.Width / (exemplars.Size - overlap);
+            int startY = offset * indexY;
+
+            var matches = new Tuple<string, ColorImage2D>[count];
+
+            for (int k = 0; k < count; k++)
             {
-                ColorImage2D match = null;
+                int startX = offset * k;
 
-                if(j == 0)
+                Tuple<string, ColorImage2D> tuple = null;
+
+                if(k == 0 && indexY == 0)
                 {
-                    match = exemplars[0].Item2;
+                    tuple = exemplars.GetExemplar(0);
                 }
                 else
                 {
-                    match = FindBestMatch(image1, mask, startX, 0, exemplars);
+                    //var prevous = matches[j - 1].Item1;
+                    tuple = exemplars.FindBestMatch(image1, mask, "", startX, startY);
                 }
 
-                for (int y = 0; y < image1.Height; y++)
+                var match = tuple.Item2;
+
+                for (int y = 0; y < exemplars.Size; y++)
                 {
                     for (int x = 0; x < match.Width; x++)
                     {
                         int i = startX + x;
                         i = MathUtil.Wrap(i, image1.Width);
 
-                        image1[i, y] = match[x, y];
-                        mask[i, y] = 1;
+                        int j = startY + y;
+                        j = MathUtil.Wrap(j, image1.Height);
+
+                        image1[i, j] = match[x, y];
+                        mask[i, j] = 1;
                     }
                 }
 
-                startX += offset;
-                matches[j] = match;
+                matches[k] = tuple;
             }
 
-            for(int j = 0; j < count; j++)
+            for (int k = 0; k < count; k++)
             {
-                startX -= offset;
+                int startX = offset * (count-1) - offset * k;
+ 
+                var match = matches[count-1-k];
 
-                var match = matches[count-1-j];
-
-                for (int y = 0; y < image2.Height; y++)
+                for (int y = 0; y < exemplars.Size; y++)
                 {
-                    for (int x = 0; x < match.Width; x++)
+                    for (int x = 0; x < match.Item2.Width; x++)
                     {
                         int i = startX + x;
                         i = MathUtil.Wrap(i, image2.Width);
 
-                        image2[i, y] = match[x, y];
+                        int j = startY + y;
+                        j = MathUtil.Wrap(j, image2.Height);
+
+                        image2[i, j] = match.Item2[x, y];
                     }
                 }
                
             }
 
-            startX = 0;
+        }
+
+        private static void GraphCutVertical(ColorImage2D image1, ColorImage2D image2, int indexY, int exemplarsSize, int overlap)
+        {
+            int offset = exemplarsSize - overlap;
+            int count = image1.Width / (exemplarsSize - overlap);
+            int startY = offset * indexY;
 
             for (int j = 0; j < count; j++)
             {
-                var bounds = new Box2i(startX, 0, startX + overlap, height);
-                
+                int startX = offset * j;
+
+                var bounds = new Box2i(startX, startY, startX + overlap, startY + exemplarsSize);
+
                 var graph = CreateGraph(image1, image2, bounds);
                 var path = FindBestCut(graph, 4);
 
-                if(j != 0)
+                if (j != 0)
                 {
                     foreach (var p in path)
                         for (int i = 0; i < p.x; i++)
-                            image1[startX + i, p.y] = image2[startX + i, p.y];
+                            image1[startX + i, startY + p.y] = image2[startX + i, startY + p.y];
                 }
                 else
                 {
                     foreach (var p in path)
                         for (int i = p.x; i < overlap; i++)
-                            image1[startX + i, p.y] = image2[startX + i, p.y];
+                            image1[startX + i, startY + p.y] = image2[startX + i, startY + p.y];
                 }
 
-                //DrawPath(graph, path, image1, ColorRGB.Red, startX);
-
-                image1 = BlurSeams(image1, graph, path, bounds);
-
-                startX += offset;
+                //DrawPath(graph, path, image1, ColorRGB.Red, startX, startY);
+                //image1 = BlurSeams(image1, graph, path, bounds);
             }
+        }
 
-            
+        private static void GraphCutHorizontally(ColorImage2D image1, ColorImage2D image2, int indexY, int exemplarsSize, int overlap)
+        {
+            int offset = exemplarsSize - overlap;
+            int startY = offset * indexY;
 
-            return (image1, image2);
+            var bounds = new Box2i(0, startY, image1.Width, startY + overlap);
+
+            image1.DrawBox(bounds, ColorRGB.Red, true);
+
         }
 
         private static ColorImage2D BlurSeams(ColorImage2D image, GridGraph graph, List<Point2i> path, Box2i bounds)
@@ -126,12 +186,12 @@ namespace ImageProcessing.Synthesis
             return ColorImage2D.GaussianBlur(image, 0.75f, bounds, mask);
         }
 
-        private static void DrawPath(GridGraph graph, List<Point2i> path, ColorImage2D image, ColorRGB col, int offset)
+        private static void DrawPath(GridGraph graph, List<Point2i> path, ColorImage2D image, ColorRGB col, int offsetX, int offsetY)
         {
             for (int i = 0; i < path.Count; i++)
             {
                 var p = path[i];
-                image.SetPixel(offset + p.x, p.y, col);
+                image.SetPixel(offsetX + p.x, offsetY + p.y, col);
             }
         }
 
@@ -142,161 +202,6 @@ namespace ImageProcessing.Synthesis
                 var p = path[i];
                 image.SetPixel(offset + p.x, p.y, col);
             }
-        }
-
-
-        public static List<Tuple<string, ColorImage2D>> CreateExemplars(ColorImage2D image, int exemplarSize)
-        {
-
-            var exemplars = ColorImage2D.Crop(image, image.Width / exemplarSize, image.Height / exemplarSize);
-
-            var images = new List<Tuple<string, ColorImage2D>>();
-
-            foreach (var exemplar in exemplars)
-            {
-                images.Add(new Tuple<string, ColorImage2D>("Original", exemplar));
-                images.Add(new Tuple<string, ColorImage2D>("Rotate90", ColorImage2D.Rotate90(exemplar)));
-                images.Add(new Tuple<string, ColorImage2D>("Rotate180", ColorImage2D.Rotate180(exemplar)));
-                images.Add(new Tuple<string, ColorImage2D>("Rotate270", ColorImage2D.Rotate270(exemplar)));
-                images.Add(new Tuple<string, ColorImage2D>("FlipHorizontal", ColorImage2D.FlipHorizontal(exemplar)));
-                images.Add(new Tuple<string, ColorImage2D>("FlipVertical", ColorImage2D.FlipVertical(exemplar)));
-            }
-
-            return images;
-        }
-
-        public static ColorImage2D FindBestMatch(ColorImage2D image, GreyScaleImage2D mask, int startX, int startY, List<Tuple<string, ColorImage2D>> exemplars)
-        {
-            ColorImage2D match = null;
-            float cost = float.PositiveInfinity;
-
-            foreach (var tuple in exemplars)
-            {
-                var exemplar = tuple.Item2;
-
-                float c = 0;
-                int count = 0;
-
-                for (int x = 0; x < exemplar.Width; x++)
-                {
-                    for (int y = 0; y < exemplar.Height; y++)
-                    {
-                        int i = startX + x;
-                        i = MathUtil.Wrap(i, image.Width);
-
-                        int j = startY + y;
-
-                        if (mask[i, j] == 0) continue;
-                        
-                        var pixel1 = image[i, j];
-                        var pixel2 = exemplar[x, y];
-
-                        c += ColorRGB.SqrDistance(pixel1, pixel2);
-                        count++;
-                    }
-                }
-
-                if (count == 0) continue;
-
-                c /= count;
-
-                if (c < cost)
-                {
-                    cost = c;
-                    match = exemplar;
-                }
-            }
-
-            return match;
-        }
-
-
-        public static ColorImage2D FindBestMatch(ColorImage2D image, List<ColorImage2D> images, int overlap)
-        {
-
-            int width = image.Width;
-
-            ColorImage2D match = null;
-            float cost = float.PositiveInfinity;
-
-            foreach (var image2 in images)
-            {
-                if (image2 == image) continue;
-                if(image2.Size != image.Size) continue;
-
-                float c = 0;
-
-                for(int x = 0; x < overlap; x++)
-                {
-                    for(int y = 0; y < image.Height; y++)
-                    {
-                        var pixel1 = image[width - overlap + x, y];
-                        var pixel2 = image2[x, y];
-
-                        c += ColorRGB.SqrDistance(pixel1, pixel2);
-                    }
-                }
-
-                if(c == 0) continue;
-
-                if(c < cost)
-                {
-                    cost = c;
-                    match = image2;
-                }
-            }
-
-            return match;
-        }
-
-        public static (ColorImage2D, int) FindBestMatch(ColorImage2D image, List<ColorImage2D> images, int shift, int overlap)
-        {
-            int width = image.Width;
-
-            ColorImage2D best_match = null;
-            float best_cost = float.PositiveInfinity;
-            int best_overlap = 0;
-
-            foreach (var image2 in images)
-            {
-                if (image2 == image) continue;
-                if (image2.Height != image.Height) continue;
-
-                for (int s = 0; s < shift; s++)
-                {
-                    float cost = 0;
-                    int samples = 0;
-                    int buffer = overlap - s;
-
-                    for (int x = 0; x < buffer; x++)
-                    {
-                        for (int y = 0; y < image.Height; y++)
-                        {
-                            var pixel1 = image[width - buffer + x, y];
-                            var pixel2 = image2[x, y];
-
-                            cost += ColorRGB.SqrDistance(pixel1, pixel2);
-                            samples++;
-                        }
-                    }
-
-                    if (cost == 0) continue;
-                    if (samples == 0) continue;
-
-                    cost /= samples;
-
-                    if (cost < best_cost)
-                    {
-                        best_cost = cost;
-                        best_match = image2;
-                        best_overlap = buffer;
-                    }
-
-                }
-
-            }
-
-            return (best_match, best_overlap);
         }
 
         public static GridGraph CreateGraph(ColorImage2D image1, ColorImage2D image2, Box2i bounds)

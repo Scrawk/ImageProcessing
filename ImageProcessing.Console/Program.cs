@@ -7,8 +7,6 @@ using Common.Core.Numerics;
 using Common.Core.Time;
 using Common.Core.Shapes;
 using Common.Core.Colors;
-using Common.Core.Directions;
-using Common.GraphTheory.AdjacencyGraphs;
 using Common.GraphTheory.GridGraphs;
 
 using ImageProcessing.Images;
@@ -40,6 +38,9 @@ namespace ImageProcessing.Console
         static void Main(string[] args)
         {
 
+            var timer = new Timer();    
+            timer.Start();
+
             var bitmap = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/Test_Gravel_512.png"));
 
             var image = new ColorImage2D(bitmap.Width, bitmap.Height);
@@ -48,13 +49,15 @@ namespace ImageProcessing.Console
                 return ToColorRGB(bitmap.GetPixel(x, y));
             });
 
-            var pair = ImageSynthesis.CreateSeamlessImageTest(image, 480, 128, 128, 8);
+            var pair = ImageSynthesis.CreateSeamlessImageTest(image, 128, 8);
 
-            pair.Item1.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Test.raw");
+            pair.Item1.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Image1.raw");
+            pair.Item2.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Image2.raw");
+            pair.Item3.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Mask.raw");
 
-            pair.Item2.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Test2.raw");
+            timer.Stop();
 
-            WriteLine("Done");
+            WriteLine("Done in " + timer.ElapsedMilliseconds);
         }
 
         private static void DrawPath(GridGraph graph, List<Point2i> path, ColorImage2D image, int offset)
