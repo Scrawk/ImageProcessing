@@ -49,27 +49,22 @@ namespace ImageProcessing.Console
                 return ToColorRGB(bitmap.GetPixel(x, y));
             });
 
-            var exemplars = new ExemplarSet(128);
+            int overlap = 8;
+            int exemplarSize = 128 + overlap;
+            int imageSize = 512;
+
+            var exemplars = new ExemplarSet(exemplarSize);
             exemplars.CreateExemplarFromRandom(image, 0, 32);
 
-            var pair = ImageSynthesis.CreateSeamlessImageTest(exemplars, 512, 8);
+            var systhesis = new ImageSynthesis(exemplars, imageSize, overlap);
 
-            pair.Item1.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Image1.raw");
-            pair.Item2.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Image2.raw");
-            pair.Item3.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Mask.raw");
+            systhesis.CreateSeamlessImage();
+
+            systhesis.Image.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Image1.raw");
 
             timer.Stop();
 
             WriteLine("Done in " + timer.ElapsedMilliseconds);
-        }
-
-        private static void DrawPath(GridGraph graph, List<Point2i> path, ColorImage2D image, int offset)
-        {
-            for (int i = 0; i < path.Count; i++)
-            {
-                var p = path[i];
-                image.SetPixel(offset + p.x, p.y, ColorRGB.Red);
-            }
         }
 
     }

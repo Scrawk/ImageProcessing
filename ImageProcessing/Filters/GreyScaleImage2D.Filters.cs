@@ -14,13 +14,14 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="image">The input image.</param>
 		/// <param name="size">The size in pixels of the kernel.</param>
-		/// <param name="bounds">The area to apply filter.</param>
+		/// <param name="bounds">The area to apply the filter to.</param>
 		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
+		/// <param name="mode">The wrap mode to use.</param>
 		/// <returns>The new image.</returns>
-		public static GreyScaleImage2D BoxBlur(GreyScaleImage2D image, int size, Box2i? bounds = null, GreyScaleImage2D mask = null)
+		public static GreyScaleImage2D BoxBlur(GreyScaleImage2D image, int size, Box2i? bounds = null, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.CLAMP)
 		{
 			var k = FilterKernel2D.BoxKernel(size);
-			return Filter(image, k, bounds, mask);
+			return Filter(image, k, bounds, mask, mode);
 		}
 
 		/// <summary>
@@ -28,39 +29,42 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="image">The input image.</param>
 		/// <param name="sigma">The standard deviation of the blur kernel.</param>
-		/// <param name="bounds">The area to apply filter.</param>
+		/// <param name="bounds">The area to apply the filter to.</param>
 		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
-		/// <returns>The new image.</returns>
-		public static GreyScaleImage2D GaussianBlur(GreyScaleImage2D image, float sigma, Box2i? bounds = null, GreyScaleImage2D mask = null)
+		/// <param name="mode">The wrap mode to use.</param>
+		/// <returns></returns>
+		public static GreyScaleImage2D GaussianBlur(GreyScaleImage2D image, float sigma, Box2i? bounds = null, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.CLAMP)
 		{
 			var k = FilterKernel2D.GaussianKernel(sigma);
-			return Filter(image, k, bounds, mask);
+			return Filter(image, k, bounds, mask, mode);
 		}
 
 		/// <summary>
 		/// Apply a sharpen filter and return as a new image.
 		/// </summary>
 		/// <param name="image">The input image.</param>
-		/// <param name="bounds">The area to apply filter.</param>
+		/// <param name="bounds">The area to apply the filter to.</param>
 		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
+		/// <param name="mode">The wrap mode to use.</param>
 		/// <returns>The new image.</returns>
-		public static GreyScaleImage2D SharpenFilter(GreyScaleImage2D image, Box2i? bounds = null, GreyScaleImage2D mask = null)
+		public static GreyScaleImage2D SharpenFilter(GreyScaleImage2D image, Box2i? bounds = null, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.CLAMP)
 		{
 			var k = FilterKernel2D.SharpenKernel();
-			return Filter(image, k, bounds, mask);
+			return Filter(image, k, bounds, mask, mode);
 		}
 
 		/// <summary>
 		/// Apply a unsharpen filter and return as a new image.
 		/// </summary>
 		/// <param name="image">The input image.</param>
-		/// <param name="bounds">The area to apply filter.</param>
+		/// <param name="bounds">The area to apply the filter to.</param>
 		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
+		/// <param name="mode">The wrap mode to use.</param>
 		/// <returns>The new image.</returns>
-		public static GreyScaleImage2D UnsharpenFilter(GreyScaleImage2D image, Box2i? bounds = null, GreyScaleImage2D mask = null)
+		public static GreyScaleImage2D UnsharpenFilter(GreyScaleImage2D image, Box2i? bounds = null, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.CLAMP)
 		{
 			var k = FilterKernel2D.UnsharpenKernel();
-			return Filter(image, k, bounds, mask);
+			return Filter(image, k, bounds, mask, mode);
 		}
 
 		/// <summary>
@@ -70,8 +74,9 @@ namespace ImageProcessing.Images
 		/// <param name="k">The filter to apply.</param>
 		/// <param name="bounds">The area to apply filter.</param>
 		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
+		/// <param name="mode">The wrap mode to use.</param>
 		/// <returns></returns>
-		public static GreyScaleImage2D Filter(GreyScaleImage2D image, FilterKernel2D k, Box2i? bounds, GreyScaleImage2D mask)
+		public static GreyScaleImage2D Filter(GreyScaleImage2D image, FilterKernel2D k, Box2i? bounds, GreyScaleImage2D mask, WRAP_MODE mode)
 		{
 			if (bounds == null)
 				bounds = new Box2i(0, 0, image.Width, image.Height);
@@ -84,12 +89,12 @@ namespace ImageProcessing.Images
 				{
 					if (mask == null)
 					{
-						image2[p] = Filter(p.x, p.y, image, k) * k.Scale;
+						image2[p] = Filter(p.x, p.y, image, k, mode) * k.Scale;
 					}
 					else
 					{
 						var value1 = image.GetValue(p.x, p.y);
-						var value2 = Filter(p.x, p.y, image, k) * k.Scale;
+						var value2 = Filter(p.x, p.y, image, k, mode) * k.Scale;
 
 						var a = MathUtil.Clamp01(mask[p]);
 						image2[p] = MathUtil.Lerp(value1, value2, a);
@@ -144,8 +149,9 @@ namespace ImageProcessing.Images
 		/// <param name="j">The second index.</param>
 		/// <param name="image">The input image.</param>
 		/// <param name="k">The filter to apply.</param>
+		/// <param name="mode">The wrap mode to use.</param>
 		/// <returns>The filter result.</returns>
-		private static float Filter(int i, int j, GreyScaleImage2D image, FilterKernel2D k)
+		private static float Filter(int i, int j, GreyScaleImage2D image, FilterKernel2D k, WRAP_MODE mode)
 		{
 			int half = k.Size / 2;
 
@@ -154,10 +160,10 @@ namespace ImageProcessing.Images
 			{
 				for (int x = 0; x < k.Size; x++)
 				{
-					int xi = MathUtil.Clamp(x + i - half, 0, image.Width - 1);
-					int yj = MathUtil.Clamp(y + j - half, 0, image.Height - 1);
+					int xi = x + i - half;
+					int yj = y + j - half;
 
-					sum += image[xi, yj] * k[x, y];
+					sum += image.GetValue(xi, yj, mode) * k[x, y];
 				}
 			}
 

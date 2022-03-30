@@ -5,8 +5,6 @@ using Common.Core.Numerics;
 using Common.Core.Colors;
 using Common.Core.Shapes;
 using Common.Core.Directions;
-using Common.GraphTheory.AdjacencyGraphs;
-using Common.GraphTheory.GridGraphs;
 
 using ImageProcessing.Images;
 
@@ -18,28 +16,31 @@ namespace ImageProcessing.Synthesis
         public ExemplarSet(int exemplarSize)
         {
             Size = exemplarSize;
-            Exemplars = new List<ColorImage2D>();
+            Exemplars = new List<Exemplar>();
         }
 
         public int Count => Exemplars.Count;
 
         public int Size { get; private set; }
 
-        private List<ColorImage2D> Exemplars { get; set; }
+        private List<Exemplar> Exemplars { get; set; }
 
-        public ColorImage2D GetExemplar(int i)
+        public Exemplar GetExemplar(int i)
         {
             return Exemplars[i];
         }
 
-        public  ColorImage2D FindBestMatch(ColorImage2D image, GreyScaleImage2D mask, ColorImage2D[,] previous, Point2i current, Point2i start)
+        public Exemplar FindBestMatch(ColorImage2D image, GreyScaleImage2D mask, Exemplar[,] previous, Point2i current, Point2i start)
         {
-            ColorImage2D match = null;
+            Exemplar match = null;
             float cost = float.PositiveInfinity;
 
             foreach (var exemplar in Exemplars)
             {
                 if (IsNeighbour(exemplar, previous, current))
+                    continue;
+
+                if (exemplar.Used > 0)
                     continue;
 
                 float c = 0;
@@ -76,7 +77,7 @@ namespace ImageProcessing.Synthesis
             return match;
         }
 
-        private bool IsNeighbour(ColorImage2D exemplar, ColorImage2D[,] previous, Point2i current)
+        private bool IsNeighbour(Exemplar exemplar, Exemplar[,] previous, Point2i current)
         {
             int width = previous.GetLength(0);
             int height = previous.GetLength(1);
@@ -105,7 +106,7 @@ namespace ImageProcessing.Synthesis
         public void CreateExemplarFromRandom(ColorImage2D image, int seed, int count)
         {
             var mask = new BinaryImage2D(image.Width, image.Height);
-            var exemplars = new List<ColorImage2D>();
+            var exemplars = new List<Exemplar>();
 
             var rnd = new Random(seed);
             int fails = 0;
@@ -126,11 +127,8 @@ namespace ImageProcessing.Synthesis
                 AddCoverage(mask, x, y);
 
                 var exemplar = ColorImage2D.Crop(image, new Box2i(x, y, x + Size, y + Size));
-                exemplars.Add(exemplar);
+                exemplars.Add(new Exemplar(exemplar));
             }
-
-            Console.WriteLine("Exemplars = " + exemplars.Count);
-            Console.WriteLine("Fails = " + fails);
 
             Exemplars = CreateVariants(exemplars);
         }
@@ -162,16 +160,32 @@ namespace ImageProcessing.Synthesis
             }
         }
 
-        private List<ColorImage2D> CreateVariants(List<ColorImage2D> exemplars)
+        private List<Exemplar> CreateVariants(List<ColorImage2D> images)
         {
-            var variants = new List<ColorImage2D>();
+            var variants = new List<Exemplar>();
+
+            foreach (var image in images)
+            {
+                var exemplar = new Exemplar(image);
+                var v = exemplar.CreateVariants();
+
+                variants.Add(exemplar);
+                variants.AddRange(v);
+            }
+
+            return variants;
+        }
+
+        private List<Exemplar> CreateVariants(List<Exemplar> exemplars)
+        {
+            var variants = new List<Exemplar>();
 
             foreach (var exemplar in exemplars)
             {
+                var v = exemplar.CreateVariants();
+
                 variants.Add(exemplar);
-                variants.Add(ColorImage2D.Rotate90(exemplar));
-                variants.Add(ColorImage2D.Rotate180(exemplar));
-                variants.Add(ColorImage2D.Rotate270(exemplar));
+                variants.AddRange(v);
             }
 
             return variants;
