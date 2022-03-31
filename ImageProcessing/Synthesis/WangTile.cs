@@ -11,15 +11,15 @@ namespace ImageProcessing.Synthesis
     public class WangTile
     {
 
-		public readonly int id, e0, e1, e2, e3;
+		public readonly int id, sEdge, eEdge, nEdge, wEdge;
 
-		public WangTile(int id, int e0, int e1, int e2, int e3, int tileSize)
+		public WangTile(int id, int sEdge, int eEdge, int nEdge, int wEdge, int tileSize)
 		{
 			this.id = id;
-			this.e0 = e0;
-			this.e1 = e1;
-			this.e2 = e2;
-			this.e3 = e3;
+			this.sEdge = sEdge;
+			this.eEdge = eEdge;
+			this.nEdge = nEdge;
+			this.wEdge = wEdge;
 
 			Image = new ColorImage2D(tileSize, tileSize);
 		}
@@ -30,7 +30,7 @@ namespace ImageProcessing.Synthesis
 
 		public WangTile Copy()
         {
-			var tile = new WangTile(id, e0, e1, e2, e3, Size);
+			var tile = new WangTile(id, sEdge, eEdge, nEdge, wEdge, Size);
 			tile.Image.Fill(Image);
 			return tile;
         }

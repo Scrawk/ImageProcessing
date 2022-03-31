@@ -38,7 +38,7 @@ namespace ImageProcessing.Console
         static void Main(string[] args)
         {
 
-            var set = new WangTileSet(2);
+            var set = new WangTileSet(2, 128);
             WriteLine(set);
 
             set.Test();
