@@ -38,11 +38,8 @@ namespace ImageProcessing.Console
         static void Main(string[] args)
         {
 
-            var set = new WangTileSet(2, 128);
-            WriteLine(set);
-
+            var set = new WangTileSet(3, 2, 128);
             set.Test();
-
             WriteLine("Done");
 
             /*
