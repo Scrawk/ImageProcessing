@@ -290,6 +290,55 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        public void Fill(T[,] source, int x = 0, int y = 0)
+        {
+            for (int j = 0; j < source.GetLength(0); j++)
+            {
+                for (int i = 0; i < source.GetLength(1); i++)
+                {
+                    this[x + i, y + j] = source[i, j];
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
+        public void Fill(T[] source)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    this[x, y] = source[x + y * Width];
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        public void Fill(Image2D<T> source, int x = 0, int y = 0)
+        {
+            for (int j = 0; j < source.Height; j++)
+            {
+                for (int i = 0; i < source.Width; i++)
+                {
+                    this[x + i, y + j] = source[i, j];
+                }
+            }
+        }
+
+        /// <summary>
         /// Fill the array with the value from the function.
         /// </summary>
         public void Fill(Func<int, int, T> func)
@@ -429,21 +478,6 @@ namespace ImageProcessing.Images
             {
                 var j = indices[i];
                 this[j] = value;
-            }
-        }
-
-        /// <summary>
-        /// Copy this image to another image of the same size.
-        /// </summary>
-        /// <param name="dest">The image to copy to.</param>
-        public void CopyTo(Image2D<T> dest)
-        {
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    dest[x, y] = this[x, y];
-                }
             }
         }
 

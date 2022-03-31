@@ -38,10 +38,18 @@ namespace ImageProcessing.Console
         static void Main(string[] args)
         {
 
+            var set = new WangTileSet(2);
+            WriteLine(set);
+
+            set.Test();
+
+            WriteLine("Done");
+
+            /*
             var timer = new Timer();    
             timer.Start();
 
-            var bitmap = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/TexturesCom_Gravel0174_1_S.jpg"));
+            var bitmap = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/TexturesCom_Gravel0160_2_S.jpg"));
 
             var image = new ColorImage2D(bitmap.Width, bitmap.Height);
             image.Fill((x, y) =>
@@ -65,6 +73,7 @@ namespace ImageProcessing.Console
             timer.Stop();
 
             WriteLine("Done in " + timer.ElapsedMilliseconds);
+            */
         }
 
     }

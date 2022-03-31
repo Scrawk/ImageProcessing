@@ -67,7 +67,7 @@ namespace ImageProcessing.Images
 			}
 
 			Resize(image2.Width, image2.Height);
-			image2.CopyTo(this);
+			Fill(image2);
 		}
 
 		/// <summary>

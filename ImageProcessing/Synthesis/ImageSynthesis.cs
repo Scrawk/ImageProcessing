@@ -279,7 +279,7 @@ namespace ImageProcessing.Synthesis
             mask = GreyScaleImage2D.GaussianBlur(mask, 0.5f, bounds, null, WRAP_MODE.WRAP);
 
             var blurred = ColorImage2D.GaussianBlur(image, BlurStrength, bounds, mask, WRAP_MODE.WRAP);
-            blurred.CopyTo(image);
+            image.Fill(blurred);
         }
 
         private void DrawPath(List<Point2i> path, ColorImage2D image, ColorRGB col, int offsetX, int offsetY)

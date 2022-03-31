@@ -1,6 +1,8 @@
-﻿using Common.Core.Colors;
-using ImageProcessing.Images;
+﻿using System;
 using System.Collections.Generic;
+
+using Common.Core.Colors;
+using ImageProcessing.Images;
 
 namespace ImageProcessing.Synthesis
 {
