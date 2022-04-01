@@ -13,6 +13,10 @@ namespace ImageProcessing.Images
     /// </summary>
     public partial class BinaryImage2D : Image2D<bool>
     {
+
+
+        int m_width, m_height;
+
         /// <summary>
         /// Create a default of image.
         /// </summary>
@@ -28,7 +32,9 @@ namespace ImageProcessing.Images
         /// <param name="height">The height of the image.</param>
         public BinaryImage2D(int width, int height)
         {
-            Data = new bool[width, height];
+            m_width = width;
+            m_height = height;
+            Data = new BitArray(width * height);
         }
 
         /// <summary>
@@ -37,7 +43,9 @@ namespace ImageProcessing.Images
         /// <param name="size">The size of the image. x is the width and y is the height.</param>
         public BinaryImage2D(Point2i size)
         {
-            Data = new bool[size.x, size.y];
+            m_width = size.x;
+            m_height = size.y;
+            Data = new BitArray(size.x * size.y);
         }
 
         /// <summary>
@@ -48,23 +56,16 @@ namespace ImageProcessing.Images
         /// <param name="value">The value to fill the image with.</param>
         public BinaryImage2D(int width, int height, bool value)
         {
-            Data = new bool[width, height];
+            m_width = width;
+            m_height = height;
+            Data = new BitArray(width * height);
             Fill(value);
-        }
-
-        /// <summary>
-        /// Create a image from the given data.
-        /// </summary>
-        /// <param name="data">The images data.</param>
-        public BinaryImage2D(bool[,] data)
-        {
-            Data = data.Copy();
         }
 
         /// <summary>
         /// The images pixels.
         /// </summary>
-        private bool[,] Data;
+        private BitArray Data;
 
         /// <summary>
         /// The number of elements in the array.
@@ -74,12 +75,12 @@ namespace ImageProcessing.Images
         /// <summary>
         /// The size of the arrays 1st dimention.
         /// </summary>
-        public override int Width => Data.GetLength(0);
+        public override int Width => m_width;
 
         /// <summary>
         /// The size of the arrays 2st dimention.
         /// </summary>
-        public override int Height => Data.GetLength(1);
+        public override int Height => m_height;
 
         /// <summary>
         /// The number of channels in the images pixel.
@@ -91,8 +92,8 @@ namespace ImageProcessing.Images
         /// </summary>
         public override bool this[int x, int y]
         {
-            get {  return Data[x, y]; } 
-            set {  Data[x, y] = value; }
+            get {  return Data[x + y * m_width]; } 
+            set {  Data[x + y * m_width] = value; }
         }
 
         /// <summary>
@@ -100,8 +101,8 @@ namespace ImageProcessing.Images
         /// </summary>
         public override bool this[Point2i i]
         {
-            get { return Data[i.x, i.y]; }
-            set { Data[i.x, i.y] = value; }
+            get { return Data[i.x + i.y * m_width]; }
+            set { Data[i.x + i.y * m_width] = value; }
         }
 
         /// <summary>
@@ -118,7 +119,7 @@ namespace ImageProcessing.Images
         /// </summary>
         public override void Clear()
         {
-            Data.Clear();
+            Data.SetAll(false);
         }
 
         /// <summary>
@@ -126,7 +127,9 @@ namespace ImageProcessing.Images
         /// </summary>
         public override void Resize(int width, int height)
         {
-            Data = new bool[width, height];
+            m_width = width;
+            m_height = height;
+            Data = new BitArray(width * height);
         }
 
         /// <summary>
@@ -134,7 +137,9 @@ namespace ImageProcessing.Images
         /// </summary>
         public override void Resize(Point2i size)
         {
-            Data = new bool[size.x, size.y];
+            m_width = size.x;
+            m_height = size.y;
+            Data = new BitArray(size.x * size.y);
         }
 
         /// <summary>
@@ -265,7 +270,13 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public BinaryImage2D Copy()
         {
-            return new BinaryImage2D(Data);
+            var copy = new BinaryImage2D(Width, Height);
+            copy.Fill((x, y) =>
+            {
+                return this[x, y];
+            });
+
+            return copy;
         }
 
         /// <summary>

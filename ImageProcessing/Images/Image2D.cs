@@ -48,7 +48,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// The size of the image as a box.
         /// </summary>
-        public Box2i Bounds => new Box2i((0, 0), Size);
+        public Box2i Bounds => new Box2i(new Point2i(0, 0), Size);
 
         /// <summary>
         /// Access a element at index x,y.
@@ -353,6 +353,33 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// Fill the image with the values at the provided indices.
+        /// </summary>
+        /// <param name="indices">The indices and value to fill.</param>
+        public void Fill(IList<PixelIndex2D<T>> indices)
+        {
+            for (int i = 0; i < indices.Count; i++)
+            {
+                var p = indices[i];
+                this[p.Index] = p.Value;
+            }
+        }
+
+        /// <summary>
+        /// Fill the image with the value at the provided indices.
+        /// </summary>
+        /// <param name="indices">The indices to fill.</param>
+        /// <param name="value">The value to fill.</param>
+        public void Fill(IList<Point2i> indices, T value)
+        {
+            for (int i = 0; i < indices.Count; i++)
+            {
+                var j = indices[i];
+                this[j] = value;
+            }
+        }
+
+        /// <summary>
         /// Fill the array with the value from the function in parallel.
         /// </summary>
         public void ParallelFill(Func<int, int, T> func)
@@ -455,30 +482,22 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Fill the image with the values at the provided indices.
+        /// Convert to a 2D array.
         /// </summary>
-        /// <param name="indices">The indices and value to fill.</param>
-        public void Fill(IList<PixelIndex2D<T>> indices)
+        /// <returns>A 2D arry fill with the images values.</returns>
+        public T[,] ToArray()
         {
-            for (int i = 0; i < indices.Count; i++)
-            {
-                var p = indices[i];
-                this[p.Index] = p.Value;
-            }
-        }
+            var array = new T[Height, Width];
 
-        /// <summary>
-        /// Fill the image with the value at the provided indices.
-        /// </summary>
-        /// <param name="indices">The indices to fill.</param>
-        /// <param name="value">The value to fill.</param>
-        public void Fill(IList<Point2i> indices, T value)
-        {
-            for (int i = 0; i < indices.Count; i++)
+            for (int y = 0; y < Height; y++)
             {
-                var j = indices[i];
-                this[j] = value;
+                for (int x = 0; x < Width; x++)
+                {
+                    array[x, y] = this[x, y];
+                }
             }
+
+            return array;
         }
 
         /// <summary>

@@ -211,7 +211,7 @@ namespace ImageProcessing.Images
 		public static StructureElement2D CircleElement(int size)
 		{
 			float half = size / 2.0f;
-			var circle = new Circle2f((half, half), half);
+			var circle = new Circle2f(new Point2f(half, half), half);
 			var e = new StructureElement2D(size);
 			e.Fill(circle, true);
 			return e;
