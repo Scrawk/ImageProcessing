@@ -61,18 +61,18 @@ namespace ImageProcessing.Synthesis
                 {
                     TileHorizontally(y, matches);
                     CopyToImage2(y, matches);
-                    GraphCutVertical(y);
+                    GraphCutVerticalFlow(y);
                 }
                 else if(y == countY)
                 {
-                    GraphCutHorizontally(0);
+                    GraphCutHorizontallyFlow(0);
                 }
                 else
                 {
                     TileHorizontally(y, matches);
                     CopyToImage2(y, matches);
-                    GraphCutVertical(y);
-                    GraphCutHorizontally( y);
+                    GraphCutVerticalFlow(y);
+                    GraphCutHorizontallyFlow( y);
                 }
             }
 
@@ -199,7 +199,13 @@ namespace ImageProcessing.Synthesis
 
                 var bounds = new Box2i(startX, startY, startX + Overlap, startY + Exemplars.Size);
                 var graph = CreateGraph(bounds);
-                var path = FindBestCut(graph, true);
+
+                Point2i source = new Point2i(graph.Width / 2, 0);
+                Point2i target = new Point2i(graph.Width / 2, graph.Height - 1);
+    
+                var search = new GridSearch(graph.Width, graph.Height);
+                graph.PrimsMinimumSpanningTree(search, source.x, source.y);
+                var path = search.GetPath(target);
 
                 if (j != 0)
                 {
@@ -230,6 +236,55 @@ namespace ImageProcessing.Synthesis
             }
         }
 
+        private void GraphCutVerticalFlow(int indexY)
+        {
+            int offset = Exemplars.Size - Overlap;
+            int count = Image1.Width / (Exemplars.Size - Overlap);
+            int startY = offset * indexY;
+
+            for (int j = 0; j < count; j++)
+            {
+                int startX = offset * j;
+
+                var bounds = new Box2i(startX, startY, startX + Overlap, startY + Exemplars.Size);
+                var graph = CreateFlowGraph(bounds);
+
+                for(int y = 0; y < graph.Height; y++)
+                {
+                    graph.SetSource(0, y, 255);
+                    graph.SetSink(graph.Width-1, y, 255);
+                }
+
+                graph.Calculate();
+
+                graph.Iterate((x, y) =>
+                {
+                    if(j != 0)
+                    {
+                        if (graph.IsSource(x, y))
+                        {
+                            var pixel = Image2.GetPixel(startX + x, startY + y, WRAP_MODE.WRAP);
+                            Image1.SetPixel(startX + x, startY + y, pixel, WRAP_MODE.WRAP);
+                        }
+                    }
+                    else
+                    {
+                        if (graph.IsSink(x, y))
+                        {
+                            var pixel = Image2.GetPixel(startX + x, startY + y, WRAP_MODE.WRAP);
+                            Image1.SetPixel(startX + x, startY + y, pixel, WRAP_MODE.WRAP);
+                        }
+                    }   
+                });
+
+
+                var path = FindPath(graph);
+                BlurSeams(Image1, path, bounds);
+
+            }
+
+        }
+
         private void GraphCutHorizontally(int indexY)
         {
             int offset = Exemplars.Size - Overlap;
@@ -237,9 +292,15 @@ namespace ImageProcessing.Synthesis
 
             var bounds = new Box2i(0, startY, Image1.Width, startY + Overlap);
             var graph = CreateGraph(bounds);
-            var path = FindBestCut(graph, false);
 
-            if(indexY != 0)
+            Point2i source = new Point2i(0, graph.Height / 2);
+            Point2i target = new Point2i(graph.Width - 1, graph.Height / 2);
+ 
+            var search = new GridSearch(graph.Width, graph.Height);
+            graph.PrimsMinimumSpanningTree(search, source.x, source.y);
+            var path = search.GetPath(target);
+
+            if (indexY != 0)
             {
                 foreach (var p in path)
                 {
@@ -267,11 +328,51 @@ namespace ImageProcessing.Synthesis
 
         }
 
-        private void BlurSeams(ColorImage2D image, List<Point2i> path, Box2i bounds)
+        private void GraphCutHorizontallyFlow(int indexY)
+        {
+            int offset = Exemplars.Size - Overlap;
+            int startY = offset * indexY;
+
+            var bounds = new Box2i(0, startY, Image1.Width, startY + Overlap);
+            var graph = CreateFlowGraph(bounds);
+
+            for (int x = 0; x < graph.Width; x++)
+            {
+                graph.SetSource(x, 0, 255);
+                graph.SetSink(x, graph.Height - 1, 255);
+            }
+
+            graph.Calculate();
+
+            graph.Iterate((x, y) =>
+            {
+                if (indexY != 0)
+                {
+                    if (graph.IsSource(x, y))
+                    {
+                        var pixel = Image2.GetPixel(x, startY + y, WRAP_MODE.WRAP);
+                        Image1.SetPixel(x, startY + y, pixel, WRAP_MODE.WRAP);
+                    }
+                }
+                else
+                {
+                    if (graph.IsSink(x, y))
+                    {
+                        var pixel = Image2.GetPixel(x, startY + y, WRAP_MODE.WRAP);
+                        Image1.SetPixel(x, startY + y, pixel, WRAP_MODE.WRAP);
+                    }
+                }
+            });
+
+            var path = FindPath(graph);
+            BlurSeams(Image1, path, bounds);
+        }
+
+        private void BlurSeams(ColorImage2D image, List<Point2i> points, Box2i bounds)
         {
 
             var binary = new BinaryImage2D(image.Width, image.Height);
-            DrawPath(path, binary, ColorRGB.White, bounds.Min.x, bounds.Min.y);
+            DrawPath(points, binary, ColorRGB.White, bounds.Min.x, bounds.Min.y);
 
             binary = BinaryImage2D.Dilate(binary, BlurWidth);
 
@@ -329,37 +430,78 @@ namespace ImageProcessing.Synthesis
             return graph;
         }
 
-        public List<Point2i> FindBestCut(GridGraph graph, bool vertical)
+        public GridFlowGraph CreateFlowGraph(Box2i bounds)
         {
-            var search = new GridSearch(graph.Width, graph.Height);
+            var graph = new GridFlowGraph(bounds.Width, bounds.Height);
+
+            graph.Iterate((x, y, i) =>
+            {
+                int xi = x + D8.OFFSETS[i, 0];
+                int yi = y + D8.OFFSETS[i, 1];
+
+                var col1 = Image1.GetPixel(bounds.Min.x + x, bounds.Min.y + y, WRAP_MODE.WRAP);
+                var col2 = Image2.GetPixel(bounds.Min.x + x, bounds.Min.y + y, WRAP_MODE.WRAP);
+
+                var w1 = ColorRGB.SqrDistance(col1, col2);
+
+                if (graph.InBounds(xi, yi))
+                {
+                    var col1i = Image1.GetPixel(bounds.Min.x + xi, bounds.Min.y + yi, WRAP_MODE.WRAP);
+                    var col2i = Image2.GetPixel(bounds.Min.x + xi, bounds.Min.y + yi, WRAP_MODE.WRAP);
+
+                    var w2 = ColorRGB.SqrDistance(col1i, col2i);
+                    var w = Math.Max(1, (w1 + w2) * 255);
+
+                    graph.SetCapacity(x, y, i, w);
+                }
+            });
+
+            return graph;
+        }
+
+        public List<Point2i> FindPath(GridFlowGraph graph)
+        {
             var path = new List<Point2i>();
-            float cost = float.PositiveInfinity;
 
-            Point2i source, target;
-
-            if (vertical)
+            graph.Iterate((x, y) =>
             {
-                source = new Point2i(graph.Width / 2, 0);
-                target = new Point2i(graph.Width / 2, graph.Height - 1);
-            }
-            else
-            {
-                source = new Point2i(0, graph.Height / 2);
-                target = new Point2i(graph.Width - 1, graph.Height / 2);
-            }
+                if(graph.IsSource(x, y))
+                {
+                    for(int i = 0; i < 8; i++)
+                    {
+                        int xi = x + D8.OFFSETS[i, 0];
+                        int yi = y + D8.OFFSETS[i, 1];
 
-            search.Clear();
-            graph.PrimsMinimumSpanningTree(search, source.x, source.y);
+                        if (xi < 0 || xi >= graph.Width) continue;
+                        if (yi < 0 || yi >= graph.Height) continue;
 
-            var p = search.GetPath(target);
+                        if(graph.IsSink(xi, yi))
+                        {
+                            path.Add(new Point2i(x, y));
+                            break;
+                        }
+                    }
+                }
 
-            float c = search.GetPathCost(p, graph);
+                if (graph.IsSink(x, y))
+                {
+                    for (int i = 0; i < 8; i++)
+                    {
+                        int xi = x + D8.OFFSETS[i, 0];
+                        int yi = y + D8.OFFSETS[i, 1];
 
-            if (c < cost)
-            {
-                cost = c;
-                path = p;
-            }
+                        if (xi < 0 || xi >= graph.Width) continue;
+                        if (yi < 0 || yi >= graph.Height) continue;
+
+                        if (graph.IsSource(xi, yi))
+                        {
+                            path.Add(new Point2i(x, y));
+                            break;
+                        }
+                    }
+                }
+
+            });
 
             return path;
         }

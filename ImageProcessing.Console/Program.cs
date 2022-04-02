@@ -60,7 +60,7 @@ namespace ImageProcessing.Console
 
         static void Main(string[] args)
         {
-
+            /*
             var bitmap1 = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/Test1.png"));
             var bitmap2 = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/Test2.png"));
 
@@ -92,14 +92,14 @@ namespace ImageProcessing.Console
             var cut = new ColorImage2D(graph.Width, graph.Height);
             cut.Fill((x, y) =>
             {
-                /*
-                if (graph.GetLabel(x, y) == GridFlowGraph.SOURCE)
-                    return ColorRGB.Red;
-                if (graph.GetLabel(x, y) == GridFlowGraph.SINK)
-                    return ColorRGB.Green;
-                else
-                    return ColorRGB.Black;
-                */
+                
+                //if (graph.GetLabel(x, y) == GridFlowGraph.SOURCE)
+                //    return ColorRGB.Red;
+                //if (graph.GetLabel(x, y) == GridFlowGraph.SINK)
+                //    return ColorRGB.Green;
+                //else
+                //    return ColorRGB.Black;
+               
 
                 if (graph.GetLabel(x, y) == GridFlowGraph.SOURCE)
                     return image1.GetPixel(x, y);
@@ -112,16 +112,17 @@ namespace ImageProcessing.Console
             cut.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Cut.raw");
 
             WriteLine("Done");
+            */
 
             //var set = new WangTileSet(3, 2, 128);
             //set.Test();
             //WriteLine("Done");
 
-            /*
+            
             var timer = new Timer();    
             timer.Start();
 
-            var bitmap = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/TexturesCom_Gravel0160_2_S.jpg"));
+            var bitmap = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/TexturesCom_Gravel0174_1_S.jpg"));
 
             var image = new ColorImage2D(bitmap.Width, bitmap.Height);
             image.Fill((x, y) =>
@@ -145,7 +146,7 @@ namespace ImageProcessing.Console
             timer.Stop();
 
             WriteLine("Done in " + timer.ElapsedMilliseconds);
-            */
+            
         }
 
     }
