@@ -10,12 +10,12 @@ namespace ImageProcessing.Images
 {
     public partial class Image2D<T>
     {
-        public void DrawLine(Polyline2f line, ColorRGB color)
+        public void DrawLine(Polyline2f line, ColorRGBA color, WRAP_MODE mode = WRAP_MODE.NONE)
         {
-            DrawLine(line.Positions, color);
+            DrawLine(line.Positions, color, mode);
         }
 
-        public void DrawLine(IList<Point2f> line, ColorRGB color)
+        public void DrawLine(IList<Point2f> line, ColorRGBA color, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             int points = line.Count;
             for (int i = 0; i < points - 1; i++)
@@ -26,11 +26,11 @@ namespace ImageProcessing.Images
                 int x2 = (int)Math.Round(line[i * 2 + 1].x);
                 int y2 = (int)Math.Round(line[i * 2 + 1].y);
 
-                DrawLine(x1, y1, x2, y2, color);
+                DrawLine(x1, y1, x2, y2, color, mode);
             }
         }
 
-        public void DrawLine(IList<Point2i> line, ColorRGB color)
+        public void DrawLine(IList<Point2i> line, ColorRGBA color, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             int points = line.Count;
             for (int i = 0; i < points - 1; i++)
@@ -41,11 +41,11 @@ namespace ImageProcessing.Images
                 int x2 = line[i * 2 + 1].x;
                 int y2 = line[i * 2 + 1].y;
 
-                DrawLine(x1, y1, x2, y2, color);
+                DrawLine(x1, y1, x2, y2, color, mode);
             }
         }
 
-        public void DrawLine(Segment2f segment, ColorRGB color)
+        public void DrawLine(Segment2f segment, ColorRGBA color, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             int x1 = (int)Math.Round(segment.A.x);
             int y1 = (int)Math.Round(segment.A.y);
@@ -56,7 +56,7 @@ namespace ImageProcessing.Images
             DrawLine(x1, y1, x2, y2, color);
         }
 
-        public void DrawLine(Point2f a, Point2f b, ColorRGB color)
+        public void DrawLine(Point2f a, Point2f b, ColorRGBA color, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             int x1 = (int)Math.Round(a.x);
             int y1 = (int)Math.Round(a.y);
@@ -64,17 +64,17 @@ namespace ImageProcessing.Images
             int x2 = (int)Math.Round(b.x);
             int y2 = (int)Math.Round(b.y);
 
-            DrawLine(x1, y1, x2, y2, color);
+            DrawLine(x1, y1, x2, y2, color, mode);
         }
 
-        public void DrawLine(Point2i a, Point2i b, ColorRGB color)
+        public void DrawLine(Point2i a, Point2i b, ColorRGBA color, WRAP_MODE mode = WRAP_MODE.NONE)
         {
-            DrawLine(a.x, a.y, b.x, b.y, color);
+            DrawLine(a.x, a.y, b.x, b.y, color, mode);
         }
 
-        public void DrawLine(int x1, int y1, int x2, int y2, ColorRGB color)
+        public void DrawLine(int x1, int y1, int x2, int y2, ColorRGBA color, WRAP_MODE mode = WRAP_MODE.NONE)
         {
-            DrawLineDDA(x1, y1, x2, y2, color);
+            DrawLineDDA(x1, y1, x2, y2, color, mode);
         }
 
         /// <summary>
@@ -85,7 +85,8 @@ namespace ImageProcessing.Images
         /// <param name="x2">The x-coordinate of the end point.</param>
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color for the line.</param>
-        private void DrawLineDDA(int x1, int y1, int x2, int y2, ColorRGB color)
+        /// <param name="mode"></param>
+        private void DrawLineDDA(int x1, int y1, int x2, int y2, ColorRGBA color, WRAP_MODE mode)
         {
             if (x1 == x2 && y1 == y2) return;
             int w = Width;
@@ -114,7 +115,7 @@ namespace ImageProcessing.Images
                 for (int i = 0; i < len; i++)
                 {
                     if (y < h && y >= 0 && x < w && x >= 0)
-                        SetPixel((int)x, (int)y, color);
+                        SetPixel((int)x, (int)y, color, mode);
 
                     x += incx;
                     y += incy;
@@ -131,7 +132,8 @@ namespace ImageProcessing.Images
         /// <param name="x2">The x-coordinate of the end point.</param>
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color for the line.</param>
-        private void DrawLineBresenham(int x1, int y1, int x2, int y2, ColorRGB color)
+        /// <param name="mode"></param>
+        private void DrawLineBresenham(int x1, int y1, int x2, int y2, ColorRGBA color, WRAP_MODE mode)
         {
             if (x1 == x2 && y1 == y2) return;
             int w = Width;
@@ -187,7 +189,7 @@ namespace ImageProcessing.Images
             int y = y1;
             int error = el >> 1;
             if (y < h && y >= 0 && x < w && x >= 0)
-                SetPixel(x, y, color);
+                SetPixel(x, y, color, mode);
 
             // Walk the line!
             for (int i = 0; i < el; i++)
@@ -210,7 +212,7 @@ namespace ImageProcessing.Images
 
                 // Set pixel
                 if (y < h && y >= 0 && x < w && x >= 0)
-                    SetPixel(x, y, color);
+                    SetPixel(x, y, color, mode);
             }
 
         }

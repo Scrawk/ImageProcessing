@@ -17,11 +17,6 @@ namespace ImageProcessing.Images
     public enum WRAP_MODE {  CLAMP, WRAP, MIRROR, NONE };
 
     /// <summary>
-    /// Mode used to blend pixels.
-    /// </summary>
-    public enum BLEND_MODE { BLEND, ADDITIVE, SUBTRACTIVE, SUBTRACTIVE_CLAMPED };
-
-    /// <summary>
     /// General interface for a 2 dimensional image.
     /// </summary>
     public interface  IImage2D : IImageSampler2D
@@ -35,6 +30,8 @@ namespace ImageProcessing.Images
         new ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         void SetPixel(int x, int y, ColorRGB pixel, WRAP_MODE mode = WRAP_MODE.NONE);
+
+        void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE);
 
     }
 }

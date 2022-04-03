@@ -323,63 +323,6 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Set the pixel at normalized index u,v.
-        /// </summary>
-        /// <param name="u">The first index.</param>
-        /// <param name="v">The second index.</param>
-        /// <param name="pixel">The value.</param>
-        /// <param name="mode">The blend mode used to combine value with current value.</param>
-        public void SetPixel(float u, float v, ColorRGB pixel, BLEND_MODE mode)
-        {
-            float x = u * (Width - 1);
-            float y = v * (Height - 1);
-
-            int ix = (int)x;
-            int iy = (int)y;
-            float fx = x - ix;
-            float fy = y - iy;
-
-            var v00 = InBounds(ix, iy) ? this[ix, iy] : ColorRGB.Black;
-            var v10 = InBounds(ix + 1, iy) ? this[ix + 1, iy] : ColorRGB.Black;
-            var v01 = InBounds(ix, iy + 1) ? this[ix, iy + 1] : ColorRGB.Black;
-            var v11 = InBounds(ix + 1, iy + 1) ? this[ix + 1, iy + 1] : ColorRGB.Black;
-
-            if (mode == BLEND_MODE.BLEND)
-            {
-                v00 = ColorRGB.Lerp(v00, pixel, (1 - fx) * (1 - fy));
-                v10 = ColorRGB.Lerp(v10, pixel, fx * (1 - fy));
-                v01 = ColorRGB.Lerp(v01, pixel, (1 - fx) * fy);
-                v11 = ColorRGB.Lerp(v11, pixel, fx * fy);
-            }
-            else if (mode == BLEND_MODE.ADDITIVE)
-            {
-                v00 += (1 - fx) * (1 - fy) * pixel;
-                v10 += fx * (1 - fy) * pixel;
-                v01 += (1 - fx) * fy * pixel;
-                v11 += fx * fy * pixel;
-            }
-            else if (mode == BLEND_MODE.SUBTRACTIVE)
-            {
-                v00 -= (1 - fx) * (1 - fy) * pixel;
-                v10 -= fx * (1 - fy) * pixel;
-                v01 -= (1 - fx) * fy * pixel;
-                v11 -= fx * fy * pixel;
-            }
-            else if (mode == BLEND_MODE.SUBTRACTIVE_CLAMPED)
-            {
-                v00 = ColorRGB.Max(v00 - (1 - fx) * (1 - fy) * pixel, 0);
-                v10 = ColorRGB.Max(v10 - fx * (1 - fy) * pixel, 0);
-                v01 = ColorRGB.Max(v01 - (1 - fx) * fy * pixel, 0);
-                v11 = ColorRGB.Max(v11 - fx * fy * pixel, 0);
-            }
-
-            if (InBounds(ix, iy)) this[ix, iy] = v00;
-            if (InBounds(ix + 1, iy)) this[ix + 1, iy] = v10;
-            if (InBounds(ix, iy + 1)) this[ix, iy + 1] = v01;
-            if (InBounds(ix + 1, iy + 1)) this[ix + 1, iy + 1] = v11;
-        }
-
-        /// <summary>
         /// Return a copy of the image.
         /// </summary>
         /// <returns></returns>

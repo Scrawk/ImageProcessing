@@ -221,7 +221,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The vector at index x,y.</returns>
-        public Vector2f GetVector(int x, int y, WRAP_MODE mode)
+        public Vector2f GetVector(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             switch (mode)
             {
@@ -293,9 +293,31 @@ namespace ImageProcessing.Images
         /// <param name="x">The first index.</param>
         /// <param name="y">The second index.</param>
         /// <param name="vector">The vector.</param>
-        public void SetVector(int x, int y, Vector2f vector)
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        public void SetVector(int x, int y, Vector2f vector, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            this[x, y] = vector;
+            switch (mode)
+            {
+                case WRAP_MODE.NONE:
+                    this[x, y] = vector;
+                    break;
+
+                case WRAP_MODE.CLAMP:
+                    SetClamped(x, y, vector);
+                    break;
+
+                case WRAP_MODE.WRAP:
+                    SetWrapped(x, y, vector);
+                    break;
+
+                case WRAP_MODE.MIRROR:
+                    SetMirrored(x, y, vector);
+                    break;
+
+                default:
+                    this[x, y] = vector;
+                    break;
+            }
         }
 
         /// <summary>

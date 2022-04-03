@@ -9,19 +9,18 @@ namespace ImageProcessing.Images
 {
     public partial class Image2D<T>
     {
-
-        public void DrawPoint(Point2f center, float size, ColorRGB color)
+        public void DrawPoint(Point2f center, float size, ColorRGBA color, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             float half = size * 0.5f;
-            DrawBox(center - half, center + half, color, true);
+            DrawBox(center - half, center + half, color, true, mode);
         }
 
-        public void DrawBox(Box2f box, ColorRGB color, bool filled)
+        public void DrawBox(Box2f box, ColorRGBA color, bool filled, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             DrawBox(box.Min, box.Max, color, filled);
         }
 
-        public void DrawBox(Point2f min, Point2f max, ColorRGB color, bool filled)
+        public void DrawBox(Point2f min, Point2f max, ColorRGBA color, bool filled, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             int x1 = (int)Math.Round(min.x);
             int y1 = (int)Math.Round(min.y);
@@ -30,16 +29,16 @@ namespace ImageProcessing.Images
             int y2 = (int)Math.Round(max.y);
 
             if (filled)
-                DrawBoxFilled(x1, y1, x2, y2, color);
+                DrawBoxFilled(x1, y1, x2, y2, color, mode);
             else
-                DrawBoxOutline(x1, y1, x2, y2, color);
+                DrawBoxOutline(x1, y1, x2, y2, color, mode);
         }
 
         /// <summary>
         /// Draws a rectangle.
         /// x2 has to be greater than x1 and y2 has to be greater than y1.
         /// </summary>
-        private void DrawBoxOutline(int x1, int y1, int x2, int y2, ColorRGB color)
+        private void DrawBoxOutline(int x1, int y1, int x2, int y2, ColorRGBA color, WRAP_MODE mode)
         {
             var w = Width;
             var h = Height;
@@ -59,14 +58,14 @@ namespace ImageProcessing.Images
 
             for (var x = x1; x <= x2; x++)
             {
-                SetPixel(x, y1, color);
-                SetPixel(x, y2, color);
+                SetPixel(x, y1, color, mode);
+                SetPixel(x, y2, color, mode);
             }
 
             for (var y = y1; y <= y2; y++)
             {
-                SetPixel(x1, y, color);
-                SetPixel(x2, y, color);
+                SetPixel(x1, y, color, mode);
+                SetPixel(x2, y, color, mode);
             }
 
         }
@@ -75,7 +74,7 @@ namespace ImageProcessing.Images
         /// Draws a filled rectangle.
         /// x2 has to be greater than x1 and y2 has to be greater than y1.
         /// </summary>
-        private void DrawBoxFilled(int x1, int y1, int x2, int y2, ColorRGB color)
+        private void DrawBoxFilled(int x1, int y1, int x2, int y2, ColorRGBA color, WRAP_MODE mode)
         {
             var w = Width;
             var h = Height;
@@ -97,7 +96,7 @@ namespace ImageProcessing.Images
             {
                 for (var x = x1; x <= x2; x++)
                 {
-                    SetPixel(x, y, color);
+                    SetPixel(x, y, color, mode);
                 }
             }
         }

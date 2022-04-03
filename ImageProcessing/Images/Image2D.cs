@@ -105,6 +105,19 @@ namespace ImageProcessing.Images
         public abstract void SetPixel(int x, int y, ColorRGB pixel, WRAP_MODE mode = WRAP_MODE.NONE);
 
         /// <summary>
+        /// Set the pixel at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="pixel">The pixel.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        public void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE)
+        {
+            var col = ColorRGB.Lerp(GetPixel(x, y, mode), pixel.rgb, pixel.a);
+            SetPixel(x, y, col, mode);
+        }
+
+        /// <summary>
         /// Is this array the same size as the other array.
         /// </summary>
         /// <param name="image"></param>

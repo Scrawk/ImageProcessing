@@ -9,29 +9,29 @@ namespace ImageProcessing.Images
 {
     public partial class Image2D<T>
     {
-        public void DrawTriangle(Triangle2f triangle, ColorRGB color, bool filled)
+        public void DrawTriangle(Triangle2f triangle, ColorRGBA color, bool filled, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             DrawTriangle(triangle.A, triangle.B, triangle.C, color, filled);
         }
 
-        public void DrawTriangle(Point2f a, Point2f b, Point2f c, ColorRGB color, bool filled)
+        public void DrawTriangle(Point2f a, Point2f b, Point2f c, ColorRGBA color, bool filled, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             if (filled)
             {
-                DrawFilledTriangle(a, b, c, color);
+                DrawFilledTriangle(a, b, c, color, mode);
             }
             else
             {
-                DrawLine(a, b, color);
-                DrawLine(b, c, color);
-                DrawLine(c, a, color);
+                DrawLine(a, b, color, mode);
+                DrawLine(b, c, color, mode);
+                DrawLine(c, a, color, mode);
             }
         }
 
         /// <summary>
         /// http://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
         /// </summary>
-        private void DrawFilledTriangle(Point2f a, Point2f b, Point2f c, ColorRGB color)
+        private void DrawFilledTriangle(Point2f a, Point2f b, Point2f c, ColorRGBA color, WRAP_MODE mode)
         {
             int width1 = Width - 1;
             int height1 = Height - 1;
@@ -53,7 +53,7 @@ namespace ImageProcessing.Images
                     var bc = triangle.Barycentric(new Point2f(x, y));
 
                     if (bc.x >= 0 && bc.y >= 0 && bc.z >= 0)
-                        SetPixel(x, y, color);
+                        SetPixel(x, y, color, mode);
                 }
             }
         }

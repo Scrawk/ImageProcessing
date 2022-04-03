@@ -9,12 +9,12 @@ namespace ImageProcessing.Images
 {
     public partial class Image2D<T>
     {
-        public void DrawPolygon(Polygon2f polygon, ColorRGB color, bool filled)
+        public void DrawPolygon(Polygon2f polygon, ColorRGBA color, bool filled, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             DrawPolygon(polygon.Positions, color, filled);
         }
 
-        public void DrawPolygon(IList<Point2f> polygon, ColorRGB color, bool filled)
+        public void DrawPolygon(IList<Point2f> polygon, ColorRGBA color, bool filled, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             int count = polygon.Count;
 
@@ -28,7 +28,7 @@ namespace ImageProcessing.Images
                     points[i * 2 + 1] = (int)Math.Round(p.y);
                 }
 
-                DrawFilledPolygon(points, color);
+                DrawFilledPolygon(points, color, mode);
             }
             else
             {
@@ -36,7 +36,7 @@ namespace ImageProcessing.Images
                 {
                     var a = polygon.GetCircular(i);
                     var b = polygon.GetCircular(i + 1);
-                    DrawLine(a, b, color);
+                    DrawLine(a, b, color, mode);
                 }
             }
         }
@@ -45,7 +45,7 @@ namespace ImageProcessing.Images
         /// Draws a filled polygon. 
         /// Add the first point also at the end of the array if the line should be closed.
         /// </summary>
-        private void DrawFilledPolygon(int[] points, ColorRGB color)
+        private void DrawFilledPolygon(int[] points, ColorRGBA color, WRAP_MODE mode)
         {
             int w = Width;
             int h = Height;
@@ -122,7 +122,7 @@ namespace ImageProcessing.Images
 
                         // Fill the pixels
                         for (int x = x0; x <= x1; x++)
-                            SetPixel(x, y, color);
+                            SetPixel(x, y, color, mode);
                     }
                 }
             }

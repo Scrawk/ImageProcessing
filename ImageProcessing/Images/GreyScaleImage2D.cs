@@ -144,7 +144,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public float GetValue(int x, int y, WRAP_MODE mode)
+        public float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             switch (mode)
             {
@@ -220,66 +220,31 @@ namespace ImageProcessing.Images
         /// <param name="x">The first index.</param>
         /// <param name="y">The second index.</param>
         /// <param name="value">The value.</param>
-        public void SetValue(int x, int y, float value)
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        public void SetValue(int x, int y, float value, WRAP_MODE mode = WRAP_MODE.NONE)
         {
-            this[x, y] = value;
-        }
-
-        /// <summary>
-        /// Set the value at normalized index u,v.
-        /// </summary>
-        /// <param name="u">The first index.</param>
-        /// <param name="v">The second index.</param>
-        /// <param name="value">The value.</param>
-        /// <param name="mode">The blend mode used to combine value with current value.</param>
-        public void SetValue(float u, float v, float value, BLEND_MODE mode)
-        {
-            float x = u * (Width - 1);
-            float y = v * (Height - 1);
-
-            int ix = (int)x;
-            int iy = (int)y;
-            float fx = x - ix;
-            float fy = y - iy;
-
-            var v00 = InBounds(ix, iy) ? this[ix, iy] : 0;
-            var v10 = InBounds(ix+1, iy) ? this[ix+1, iy] : 0;
-            var v01 = InBounds(ix, iy+1) ? this[ix, iy+1] : 0;
-            var v11 = InBounds(ix+1, iy+1) ? this[ix+1, iy+1] : 0;
-
-            if (mode == BLEND_MODE.BLEND)
+            switch (mode)
             {
-                v00 = MathUtil.Lerp(v00, value, (1 - fx) * (1 - fy));
-                v10 = MathUtil.Lerp(v10, value, fx * (1 - fy));
-                v01 = MathUtil.Lerp(v01, value, (1 - fx) * fy);
-                v11 = MathUtil.Lerp(v11, value, fx * fy);
-            }
-            else if(mode == BLEND_MODE.ADDITIVE)
-            {
-                v00 += (1 - fx) * (1 - fy) * value;
-                v10 += fx * (1 - fy) * value;
-                v01 += (1 - fx) * fy * value;
-                v11 += fx * fy * value;
-            }
-            else if (mode == BLEND_MODE.SUBTRACTIVE)
-            {
-                v00 -= (1 - fx) * (1 - fy) * value;
-                v10 -= fx * (1 - fy) * value;
-                v01 -= (1 - fx) * fy * value;
-                v11 -= fx * fy * value;
-            }
-            else if (mode == BLEND_MODE.SUBTRACTIVE_CLAMPED)
-            {
-                v00 = Math.Max(0, v00 - (1 - fx) * (1 - fy) * value);
-                v10 = Math.Max(0, v10 - fx * (1 - fy) * value);
-                v01 = Math.Max(0, v01 - (1 - fx) * fy * value);
-                v11 = Math.Max(0, v11 - fx * fy * value);
-            }
+                case WRAP_MODE.NONE:
+                    this[x, y] = value;
+                    break;
 
-            if (InBounds(ix, iy)) this[ix, iy] = v00;
-            if (InBounds(ix+1, iy)) this[ix+1, iy] = v10;
-            if (InBounds(ix, iy+1)) this[ix, iy+1] = v01;
-            if (InBounds(ix+1, iy+1)) this[ix+1, iy+1] = v11;
+                case WRAP_MODE.CLAMP:
+                    SetClamped(x, y, value);
+                    break;
+
+                case WRAP_MODE.WRAP:
+                    SetWrapped(x, y, value);
+                    break;
+
+                case WRAP_MODE.MIRROR:
+                    SetMirrored(x, y, value);
+                    break;
+
+                default:
+                    this[x, y] = value;
+                    break;
+            }
         }
 
         /// <summary>

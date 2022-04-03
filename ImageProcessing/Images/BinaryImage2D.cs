@@ -199,9 +199,31 @@ namespace ImageProcessing.Images
         /// <param name="x">The first index.</param>
         /// <param name="y">The second index.</param>
         /// <param name="value">The value.</param>
-        public void SetValue(int x, int y, bool value)
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        public void SetValue(int x, int y, bool value, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            this[x, y] = value;
+            switch (mode)
+            {
+                case WRAP_MODE.NONE:
+                    this[x, y] = value;
+                    break;
+
+                case WRAP_MODE.CLAMP:
+                    SetClamped(x, y, value);
+                    break;
+
+                case WRAP_MODE.WRAP:
+                    SetWrapped(x, y, value);
+                    break;
+
+                case WRAP_MODE.MIRROR:
+                    SetMirrored(x, y, value);
+                    break;
+
+                default:
+                    this[x, y] = value;
+                    break;
+            }
         }
 
         /// <summary>

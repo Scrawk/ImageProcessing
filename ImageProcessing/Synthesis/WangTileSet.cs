@@ -13,17 +13,24 @@ namespace ImageProcessing.Synthesis
 
 		public WangTileSet(int numHColors, int numVColors, int tileSize)
 		{
+
+			if (numHColors < 2 || numHColors > 4)
+				throw new ArgumentException("Number of edge colors must be >= 2 annd <= 4.");
+
+			if (numVColors < 2 || numVColors > 4)
+				throw new ArgumentException("Number of edge colors must be >= 2 annd <= 4.");
+
 			NumHColors = numHColors;
 			NumVColors = numVColors;
 
-			Count = numHColors * numHColors * numVColors * numVColors;
+			NumTiles = numHColors * numHColors * numVColors * numVColors;
 
 			TileSize = tileSize;
 			BorderSize = 8;
 
 		}
 
-		public int Count { get; private set; }
+		public int NumTiles { get; private set; }
 
 		public int TileSize { get; private set; }
 
@@ -37,43 +44,34 @@ namespace ImageProcessing.Synthesis
 
 		public override string ToString()
 		{
-			return String.Format("[WangTileSet: Count={0}]", Count);
+			return String.Format("[WangTileSet: NumHColors={0}, NumVColors={1}, NumTiles={2}, TileSize={3}]", 
+				NumHColors, NumVColors, NumTiles, TileSize);
 		}
 
-		ColorRGB[] m_colors = new ColorRGB[]
-			{
-			new ColorRGB(1,0,0), new ColorRGB(0,1,0), new ColorRGB(0,0,1),
-			new ColorRGB(1,1,0), new ColorRGB(1,0,1), new ColorRGB(0,1,1)
-			};
-
-		public void Test()
+		private static ColorRGB[] Colors = new ColorRGB[]
 		{
+			ColorRGB.Red,
+			ColorRGB.Green,
+			ColorRGB.Blue,
+			ColorRGB.Yellow
+		};
+
+		public void Test(ColorImage2D source)
+		{
+
+			var exemplars = new ExemplarSet(TileSize);
+			exemplars.CreateExemplarFromRandom(source, 0, 32);
+
 			Console.WriteLine(this);
+			Console.WriteLine(exemplars);
 
-			Tiles = new WangTile[Count];
+			CreateTiles();
 
-			int index = 0;
-			for (int sEdge = 0; sEdge < NumVColors; sEdge++)
-			{
-				for (int eEdge = 0; eEdge < NumHColors; eEdge++)
-				{
-					for (int nEdge = 0; nEdge < NumVColors; nEdge++)
-					{
-						for (int wEdge = 0; wEdge < NumHColors; wEdge++)
-						{
-							var tile = new WangTile(index, sEdge, eEdge, nEdge, wEdge, TileSize);
-
-							AddEdgeColor(tile);
-
-							Tiles[index++] = tile;
-						}
-					}
-				}
-			}
+			AddEdgeColor();
 
 			var compaction = OrthogonalCompaction();
 
-			var image = CreateTileImage(compaction);
+			var image = CreateImage(compaction);
 
 			Console.WriteLine(image);
 
@@ -91,37 +89,38 @@ namespace ImageProcessing.Synthesis
 			return (tile.sEdge * (numHColors * numVColors * numHColors) + tile.eEdge * (numVColors * numHColors) + tile.nEdge * (numHColors) + tile.wEdge);
 		}
 
-		void AddEdgeColor(WangTile tile)
-		{
-			int border = BorderSize;
-			int size = TileSize;
+		private void CreateTiles()
+        {
+			Tiles = new WangTile[NumTiles];
 
-			var min = new Point2i(border, 0);
-			var max = min + new Point2i(size - border * 2, border);	
-			var box = new Box2i(min, max);
-
-			tile.Image.DrawBox(box, m_colors[tile.nEdge], true);
-
-			min = new Point2i(border, size - border);
-			max = min + new Point2i(size - border * 2, size);
-			box = new Box2i(min, max);
-
-			tile.Image.DrawBox(box, m_colors[tile.sEdge], true);
-
-			min = new Point2i(0, border);
-			max = min + new Point2i(border, size - border * 2);
-			box = new Box2i(min, max);
-
-			tile.Image.DrawBox(box, m_colors[tile.wEdge], true);
-
-			min = new Point2i(size - border, border);
-			max = min + new Point2i(size, size - border * 2);
-			box = new Box2i(min, max);
-
-			tile.Image.DrawBox(box, m_colors[tile.eEdge], true);
+			int index = 0;
+			for (int sEdge = 0; sEdge < NumVColors; sEdge++)
+			{
+				for (int eEdge = 0; eEdge < NumHColors; eEdge++)
+				{
+					for (int nEdge = 0; nEdge < NumVColors; nEdge++)
+					{
+						for (int wEdge = 0; wEdge < NumHColors; wEdge++)
+						{
+							var tile = new WangTile(index, sEdge, eEdge, nEdge, wEdge, TileSize);
+							Tiles[index++] = tile;
+						}
+					}
+				}
+			}
 		}
 
-		WangTile[,] OrthogonalCompaction()
+		private void AddEdgeColor()
+        {
+			foreach (var tile in Tiles)
+            {
+				tile.DrawMask(Colors);
+				tile.ColorEdges(BorderSize, Colors, 0.5f);
+			}
+				
+        }
+
+		private WangTile[,] OrthogonalCompaction()
 		{
 
 			int width = NumHColors * NumHColors;
@@ -132,14 +131,14 @@ namespace ImageProcessing.Synthesis
 			var travelHEdges = TravelEdges(0, NumHColors - 1);
 			var travelVEdges = TravelEdges(0, NumVColors - 1);
 
-			for (int j = 0; j < height; j++)
+			for (int y = 0; y < height; y++)
 			{
-				for (int i = 0; i < width; i++)
+				for (int x = 0; x < width; x++)
 				{
-					int hIndex0 = i % (NumHColors * NumHColors);
+					int hIndex0 = x % (NumHColors * NumHColors);
 					int hIndex1 = hIndex0 + 1;
 
-					int vIndex0 = j % (NumVColors * NumVColors);
+					int vIndex0 = y % (NumVColors * NumVColors);
 					int vIndex1 = vIndex0 + 1;
 
 					int e0 = travelVEdges[vIndex1];
@@ -148,15 +147,16 @@ namespace ImageProcessing.Synthesis
 					int e3 = travelHEdges[hIndex0];
 					
 					int index = GetIndex(e0, e1, e2, e3);
+					var tile = Tiles[index];
 
-					result[i, j] = Tiles[index].Copy();
+					result[x, y] = tile.Copy();
 				}
 			}
 
 			return result;
 		}
 
-		int[] TravelEdges(int startNode, int endNode)
+		private int[] TravelEdges(int startNode, int endNode)
 		{
 			int numNodes = (endNode - startNode + 1);
 			var result = new int[numNodes * numNodes + 1];
@@ -175,7 +175,7 @@ namespace ImageProcessing.Synthesis
 			return result;
 		}
 
-		static int EdgeOrdering(int x, int y)
+		private int EdgeOrdering(int x, int y)
 		{
 			if (x < y)
 				return (2 * x + y * y);
@@ -195,19 +195,16 @@ namespace ImageProcessing.Synthesis
 			}
 		}
 
-		ColorImage2D CreateTileImage(WangTile[,] compaction)
+		private ColorImage2D CreateImage(WangTile[,] compaction)
 		{
 
 			int numTilesY = compaction.GetLength(1);
 			int numTilesX = compaction.GetLength(0);
 
-			Console.WriteLine("numTilesX " + numTilesX);
-			Console.WriteLine("numTilesY " + numTilesY);
-
 			int height = TileSize * numTilesY;
 			int width = TileSize * numTilesX;
 
-			ColorRGB[] tileData = new ColorRGB[width * height];
+			var image = new ColorImage2D(width, height);
 
 			for (int x = 0; x < numTilesX; x++)
 			{
@@ -215,20 +212,21 @@ namespace ImageProcessing.Synthesis
 				{
 					int idx = GetIndex(NumHColors, NumVColors, compaction[x, y]);
 
+					var tile = Tiles[idx];
+
 					for (int i = 0; i < TileSize; i++)
 					{
 						for (int j = 0; j < TileSize; j++)
 						{
-							tileData[(x * TileSize + i) + (y * TileSize + j) * width] = Tiles[idx].Image[i, j];
+							image[x * TileSize + i, y * TileSize + j] = tile.Image[i, j];
 						}
 					}
 				}
 			}
 
-			var tileTexture = new ColorImage2D(width, height);
-			tileTexture.Fill(tileData);
+			//image = ColorImage2D.FlipVertical(image);
 
-			return tileTexture;
+			return image;
 		}
 
 	}

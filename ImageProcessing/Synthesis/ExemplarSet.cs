@@ -25,6 +25,11 @@ namespace ImageProcessing.Synthesis
 
         private List<Exemplar> Exemplars { get; set; }
 
+        public override string ToString()
+        {
+            return String.Format("[ExemplarSet: Count={0}, Size={1}]", Count, Size);
+        }
+
         public Exemplar GetExemplar(int i)
         {
             return Exemplars[i];

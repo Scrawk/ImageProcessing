@@ -60,65 +60,16 @@ namespace ImageProcessing.Console
 
         static void Main(string[] args)
         {
-            /*
-            var bitmap1 = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/Test1.png"));
-            var bitmap2 = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/Test2.png"));
 
-            var image1 = ToImage(bitmap1);
-            var image2 = ToImage(bitmap2);
+            var bitmap = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/TexturesCom_Gravel0174_1_S.jpg"));
+            var image = ToImage(bitmap);
 
-            var sd = SquareDifference(image1, image2);
 
-            var graph = new GridFlowGraph(sd.ToArray());
-
-            var source = new Box2i(0, 0, graph.Width - 1, graph.Height - 1);
-            var center = source.Center.Point2i;
-            var sink = new Box2i(center - new Point2i(16), center + new Point2i(16));
-
-            foreach( var p in source.EnumeratePerimeter())
-            {
-                graph.SetLabel(p, GridFlowGraph.SOURCE);
-            }
-
-            foreach (var p in sink.EnumerateBounds())
-            {
-                graph.SetLabel(p, GridFlowGraph.SINK);
-            }
-
-            graph.Calculate();
-
-            
-
-            var cut = new ColorImage2D(graph.Width, graph.Height);
-            cut.Fill((x, y) =>
-            {
-                
-                //if (graph.GetLabel(x, y) == GridFlowGraph.SOURCE)
-                //    return ColorRGB.Red;
-                //if (graph.GetLabel(x, y) == GridFlowGraph.SINK)
-                //    return ColorRGB.Green;
-                //else
-                //    return ColorRGB.Black;
-               
-
-                if (graph.GetLabel(x, y) == GridFlowGraph.SOURCE)
-                    return image1.GetPixel(x, y);
-                if (graph.GetLabel(x, y) == GridFlowGraph.SINK)
-                    return image2.GetPixel(x, y);
-                else
-                    return ColorRGB.Black;
-            });
-
-            cut.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Cut.raw");
-
+            var set = new WangTileSet(2, 2, 128);
+            set.Test(image);
             WriteLine("Done");
-            */
 
-            //var set = new WangTileSet(3, 2, 128);
-            //set.Test();
-            //WriteLine("Done");
-
-            
+            /*
             var timer = new Timer();    
             timer.Start();
 
@@ -146,7 +97,7 @@ namespace ImageProcessing.Console
             timer.Stop();
 
             WriteLine("Done in " + timer.ElapsedMilliseconds);
-            
+            */
         }
 
     }
