@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using Common.Core.Colors;
 using Common.Core.Numerics;
 using Common.Core.Shapes;
+using Common.Core.Directions;
+using Common.GraphTheory.GridGraphs;
+
 using ImageProcessing.Images;
 
 namespace ImageProcessing.Synthesis
@@ -23,14 +26,14 @@ namespace ImageProcessing.Synthesis
 			NumHColors = numHColors;
 			NumVColors = numVColors;
 
-			NumTiles = numHColors * numHColors * numVColors * numVColors;
+			TileCount = numHColors * numHColors * numVColors * numVColors;
 
 			TileSize = tileSize;
 			BorderSize = 8;
 
 		}
 
-		public int NumTiles { get; private set; }
+		public int TileCount { get; private set; }
 
 		public int TileSize { get; private set; }
 
@@ -44,8 +47,8 @@ namespace ImageProcessing.Synthesis
 
 		public override string ToString()
 		{
-			return String.Format("[WangTileSet: NumHColors={0}, NumVColors={1}, NumTiles={2}, TileSize={3}]", 
-				NumHColors, NumVColors, NumTiles, TileSize);
+			return String.Format("[WangTileSet: NumHColors={0}, NumVColors={1}, TileCount={2}, TileSize={3}]", 
+				NumHColors, NumVColors, TileCount, TileSize);
 		}
 
 		private static ColorRGB[] Colors = new ColorRGB[]
@@ -59,15 +62,35 @@ namespace ImageProcessing.Synthesis
 		public void Test(ColorImage2D source)
 		{
 
-			var exemplars = new ExemplarSet(TileSize);
-			exemplars.CreateExemplarFromRandom(source, 0, 32);
+			var exemplarSet = new ExemplarSet(TileSize);
+			exemplarSet.CreateExemplarFromRandom(source, 0, 32);
+
+			var exemplars = exemplarSet.GetRandomExemplars(Math.Max(NumHColors, NumVColors), 0);
+
+
+			for(int i = 0; i < exemplars.Count; i++)
+            {
+				var exemplar = exemplars[i];
+
+				var tileable = MakeTilable(exemplar.Image, exemplarSet);
+
+				tileable.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/tileable" + i + ".raw");
+            }
+
+			return;
 
 			Console.WriteLine(this);
-			Console.WriteLine(exemplars);
+			Console.WriteLine(exemplarSet);
 
 			CreateTiles();
 
-			AddEdgeColor();
+			foreach (var tile in Tiles)
+			{
+				tile.CreateMap();
+				tile.CreateMask();
+				tile.FillImage(exemplars);
+				tile.ColorEdges(BorderSize, Colors, 0.5f);
+			}
 
 			var compaction = OrthogonalCompaction();
 
@@ -91,7 +114,7 @@ namespace ImageProcessing.Synthesis
 
 		private void CreateTiles()
         {
-			Tiles = new WangTile[NumTiles];
+			Tiles = new WangTile[TileCount];
 
 			int index = 0;
 			for (int sEdge = 0; sEdge < NumVColors; sEdge++)
@@ -109,16 +132,6 @@ namespace ImageProcessing.Synthesis
 				}
 			}
 		}
-
-		private void AddEdgeColor()
-        {
-			foreach (var tile in Tiles)
-            {
-				tile.DrawMask(Colors);
-				tile.ColorEdges(BorderSize, Colors, 0.5f);
-			}
-				
-        }
 
 		private WangTile[,] OrthogonalCompaction()
 		{
@@ -218,7 +231,13 @@ namespace ImageProcessing.Synthesis
 					{
 						for (int j = 0; j < TileSize; j++)
 						{
-							image[x * TileSize + i, y * TileSize + j] = tile.Image[i, j];
+							int xi = x * TileSize + i;
+							int yj = y * TileSize + j;
+
+							image[xi, yj] = tile.Image[i, j];
+
+							//if (tile.Mask[i, j])
+							//	image[xi, yj] = ColorRGB.White;
 						}
 					}
 				}
@@ -228,6 +247,105 @@ namespace ImageProcessing.Synthesis
 
 			return image;
 		}
+
+		private ColorImage2D MakeTilable(ColorImage2D image, ExemplarSet set)
+        {
+			int width = image.Width;
+			int height = image.Height;
+			int cutOffset = 8;
+			int sinkOffset = 32;
+
+			var image2 = ColorImage2D.Offset(image, width/2, height/2);
+
+			var binary = new BinaryImage2D(image.Width, image.Height);
+			binary.DrawLine(0, height / 2, width, height / 2, ColorRGBA.White);
+			binary.DrawLine(width / 2, 0, width / 2, height, ColorRGBA.White);
+
+			binary = BinaryImage2D.Dilate(binary, 3);
+
+			var mask = binary.ToGreyScaleImage();
+			mask = GreyScaleImage2D.GaussianBlur(mask, 0.5f, null, null, WRAP_MODE.WRAP);
+
+			image2 = ColorImage2D.GaussianBlur(image2, 0.75f, null, mask, WRAP_MODE.WRAP);
+
+			var cutBounds = new Box2i(cutOffset, cutOffset, width - 1 - cutOffset, height - 1 - cutOffset);
+			var sinkBounds = new Box2i(sinkOffset, sinkOffset, width - 1 - sinkOffset, height - 1 - sinkOffset);
+
+			mask.Clear();
+			mask.DrawBox(cutBounds, ColorRGBA.White, true);
+			mask.DrawBox(sinkBounds, ColorRGBA.Black, true);
+
+			var pair = set.FindBestMatch(image2, mask, 0);
+			pair.Item1.IncrementUsed();
+
+			var match = pair.Item1.Image;
+			//var offset = pair.Item2;
+			//match = ColorImage2D.Offset(match, offset.x, offset.y);
+			//image2.Fill(match, cutBounds);
+
+			var graph = new GridFlowGraph(cutBounds.Width + 1, cutBounds.Height + 1);
+
+			graph.Iterate((x, y) =>
+			{
+				int xo = x + cutOffset;
+				int yo = y + cutOffset;
+
+				if (mask[xo, yo] != 0)
+				{
+					var col1 = image[xo, yo];
+					var col2 = image2[xo, yo];
+
+					var w1 = ColorRGB.SqrDistance(col1, col2);
+
+					for (int i = 0; i < 8; i++)
+					{
+						int xi = xo + D8.OFFSETS[i, 0];
+						int yi = yo + D8.OFFSETS[i, 1];
+
+						if (mask[xi, yi] != 0)
+						{
+							var col1i = image[xi, yi];
+							var col2i = image2[xi, yi];
+
+							var w2 = ColorRGB.SqrDistance(col1i, col2i);
+							var w = Math.Max(1, (w1 + w2) * 255);
+
+							graph.SetCapacity(x, y, i, w);
+						}
+					}
+				}
+			});
+
+			foreach (var p in cutBounds.EnumeratePerimeter())
+            {
+				graph.SetSource(p.x - cutOffset, p.y - cutOffset, 255);
+            }
+
+			var expanded = sinkBounds;
+			expanded.Min -= 1;
+			expanded.Max += 2;
+			foreach (var p in expanded.EnumerateBounds())
+			{
+				graph.SetSink(p.x - cutOffset, p.y - cutOffset, 255);
+			}
+
+			graph.Calculate();
+
+			graph.Iterate((x, y) =>
+			{
+				int xo = x + cutOffset;
+				int yo = y + cutOffset;
+
+				if (graph.IsSource(x, y))
+					image2.SetPixel(xo, yo, ColorRGB.Red);
+				else if (graph.IsSink(x, y))
+					image2.SetPixel(xo, yo, ColorRGB.Green);
+
+			});
+
+
+			return image2;
+        }
 
 	}
 }

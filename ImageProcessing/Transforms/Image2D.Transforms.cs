@@ -10,10 +10,33 @@ namespace ImageProcessing.Images
     public partial class Image2D<T>
     {
         /// <summary>
+        /// Offsets the pixels in the image.
+        /// </summary>
+        /// <typeparam name="IMAGE"></typeparam>
+        /// <param name="image">The image to offset.</param>
+        /// <param name="offsetX">The offset on the x axis.</param>
+        /// <param name="offsetY">The offset on the y axis.</param>
+        /// <returns>The offset image.</returns>
+        public static IMAGE Offset<IMAGE>(IMAGE image, int offsetX, int offsetY)
+            where IMAGE : Image2D<T>, new()
+        {
+            var image2 = new IMAGE();
+            image2.Resize(image.Height, image.Width);
+
+            image2.Iterate((x, y) =>
+            {
+                var pixel = image.GetPixel(x - offsetX, y - offsetY, WRAP_MODE.WRAP);
+                image2.SetPixel(x, y, pixel);
+            });
+
+            return image2;
+        }
+
+        /// <summary>
         /// Flip the image on the x axis.
         /// </summary>
         /// <typeparam name="IMAGE"></typeparam>
-        /// <param name="image">The image ti flip.</param>
+        /// <param name="image">The image to flip.</param>
         /// <returns>The flipped image.</returns>
         public static IMAGE FlipHorizontal<IMAGE>(IMAGE image)
             where IMAGE : Image2D<T>, new()

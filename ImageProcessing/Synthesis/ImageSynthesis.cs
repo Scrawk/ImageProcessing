@@ -50,8 +50,8 @@ namespace ImageProcessing.Synthesis
             Image2 = new ColorImage2D(ImageSize, ImageSize);
             Mask = new GreyScaleImage2D(ImageSize, ImageSize);
 
-            int countX = Image1.Width / (Exemplars.Size - Overlap);
-            int countY = Image1.Height / (Exemplars.Size - Overlap);
+            int countX = Image1.Width / (Exemplars.ExemplarSize - Overlap);
+            int countY = Image1.Height / (Exemplars.ExemplarSize - Overlap);
 
             var matches = new Exemplar[countX, countY];
 
@@ -83,11 +83,11 @@ namespace ImageProcessing.Synthesis
         private void TileHorizontally(int indexY, Exemplar[,] matches)
         {
 
-            if (Exemplars.Count == 0)
+            if (Exemplars.ExemplarCount == 0)
                 throw new ArgumentException("Exemplar set empty");
 
-            int offset = Exemplars.Size - Overlap;
-            int count = Image1.Width / (Exemplars.Size - Overlap);
+            int offset = Exemplars.ExemplarSize - Overlap;
+            int count = Image1.Width / (Exemplars.ExemplarSize - Overlap);
             Point2i start = new Point2i(0, offset * indexY);
  
             for (int k = 0; k < count; k++)
@@ -106,7 +106,7 @@ namespace ImageProcessing.Synthesis
                     match = Exemplars.FindBestMatch(Image1, Mask, matches, current, start);
                 }
 
-                for (int y = 0; y < Exemplars.Size; y++)
+                for (int y = 0; y < Exemplars.ExemplarSize; y++)
                 {
                     for (int x = 0; x < match.Width; x++)
                     {
@@ -126,8 +126,8 @@ namespace ImageProcessing.Synthesis
 
         private void CopyToImage2(int indexY, Exemplar[,] matches)
         {
-            int offset = Exemplars.Size - Overlap;
-            int count = Image1.Width / (Exemplars.Size - Overlap);
+            int offset = Exemplars.ExemplarSize - Overlap;
+            int count = Image1.Width / (Exemplars.ExemplarSize - Overlap);
             Point2i start = new Point2i(0, offset * indexY);
  
             for (int k = 0; k < count; k++)
@@ -137,15 +137,15 @@ namespace ImageProcessing.Synthesis
 
                 if (indexY == 0)
                 {
-                    CopyToImage2Horizontal(0, Exemplars.Size, k, match, start);
+                    CopyToImage2Horizontal(0, Exemplars.ExemplarSize, k, match, start);
                 }
                 else if (indexY == count - 1)
                 {
-                    CopyToImage2Horizontal(Overlap, Exemplars.Size - Overlap, k, match, start);
+                    CopyToImage2Horizontal(Overlap, Exemplars.ExemplarSize - Overlap, k, match, start);
                 }
                 else
                 {
-                    CopyToImage2Horizontal(Overlap, Exemplars.Size, k, match, start);
+                    CopyToImage2Horizontal(Overlap, Exemplars.ExemplarSize, k, match, start);
                 }
 
             }
@@ -153,7 +153,7 @@ namespace ImageProcessing.Synthesis
 
         private void CopyToImage2Horizontal(int ystart, int yend, int k, Exemplar match, Point2i start)
         {
-            int count = Image1.Width / (Exemplars.Size - Overlap);
+            int count = Image1.Width / (Exemplars.ExemplarSize - Overlap);
 
             for (int y = ystart; y < yend; y++)
             {
@@ -189,15 +189,15 @@ namespace ImageProcessing.Synthesis
 
         private void GraphCutVertical(int indexY)
         {
-            int offset = Exemplars.Size - Overlap;
-            int count = Image1.Width / (Exemplars.Size - Overlap);
+            int offset = Exemplars.ExemplarSize - Overlap;
+            int count = Image1.Width / (Exemplars.ExemplarSize - Overlap);
             int startY = offset * indexY;
 
             for (int j = 0; j < count; j++)
             {
                 int startX = offset * j;
 
-                var bounds = new Box2i(startX, startY, startX + Overlap, startY + Exemplars.Size);
+                var bounds = new Box2i(startX, startY, startX + Overlap, startY + Exemplars.ExemplarSize);
                 var graph = CreateGraph(bounds);
 
                 Point2i source = new Point2i(graph.Width / 2, 0);
@@ -238,15 +238,15 @@ namespace ImageProcessing.Synthesis
 
         private void GraphCutVerticalFlow(int indexY)
         {
-            int offset = Exemplars.Size - Overlap;
-            int count = Image1.Width / (Exemplars.Size - Overlap);
+            int offset = Exemplars.ExemplarSize - Overlap;
+            int count = Image1.Width / (Exemplars.ExemplarSize - Overlap);
             int startY = offset * indexY;
 
             for (int j = 0; j < count; j++)
             {
                 int startX = offset * j;
 
-                var bounds = new Box2i(startX, startY, startX + Overlap, startY + Exemplars.Size);
+                var bounds = new Box2i(startX, startY, startX + Overlap, startY + Exemplars.ExemplarSize);
                 var graph = CreateFlowGraph(bounds);
 
                 for(int y = 0; y < graph.Height; y++)
@@ -287,7 +287,7 @@ namespace ImageProcessing.Synthesis
 
         private void GraphCutHorizontally(int indexY)
         {
-            int offset = Exemplars.Size - Overlap;
+            int offset = Exemplars.ExemplarSize - Overlap;
             int startY = offset * indexY;
 
             var bounds = new Box2i(0, startY, Image1.Width, startY + Overlap);
@@ -330,7 +330,7 @@ namespace ImageProcessing.Synthesis
 
         private void GraphCutHorizontallyFlow(int indexY)
         {
-            int offset = Exemplars.Size - Overlap;
+            int offset = Exemplars.ExemplarSize - Overlap;
             int startY = offset * indexY;
 
             var bounds = new Box2i(0, startY, Image1.Width, startY + Overlap);

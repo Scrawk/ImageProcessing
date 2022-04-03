@@ -352,6 +352,22 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="bounds"></param>
+        public void Fill(Image2D<T> source, Box2i bounds)
+        {
+            for (int y = bounds.Min.y; y < bounds.Max.y; y++)
+            {
+                for (int x = bounds.Min.x; x < bounds.Max.x; x++)
+                {
+                    this[x, y] = source[x, y];
+                }
+            }
+        }
+
+        /// <summary>
         /// Fill the array with the value from the function.
         /// </summary>
         public void Fill(Func<int, int, T> func)

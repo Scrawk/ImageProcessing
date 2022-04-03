@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Common.Core.Numerics;
 using Common.Core.Colors;
 using Common.Geometry.Polygons;
+using Common.Core.Extensions;
 
 namespace ImageProcessing.Images
 {
@@ -23,7 +24,7 @@ namespace ImageProcessing.Images
                 var points = new int[(count + 1) * 2];
                 for (int i = 0; i <= count; i++)
                 {
-                    var p = polygon.GetCircular(i);
+                    var p = polygon.GetWrapped(i);
                     points[i * 2 + 0] = (int)Math.Round(p.x);
                     points[i * 2 + 1] = (int)Math.Round(p.y);
                 }
@@ -34,8 +35,8 @@ namespace ImageProcessing.Images
             {
                 for (int i = 0; i < count; i++)
                 {
-                    var a = polygon.GetCircular(i);
-                    var b = polygon.GetCircular(i + 1);
+                    var a = polygon.GetWrapped(i);
+                    var b = polygon.GetWrapped(i + 1);
                     DrawLine(a, b, color, mode);
                 }
             }

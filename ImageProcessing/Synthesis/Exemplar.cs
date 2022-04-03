@@ -42,6 +42,11 @@ namespace ImageProcessing.Synthesis
             Used++;
         }
 
+        public void ResetUsed()
+        {
+            Used = 0;
+        }
+
         public List<Exemplar> CreateVariants()
         {
             var variants = new List<Exemplar>();

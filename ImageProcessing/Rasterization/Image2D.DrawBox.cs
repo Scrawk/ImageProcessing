@@ -34,6 +34,14 @@ namespace ImageProcessing.Images
                 DrawBoxOutline(x1, y1, x2, y2, color, mode);
         }
 
+        public void DrawBox(int x1, int y1, int x2, int y2, ColorRGBA color, bool filled, WRAP_MODE mode = WRAP_MODE.NONE)
+        {
+            if (filled)
+                DrawBoxFilled(x1, y1, x2, y2, color, mode);
+            else
+                DrawBoxOutline(x1, y1, x2, y2, color, mode);
+        }
+
         /// <summary>
         /// Draws a rectangle.
         /// x2 has to be greater than x1 and y2 has to be greater than y1.
