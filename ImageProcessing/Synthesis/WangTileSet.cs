@@ -275,13 +275,12 @@ namespace ImageProcessing.Synthesis
 			mask.DrawBox(cutBounds, ColorRGBA.White, true);
 			mask.DrawBox(sinkBounds, ColorRGBA.Black, true);
 
-			var pair = set.FindBestMatch(image2, mask, 0);
+			var pair = set.FindBestMatch(image2, mask, cutOffset);
 			pair.Item1.IncrementUsed();
 
 			var match = pair.Item1.Image;
-			//var offset = pair.Item2;
-			//match = ColorImage2D.Offset(match, offset.x, offset.y);
-			//image2.Fill(match, cutBounds);
+			var offset = pair.Item2;
+			match = ColorImage2D.Offset(match, offset.x, offset.y);
 
 			var graph = new GridFlowGraph(cutBounds.Width + 1, cutBounds.Height + 1);
 
@@ -292,7 +291,7 @@ namespace ImageProcessing.Synthesis
 
 				if (mask[xo, yo] != 0)
 				{
-					var col1 = image[xo, yo];
+					var col1 = match[xo, yo];
 					var col2 = image2[xo, yo];
 
 					var w1 = ColorRGB.SqrDistance(col1, col2);
@@ -304,7 +303,7 @@ namespace ImageProcessing.Synthesis
 
 						if (mask[xi, yi] != 0)
 						{
-							var col1i = image[xi, yi];
+							var col1i = match[xi, yi];
 							var col2i = image2[xi, yi];
 
 							var w2 = ColorRGB.SqrDistance(col1i, col2i);
@@ -336,16 +335,28 @@ namespace ImageProcessing.Synthesis
 				int xo = x + cutOffset;
 				int yo = y + cutOffset;
 
-				if (graph.IsSource(x, y))
-					image2.SetPixel(xo, yo, ColorRGB.Red);
-				else if (graph.IsSink(x, y))
-					image2.SetPixel(xo, yo, ColorRGB.Green);
+				if (graph.IsSink(x, y))
+					image2[xo, yo] = match[xo, yo];
 
 			});
+
+			binary.Clear();
+
+			var points = graph.FindBoundaryPoints();
+			foreach (var p in points)
+				binary[p.x + cutOffset, p.y + cutOffset] = true;
+
+			binary = BinaryImage2D.Dilate(binary, 3);
+
+			mask = binary.ToGreyScaleImage();
+			mask = GreyScaleImage2D.GaussianBlur(mask, 0.5f, null, null, WRAP_MODE.WRAP);
+
+			image2 = ColorImage2D.GaussianBlur(image2, 0.75f, null, mask, WRAP_MODE.WRAP);
 
 
 			return image2;
         }
+
 
 	}
 }
