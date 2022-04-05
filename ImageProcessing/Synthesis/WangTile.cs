@@ -73,12 +73,14 @@ namespace ImageProcessing.Synthesis
 			return tile;
         }
 
-		public void FillImage(IList<Exemplar> exemplars)
+		public void FillImage(List<ColorImage2D> images)
         {
 			Image.Fill((x, y) =>
 			{
-				int index = (int)Map[x,y];
-				return exemplars[index].Image[x, y];
+				var index = (int)Map[x, y];
+				var pixel = images[index][x,y];
+
+				return pixel;
 			});
         }
 

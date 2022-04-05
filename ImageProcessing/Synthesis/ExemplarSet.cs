@@ -84,7 +84,7 @@ namespace ImageProcessing.Synthesis
                     {
                         for (int y = 0; y < image.Height; y++)
                         {
-                            if (mask[x, y] == 0) continue;
+                            if (mask != null && mask[x, y] == 0) continue;
 
                             var pixel1 = image[x, y];
                             var pixel2 = image2[x+i, y+j];
@@ -132,7 +132,7 @@ namespace ImageProcessing.Synthesis
                     {
                         for (int y = 0; y < exemplar.Height; y++)
                         {
-                            if (mask[x, y] == 0) continue;
+                            if (mask != null && mask[x, y] == 0) continue;
 
                             var pixel1 = image[x, y];
                             var pixel2 = exemplar[x, y];
@@ -151,6 +151,52 @@ namespace ImageProcessing.Synthesis
                     offset = pair.Item1;
                     cost = pair.Item2;
                 }
+
+                if (cost < bestCost)
+                {
+                    bestCost = cost;
+                    bestMatch = exemplar;
+                    bestOffset = offset;
+                }
+            }
+
+            return (bestMatch, bestOffset);
+        }
+
+        public (Exemplar, Point2i) FindBestMatch(ColorImage2D image, BinaryImage2D mask)
+        {
+            Exemplar bestMatch = null;
+            float bestCost = float.PositiveInfinity;
+            Point2i bestOffset = new Point2i();
+
+            foreach (var exemplar in Exemplars)
+            {
+                if (exemplar.Image == image)
+                    continue;
+
+                if (exemplar.Used > 0)
+                    continue;
+
+                float cost = 0;
+                int count = 0;
+                Point2i offset = new Point2i();
+
+                for (int x = 0; x < exemplar.Width; x++)
+                {
+                    for (int y = 0; y < exemplar.Height; y++)
+                    {
+                        if (mask != null && !mask[x, y]) continue;
+
+                        var pixel1 = image[x, y];
+                        var pixel2 = exemplar[x, y];
+
+                        cost += ColorRGB.SqrDistance(pixel1, pixel2);
+                        count++;
+                    }
+                }
+
+                if (count == 0) continue;
+                cost /= count;
 
                 if (cost < bestCost)
                 {
@@ -186,7 +232,7 @@ namespace ImageProcessing.Synthesis
                         int i = start.x + x;
                         int j = start.y + y;
 
-                        if (mask.GetValue(i, j, WRAP_MODE.WRAP) == 0) continue;
+                        if (mask != null && mask.GetValue(i, j, WRAP_MODE.WRAP) == 0) continue;
 
                         var pixel1 = image.GetPixel(i, j, WRAP_MODE.WRAP);
                         var pixel2 = exemplar[x, y];

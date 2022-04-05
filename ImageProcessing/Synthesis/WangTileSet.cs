@@ -67,29 +67,37 @@ namespace ImageProcessing.Synthesis
 
 			var exemplars = exemplarSet.GetRandomExemplars(Math.Max(NumHColors, NumVColors), 0);
 
+			var tilables = new List<ColorImage2D>();
 
-			for(int i = 0; i < exemplars.Count; i++)
-            {
+			for (int i = 0; i < exemplars.Count; i++)
+			{
 				var exemplar = exemplars[i];
 
-				var tileable = MakeTilable(exemplar.Image, exemplarSet);
+				var pair = ImageSynthesis.MakeTileable(exemplar.Image, exemplarSet);
+
+				var tileable = pair.Item1;
+				//var cost = pair.Item2;
+
+				tilables.Add(tileable);
 
 				tileable.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/tileable" + i + ".raw");
             }
-
-			return;
 
 			Console.WriteLine(this);
 			Console.WriteLine(exemplarSet);
 
 			CreateTiles();
 
-			foreach (var tile in Tiles)
+			for (int i = 0; i < Tiles.Length; i++)
 			{
+				var tile = Tiles[i];
 				tile.CreateMap();
 				tile.CreateMask();
-				tile.FillImage(exemplars);
-				tile.ColorEdges(BorderSize, Colors, 0.5f);
+				tile.FillImage(tilables);
+
+				ImageSynthesis.Test(tile, exemplarSet);
+	
+				//tile.ColorEdges(BorderSize, Colors, 0.5f);
 			}
 
 			var compaction = OrthogonalCompaction();
@@ -247,115 +255,6 @@ namespace ImageProcessing.Synthesis
 
 			return image;
 		}
-
-		private ColorImage2D MakeTilable(ColorImage2D image, ExemplarSet set)
-        {
-			int width = image.Width;
-			int height = image.Height;
-			int cutOffset = 8;
-			int sinkOffset = 32;
-
-			var image2 = ColorImage2D.Offset(image, width/2, height/2);
-
-			var binary = new BinaryImage2D(image.Width, image.Height);
-			binary.DrawLine(0, height / 2, width, height / 2, ColorRGBA.White);
-			binary.DrawLine(width / 2, 0, width / 2, height, ColorRGBA.White);
-
-			binary = BinaryImage2D.Dilate(binary, 3);
-
-			var mask = binary.ToGreyScaleImage();
-			mask = GreyScaleImage2D.GaussianBlur(mask, 0.5f, null, null, WRAP_MODE.WRAP);
-
-			image2 = ColorImage2D.GaussianBlur(image2, 0.75f, null, mask, WRAP_MODE.WRAP);
-
-			var cutBounds = new Box2i(cutOffset, cutOffset, width - 1 - cutOffset, height - 1 - cutOffset);
-			var sinkBounds = new Box2i(sinkOffset, sinkOffset, width - 1 - sinkOffset, height - 1 - sinkOffset);
-
-			mask.Clear();
-			mask.DrawBox(cutBounds, ColorRGBA.White, true);
-			mask.DrawBox(sinkBounds, ColorRGBA.Black, true);
-
-			var pair = set.FindBestMatch(image2, mask, cutOffset);
-			pair.Item1.IncrementUsed();
-
-			var match = pair.Item1.Image;
-			var offset = pair.Item2;
-			match = ColorImage2D.Offset(match, offset.x, offset.y);
-
-			var graph = new GridFlowGraph(cutBounds.Width + 1, cutBounds.Height + 1);
-
-			graph.Iterate((x, y) =>
-			{
-				int xo = x + cutOffset;
-				int yo = y + cutOffset;
-
-				if (mask[xo, yo] != 0)
-				{
-					var col1 = match[xo, yo];
-					var col2 = image2[xo, yo];
-
-					var w1 = ColorRGB.SqrDistance(col1, col2);
-
-					for (int i = 0; i < 8; i++)
-					{
-						int xi = xo + D8.OFFSETS[i, 0];
-						int yi = yo + D8.OFFSETS[i, 1];
-
-						if (mask[xi, yi] != 0)
-						{
-							var col1i = match[xi, yi];
-							var col2i = image2[xi, yi];
-
-							var w2 = ColorRGB.SqrDistance(col1i, col2i);
-							var w = Math.Max(1, (w1 + w2) * 255);
-
-							graph.SetCapacity(x, y, i, w);
-						}
-					}
-				}
-			});
-
-			foreach (var p in cutBounds.EnumeratePerimeter())
-            {
-				graph.SetSource(p.x - cutOffset, p.y - cutOffset, 255);
-            }
-
-			var expanded = sinkBounds;
-			expanded.Min -= 1;
-			expanded.Max += 2;
-			foreach (var p in expanded.EnumerateBounds())
-			{
-				graph.SetSink(p.x - cutOffset, p.y - cutOffset, 255);
-			}
-
-			graph.Calculate();
-
-			graph.Iterate((x, y) =>
-			{
-				int xo = x + cutOffset;
-				int yo = y + cutOffset;
-
-				if (graph.IsSink(x, y))
-					image2[xo, yo] = match[xo, yo];
-
-			});
-
-			binary.Clear();
-
-			var points = graph.FindBoundaryPoints();
-			foreach (var p in points)
-				binary[p.x + cutOffset, p.y + cutOffset] = true;
-
-			binary = BinaryImage2D.Dilate(binary, 3);
-
-			mask = binary.ToGreyScaleImage();
-			mask = GreyScaleImage2D.GaussianBlur(mask, 0.5f, null, null, WRAP_MODE.WRAP);
-
-			image2 = ColorImage2D.GaussianBlur(image2, 0.75f, null, mask, WRAP_MODE.WRAP);
-
-
-			return image2;
-        }
 
 
 	}

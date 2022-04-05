@@ -300,41 +300,6 @@ namespace ImageProcessing.Images
 
             return copy;
         }
-
-        /// <summary>
-        /// Return the image as a float array.
-        /// </summary>
-        /// <returns></returns>
-        public float[,] ToFloatArray()
-        {
-            var array = new float[Width, Height];
-
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    array[x, y] = this[x, y] ? 1 : 0;
-                }
-            }
-
-            return array;
-        }
-
-        /// <summary>
-        /// Convert to a greyscale image.
-        /// </summary>
-        /// <returns>The greayscale image.</returns>
-        public GreyScaleImage2D ToGreyScaleImage()
-        {
-            var image = new GreyScaleImage2D(Width, Height);
-
-            image.Fill((x, y) =>
-            {
-                return this[x, y] ? 1 : 0;
-            });
-
-            return image;
-        }
     }
 
 }

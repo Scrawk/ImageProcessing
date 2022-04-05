@@ -12,479 +12,231 @@ using ImageProcessing.Images;
 
 namespace ImageProcessing.Synthesis
 {
-
-    public class ImageSynthesis
+    public static class ImageSynthesis
     {
 
-        public ImageSynthesis(ExemplarSet exemplars, int imageSize, int overlap)
+        public static (ColorImage2D, float) MakeTileable(ColorImage2D image, ExemplarSet set)
         {
-            ImageSize = imageSize;
-            Overlap = overlap;
-            Exemplars = exemplars;
-            BlurWidth = 3;
-            BlurStrength = 0.75f;
+            int width = image.Width;
+            int height = image.Height;
+            int cutOffset = 2;
+            int sinkOffsetX = width / 2 - 48;
+            int sinkOffsetY = height / 2 - 48;
+            int matchOffset = Math.Min(2, cutOffset);
+
+            var tileable = ColorImage2D.Offset(image, width / 2, height / 2);
+
+            var horzontalLine = new Segment2f(0, height / 2, width, height / 2);
+            var verticalLine = new Segment2f(width / 2, 0, width / 2, height);
+            BlurSeams(tileable, horzontalLine, verticalLine);
+
+            var cutBounds = new Box2i(cutOffset, cutOffset, width - 1 - cutOffset, height - 1 - cutOffset);
+            var sinkBounds = new Box2i(sinkOffsetX, sinkOffsetY, width - 1 - sinkOffsetX, height - 1 - sinkOffsetY);
+
+            var mask = new GreyScaleImage2D(width, height);
+            mask.DrawBox(cutBounds, ColorRGBA.White, true);
+            mask.DrawBox(sinkBounds, ColorRGBA.Black, true);
+
+            var pair = set.FindBestMatch(tileable, mask, matchOffset);
+            pair.Item1.IncrementUsed();
+
+            var exemplar = pair.Item1;
+            exemplar.IncrementUsed();
+            var match = exemplar.Image;
+            var offset = pair.Item2;
+
+            match = ColorImage2D.Offset(match, offset.x, offset.y);
+
+            var graph = CreateGraph(tileable, mask, match, cutBounds, sinkBounds);
+            var cost = PerformGraphCut(graph, tileable, match, cutOffset);
+
+            var points = graph.FindBoundaryPoints();
+            BlurSeams(tileable, points, cutOffset);
+
+            return (tileable, cost);
         }
 
-        public int ImageSize { get; set; }
-
-        public int Overlap { get; set; }
-
-        public int BlurWidth { get; set; }
-
-        public float BlurStrength { get; set; }
-
-        public ExemplarSet Exemplars { get; set; }
-
-        public ColorImage2D Image => Image1;
-
-        private ColorImage2D Image1 { get; set; }
-
-        private ColorImage2D Image2 { get; set; }
-
-        private GreyScaleImage2D Mask { get; set; }
-
-        public void CreateSeamlessImage()
+        public static void Test(WangTile tile, ExemplarSet set)
         {
+            if(tile.IsConst)
+                return;   
 
-            Image1 = new ColorImage2D(ImageSize, ImageSize);
-            Image2 = new ColorImage2D(ImageSize, ImageSize);
-            Mask = new GreyScaleImage2D(ImageSize, ImageSize);
+            int width = tile.Size;
+            int height = tile.Size;
+            var map = tile.Map;
+            var mask = tile.Mask;
 
-            int countX = Image1.Width / (Exemplars.ExemplarSize - Overlap);
-            int countY = Image1.Height / (Exemplars.ExemplarSize - Overlap);
+            var sourceBounds = new Box2i(0, 0, width - 1, height - 1);
+            var sinkBounds = new Box2i(20, 20, width - 1 - 20, height - 1 - 20);
 
-            var matches = new Exemplar[countX, countY];
-
-            for (int y = 0; y <= countY; y++)
+            foreach (var p in sourceBounds.EnumeratePerimeter())
             {
-                if(y == 0)
-                {
-                    TileHorizontally(y, matches);
-                    CopyToImage2(y, matches);
-                    GraphCutVerticalFlow(y);
-                }
-                else if(y == countY)
-                {
-                    GraphCutHorizontallyFlow(0);
-                }
-                else
-                {
-                    TileHorizontally(y, matches);
-                    CopyToImage2(y, matches);
-                    GraphCutVerticalFlow(y);
-                    GraphCutHorizontallyFlow( y);
-                }
+                mask[p.x,p.y] = true;
             }
 
-            Console.WriteLine(Image1);
-
-        }
-
-        private void TileHorizontally(int indexY, Exemplar[,] matches)
-        {
-
-            if (Exemplars.ExemplarCount == 0)
-                throw new ArgumentException("Exemplar set empty");
-
-            int offset = Exemplars.ExemplarSize - Overlap;
-            int count = Image1.Width / (Exemplars.ExemplarSize - Overlap);
-            Point2i start = new Point2i(0, offset * indexY);
- 
-            for (int k = 0; k < count; k++)
+            foreach (var p in sinkBounds.EnumerateBounds())
             {
-                start.x = offset * k;
-
-                Exemplar match = null;
-
-                if(k == 0 && indexY == 0)
-                {
-                    match = Exemplars.GetExemplar(0);
-                }
-                else
-                {
-                    var current = new Point2i(k, indexY);
-                    match = Exemplars.FindBestMatch(Image1, Mask, matches, current, start);
-                }
-
-                for (int y = 0; y < Exemplars.ExemplarSize; y++)
-                {
-                    for (int x = 0; x < match.Width; x++)
-                    {
-                        int i = start.x + x;
-                        int j = start.y + y;
-   
-                        Image1.SetPixel(i, j, match[x, y], WRAP_MODE.WRAP);
-                        Mask.SetPixel(i, j, ColorRGB.White, WRAP_MODE.WRAP);
-                    }
-                }
-
-                match.IncrementUsed();
-                matches[k, indexY] = match;
+                mask[p.x, p.y] = true;
             }
 
-        }
+            var pair = set.FindBestMatch(tile.Image, mask);
+            //pair.Item1.IncrementUsed();
 
-        private void CopyToImage2(int indexY, Exemplar[,] matches)
-        {
-            int offset = Exemplars.ExemplarSize - Overlap;
-            int count = Image1.Width / (Exemplars.ExemplarSize - Overlap);
-            Point2i start = new Point2i(0, offset * indexY);
- 
-            for (int k = 0; k < count; k++)
-            {
-                start.x = offset * k;
-                var match = matches[k, indexY];
+            var match = pair.Item1.Image;
 
-                if (indexY == 0)
-                {
-                    CopyToImage2Horizontal(0, Exemplars.ExemplarSize, k, match, start);
-                }
-                else if (indexY == count - 1)
-                {
-                    CopyToImage2Horizontal(Overlap, Exemplars.ExemplarSize - Overlap, k, match, start);
-                }
-                else
-                {
-                    CopyToImage2Horizontal(Overlap, Exemplars.ExemplarSize, k, match, start);
-                }
-
-            }
-        }
-
-        private void CopyToImage2Horizontal(int ystart, int yend, int k, Exemplar match, Point2i start)
-        {
-            int count = Image1.Width / (Exemplars.ExemplarSize - Overlap);
-
-            for (int y = ystart; y < yend; y++)
-            {
-                if (k == 0)
-                {
-                    for (int x = 0; x < match.Width; x++)
-                    {
-                        int i = start.x + x;
-                        int j = start.y + y;
-                        Image2.SetPixel(i, j, match[x, y], WRAP_MODE.WRAP);
-                    }
-                }
-                if (k == count - 1)
-                {
-                    for (int x = Overlap; x < match.Width - Overlap; x++)
-                    {
-                        int i = start.x + x;
-                        int j = start.y + y;
-                        Image2.SetPixel(i, j, match[x, y], WRAP_MODE.WRAP);
-                    }
-                }
-                else
-                {
-                    for (int x = Overlap; x < match.Width; x++)
-                    {
-                        int i = start.x + x;
-                        int j = start.y + y;
-                        Image2.SetPixel(i, j, match[x, y], WRAP_MODE.WRAP);
-                    }
-                }
-            }
-        }
-
-        private void GraphCutVertical(int indexY)
-        {
-            int offset = Exemplars.ExemplarSize - Overlap;
-            int count = Image1.Width / (Exemplars.ExemplarSize - Overlap);
-            int startY = offset * indexY;
-
-            for (int j = 0; j < count; j++)
-            {
-                int startX = offset * j;
-
-                var bounds = new Box2i(startX, startY, startX + Overlap, startY + Exemplars.ExemplarSize);
-                var graph = CreateGraph(bounds);
-
-                Point2i source = new Point2i(graph.Width / 2, 0);
-                Point2i target = new Point2i(graph.Width / 2, graph.Height - 1);
-    
-                var search = new GridSearch(graph.Width, graph.Height);
-                graph.PrimsMinimumSpanningTree(search, source.x, source.y);
-                var path = search.GetPath(target);
-
-                if (j != 0)
-                {
-                    foreach (var p in path)
-                    {
-                        for (int i = 0; i < p.x; i++)
-                        {
-                            var pixel = Image2.GetPixel(startX + i, startY + p.y, WRAP_MODE.WRAP);
-                            Image1.SetPixel(startX + i, startY + p.y, pixel, WRAP_MODE.WRAP);
-                        }
-                    }
-                            
-                }
-                else
-                {
-                    foreach (var p in path)
-                    {
-                        for (int i = p.x; i < Overlap; i++)
-                        {
-                            var pixel = Image2.GetPixel(startX + i, startY + p.y, WRAP_MODE.WRAP);
-                            Image1.SetPixel(startX + i, startY + p.y, pixel, WRAP_MODE.WRAP);
-                        }
-                    }       
-                }
-
-                BlurSeams(Image1, path, bounds);
-                //DrawPath(path, Image1, ColorRGB.Red, startX, startY);
-            }
-        }
-
-        private void GraphCutVerticalFlow(int indexY)
-        {
-            int offset = Exemplars.ExemplarSize - Overlap;
-            int count = Image1.Width / (Exemplars.ExemplarSize - Overlap);
-            int startY = offset * indexY;
-
-            for (int j = 0; j < count; j++)
-            {
-                int startX = offset * j;
-
-                var bounds = new Box2i(startX, startY, startX + Overlap, startY + Exemplars.ExemplarSize);
-                var graph = CreateFlowGraph(bounds);
-
-                for(int y = 0; y < graph.Height; y++)
-                {
-                    graph.SetSource(0, y, 255);
-                    graph.SetSink(graph.Width-1, y, 255);
-                }
-
-                graph.Calculate();
-
-                graph.Iterate((x, y) =>
-                {
-                    if(j != 0)
-                    {
-                        if (graph.IsSource(x, y))
-                        {
-                            var pixel = Image2.GetPixel(startX + x, startY + y, WRAP_MODE.WRAP);
-                            Image1.SetPixel(startX + x, startY + y, pixel, WRAP_MODE.WRAP);
-                        }
-                    }
-                    else
-                    {
-                        if (graph.IsSink(x, y))
-                        {
-                            var pixel = Image2.GetPixel(startX + x, startY + y, WRAP_MODE.WRAP);
-                            Image1.SetPixel(startX + x, startY + y, pixel, WRAP_MODE.WRAP);
-                        }
-                    }   
-                });
-
-
-                var path = FindPath(graph);
-                BlurSeams(Image1, path, bounds);
-
-            }
-
-        }
-
-        private void GraphCutHorizontally(int indexY)
-        {
-            int offset = Exemplars.ExemplarSize - Overlap;
-            int startY = offset * indexY;
-
-            var bounds = new Box2i(0, startY, Image1.Width, startY + Overlap);
-            var graph = CreateGraph(bounds);
-
-            Point2i source = new Point2i(0, graph.Height / 2);
-            Point2i target = new Point2i(graph.Width - 1, graph.Height / 2);
- 
-            var search = new GridSearch(graph.Width, graph.Height);
-            graph.PrimsMinimumSpanningTree(search, source.x, source.y);
-            var path = search.GetPath(target);
-
-            if (indexY != 0)
-            {
-                foreach (var p in path)
-                {
-                    for (int i = 0; i < p.y; i++)
-                    {
-                        var pixel = Image2.GetPixel(p.x, startY + i, WRAP_MODE.WRAP);
-                        Image1.SetPixel(p.x, startY + i, pixel, WRAP_MODE.WRAP);
-                    }
-                }
-            }
-            else
-            {
-                foreach (var p in path)
-                {
-                    for (int i = p.y; i < Overlap; i++)
-                    {
-                        var pixel = Image2.GetPixel(p.x, startY + i, WRAP_MODE.WRAP);
-                        Image1.SetPixel(p.x, startY + i, pixel, WRAP_MODE.WRAP);
-                    }
-                }
-            }
-
-            BlurSeams(Image1, path, bounds);
-            //DrawPath(path, Image1, ColorRGB.Red, 0, startY);
-
-        }
-
-        private void GraphCutHorizontallyFlow(int indexY)
-        {
-            int offset = Exemplars.ExemplarSize - Overlap;
-            int startY = offset * indexY;
-
-            var bounds = new Box2i(0, startY, Image1.Width, startY + Overlap);
-            var graph = CreateFlowGraph(bounds);
-
-            for (int x = 0; x < graph.Width; x++)
-            {
-                graph.SetSource(x, 0, 255);
-                graph.SetSink(x, graph.Height - 1, 255);
-            }
+            var graph = CreateGraph(tile.Image, match, mask, map);
 
             graph.Calculate();
 
-            graph.Iterate((x, y) =>
-            {
-                if (indexY != 0)
-                {
-                    if (graph.IsSource(x, y))
-                    {
-                        var pixel = Image2.GetPixel(x, startY + y, WRAP_MODE.WRAP);
-                        Image1.SetPixel(x, startY + y, pixel, WRAP_MODE.WRAP);
-                    }
-                }
-                else
-                {
-                    if (graph.IsSink(x, y))
-                    {
-                        var pixel = Image2.GetPixel(x, startY + y, WRAP_MODE.WRAP);
-                        Image1.SetPixel(x, startY + y, pixel, WRAP_MODE.WRAP);
-                    }
-                }
-            });
+            var image = tile.Image;
 
-            var path = FindPath(graph);
-            BlurSeams(Image1, path, bounds);
+            image.Iterate((x, y) =>
+            {
+                //if (graph.IsSource(x, y))
+                //    image[x, y] = ColorRGB.Red;
+                //else if (graph.IsSink(x, y))
+                //    image[x, y] = ColorRGB.Green;
+
+                if (graph.IsSink(x, y))
+                    image[x, y] = match[x, y];
+            });
         }
 
-        private void BlurSeams(ColorImage2D image, List<Point2i> points, Box2i bounds)
+        private static void BlurSeams(ColorImage2D image, Segment2f horzontal, Segment2f vertical)
         {
+            int width = image.Width;
+            int height = image.Height;
 
-            var binary = new BinaryImage2D(image.Width, image.Height);
-            DrawPath(points, binary, ColorRGB.White, bounds.Min.x, bounds.Min.y);
+            var binary = new BinaryImage2D(width, height);
+            binary.DrawLine(horzontal, ColorRGBA.White);
+            binary.DrawLine(vertical, ColorRGBA.White);
 
-            binary = BinaryImage2D.Dilate(binary, BlurWidth);
+            binary = BinaryImage2D.Dilate(binary, 2);
 
             var mask = binary.ToGreyScaleImage();
-            mask = GreyScaleImage2D.GaussianBlur(mask, 0.5f, bounds, null, WRAP_MODE.WRAP);
+            mask = GreyScaleImage2D.GaussianBlur(mask, 0.5f, null, null, WRAP_MODE.WRAP);
 
-            var blurred = ColorImage2D.GaussianBlur(image, BlurStrength, bounds, mask, WRAP_MODE.WRAP);
+            var blurred = ColorImage2D.GaussianBlur(image, 0.5f, null, mask, WRAP_MODE.WRAP);
             image.Fill(blurred);
         }
 
-        private void DrawPath(List<Point2i> path, ColorImage2D image, ColorRGB col, int offsetX, int offsetY)
+        private static void BlurSeams(ColorImage2D image, List<Point2i> points, int offset)
         {
-            for (int i = 0; i < path.Count; i++)
-            {
-                var p = path[i];
-                image.SetPixel(offsetX + p.x, offsetY + p.y, col, WRAP_MODE.WRAP);
-            }
+            int width = image.Width;
+            int height = image.Height;
+
+            var binary = new BinaryImage2D(width, height);
+
+            foreach (var p in points)
+                binary[p.x + offset, p.y + offset] = true;
+
+            binary = BinaryImage2D.Dilate(binary, 2);
+
+            var mask = binary.ToGreyScaleImage();
+            mask = GreyScaleImage2D.GaussianBlur(mask, 0.5f, null, null, WRAP_MODE.WRAP);
+
+            var blurred = ColorImage2D.GaussianBlur(image, 0.5f, null, mask, WRAP_MODE.WRAP);
+            image.Fill(blurred);
         }
 
-        private void DrawPath(List<Point2i> path, BinaryImage2D image, ColorRGB col, int offsetX, int offsetY)
+        private static float PerformGraphCut(GridFlowGraph graph, ColorImage2D image, ColorImage2D match, int cutOffset)
         {
-            for (int i = 0; i < path.Count; i++)
-            {
-                var p = path[i];
-                image.SetPixel(offsetX + p.x, offsetY + p.y, col, WRAP_MODE.WRAP);
-            }
-        }
+            graph.Calculate();
 
-        public GridGraph CreateGraph(Box2i bounds)
-        {
-            var graph = new GridGraph(bounds.Width, bounds.Height);
-
-            graph.Iterate((x, y, i) =>
-            {
-                int xi = x + D8.OFFSETS[i, 0];
-                int yi = y + D8.OFFSETS[i, 1];
-
-                var col1 = Image1.GetPixel(bounds.Min.x + x, bounds.Min.y + y, WRAP_MODE.WRAP);
-                var col2 = Image2.GetPixel(bounds.Min.x + x, bounds.Min.y + y, WRAP_MODE.WRAP);
-
-                var w1 = ColorRGB.SqrDistance(col1, col2);
-
-                if (graph.InBounds(xi, yi))
-                {
-                    var col1i = Image1.GetPixel(bounds.Min.x + xi, bounds.Min.y + yi, WRAP_MODE.WRAP);
-                    var col2i = Image2.GetPixel(bounds.Min.x + xi, bounds.Min.y + yi, WRAP_MODE.WRAP);
-
-                    var w2 = ColorRGB.SqrDistance(col1i, col2i);
-                    var w = Math.Max(1, (w1 + w2) * 255);
-
-                    graph.AddDirectedWeightedEdge(x, y, i, w);
-                }
-            });
-
-            return graph;
-        }
-
-        public GridFlowGraph CreateFlowGraph(Box2i bounds)
-        {
-            var graph = new GridFlowGraph(bounds.Width, bounds.Height);
-
-            graph.Iterate((x, y, i) =>
-            {
-                int xi = x + D8.OFFSETS[i, 0];
-                int yi = y + D8.OFFSETS[i, 1];
-
-                var col1 = Image1.GetPixel(bounds.Min.x + x, bounds.Min.y + y, WRAP_MODE.WRAP);
-                var col2 = Image2.GetPixel(bounds.Min.x + x, bounds.Min.y + y, WRAP_MODE.WRAP);
-
-                var w1 = ColorRGB.SqrDistance(col1, col2);
-
-                if (graph.InBounds(xi, yi))
-                {
-                    var col1i = Image1.GetPixel(bounds.Min.x + xi, bounds.Min.y + yi, WRAP_MODE.WRAP);
-                    var col2i = Image2.GetPixel(bounds.Min.x + xi, bounds.Min.y + yi, WRAP_MODE.WRAP);
-
-                    var w2 = ColorRGB.SqrDistance(col1i, col2i);
-                    var w = Math.Max(1, (w1 + w2) * 255);
-
-                    graph.SetCapacity(x, y, i, w);
-                }
-            });
-
-            return graph;
-        }
-
-        public List<Point2i> FindPath(GridFlowGraph graph)
-        {
-            var path = new List<Point2i>();
+            float cost = 0;
+            int count = 0;
 
             graph.Iterate((x, y) =>
             {
-                if(graph.IsSource(x, y))
-                {
-                    for(int i = 0; i < 8; i++)
-                    {
-                        int xi = x + D8.OFFSETS[i, 0];
-                        int yi = y + D8.OFFSETS[i, 1];
-
-                        if (xi < 0 || xi >= graph.Width) continue;
-                        if (yi < 0 || yi >= graph.Height) continue;
-
-                        if(graph.IsSink(xi, yi))
-                        {
-                            path.Add(new Point2i(x, y));
-                            break;
-                        }
-                    }
-                }
+                int xo = x + cutOffset;
+                int yo = y + cutOffset;
 
                 if (graph.IsSink(x, y))
                 {
+                    cost += ColorRGB.SqrDistance(image[xo, yo], match[xo, yo]);
+                    count++;
+
+                    image[xo, yo] = match[xo, yo];
+                }   
+            });
+
+            if(count > 0)
+                cost /= count;
+
+            return cost;
+        }
+
+        private static GridFlowGraph CreateGraph(ColorImage2D image, GreyScaleImage2D mask, ColorImage2D match, Box2i cutBounds, Box2i sinkBounds)
+        {
+            int cutOffset = cutBounds.Min.x;
+            var graph = new GridFlowGraph(cutBounds.Width + 1, cutBounds.Height + 1);
+
+            graph.Iterate((x, y) =>
+            {
+                int xo = x + cutOffset;
+                int yo = y + cutOffset;
+
+                if (mask[xo, yo] != 0)
+                {
+                    var col1 = match[xo, yo];
+                    var col2 = image[xo, yo];
+
+                    var w1 = ColorRGB.SqrDistance(col1, col2) * 255;
+
+                    for (int i = 0; i < 8; i++)
+                    {
+                        int xi = xo + D8.OFFSETS[i, 0];
+                        int yi = yo + D8.OFFSETS[i, 1];
+
+                        if (xi < 0 || xi >= graph.Width) continue;
+                        if (yi < 0 || yi >= graph.Height) continue;
+                        if (mask[xi, yi] == 0) continue;
+
+                        var col1i = match[xi, yi];
+                        var col2i = image[xi, yi];
+
+                        var w2 = ColorRGB.SqrDistance(col1i, col2i) * 255;
+
+                        var w = MathUtil.Max(1, w1, w2);
+
+                        graph.SetCapacity(x, y, i, w);
+
+                    }
+                }
+            });
+
+            foreach (var p in cutBounds.EnumeratePerimeter())
+            {
+                graph.SetSource(p.x - cutOffset, p.y - cutOffset, 255);
+            }
+
+            var expanded = sinkBounds;
+            expanded.Min -= 1;
+            expanded.Max += 2;
+            foreach (var p in expanded.EnumerateBounds())
+            {
+                graph.SetSink(p.x - cutOffset, p.y - cutOffset, 255);
+            }
+
+            return graph;
+        }
+
+        private static GridFlowGraph CreateGraph(ColorImage2D image1, ColorImage2D image2, BinaryImage2D mask, GreyScaleImage2D map)
+        {
+            var graph = new GridFlowGraph(image1.Width, image1.Height);
+
+            var sourceBounds = new Box2i(0, 0, graph.Width - 1, graph.Height - 1);
+            var sinkBounds = new Box2i(20, 20, graph.Width - 1 - 20, graph.Height - 1 - 20);
+
+            graph.Iterate((x, y) =>
+            {
+                //if (mask[x, y])
+                {
+                    var col1 = image1[x, y];
+                    var col2 = image2[x, y];
+
+                    var w1 = ColorRGB.SqrDistance(col1, col2) * 255;
+
                     for (int i = 0; i < 8; i++)
                     {
                         int xi = x + D8.OFFSETS[i, 0];
@@ -492,18 +244,35 @@ namespace ImageProcessing.Synthesis
 
                         if (xi < 0 || xi >= graph.Width) continue;
                         if (yi < 0 || yi >= graph.Height) continue;
+                        //if (!mask[xi, yi]) continue;
 
-                        if (graph.IsSource(xi, yi))
-                        {
-                            path.Add(new Point2i(x, y));
-                            break;
-                        }
+                        var col1i = image1[xi, yi];
+                        var col2i = image2[xi, yi];
+
+                        var w2 = ColorRGB.SqrDistance(col1i, col2i) * 255;
+
+                        var w = MathUtil.Max(1, w1, w2);
+
+                        graph.SetCapacity(x, y, i, w);
                     }
                 }
 
             });
 
-            return path;
+            foreach (var p in sourceBounds.EnumeratePerimeter())
+            {
+                graph.SetSource(p.x, p.y, 255);
+            }
+
+            var expanded = sinkBounds;
+            expanded.Min -= 1;
+            expanded.Max += 1;
+            foreach (var p in expanded.EnumerateBounds())
+            {
+                graph.SetSink(p.x, p.y, 255);
+            }
+
+            return graph;
         }
 
     }

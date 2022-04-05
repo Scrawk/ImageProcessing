@@ -340,13 +340,13 @@ namespace ImageProcessing.Images
         /// <param name="source"></param>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        public void Fill(Image2D<T> source, int x = 0, int y = 0)
+        public void Fill(IImage2D source, int x = 0, int y = 0)
         {
             for (int j = 0; j < source.Height; j++)
             {
                 for (int i = 0; i < source.Width; i++)
                 {
-                    this[x + i, y + j] = source[i, j];
+                    SetPixel(x + i, y + j, source.GetPixel(i, j));
                 }
             }
         }
@@ -356,13 +356,13 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="source"></param>
         /// <param name="bounds"></param>
-        public void Fill(Image2D<T> source, Box2i bounds)
+        public void Fill(IImage2D source, Box2i bounds)
         {
             for (int y = bounds.Min.y; y < bounds.Max.y; y++)
             {
                 for (int x = bounds.Min.x; x < bounds.Max.x; x++)
                 {
-                    this[x, y] = source[x, y];
+                    SetPixel(x, y, source.GetPixel(x, y));
                 }
             }
         }
@@ -527,6 +527,54 @@ namespace ImageProcessing.Images
             }
 
             return array;
+        }
+
+        /// <summary>
+        /// Convert to a greyscale image.
+        /// </summary>
+        /// <returns>The greayscale image.</returns>
+        public GreyScaleImage2D ToGreyScaleImage()
+        {
+            var image = new GreyScaleImage2D(Width, Height);
+
+            image.Iterate((x, y) =>
+            {
+                SetPixel(x, y, GetPixel(x, y));
+            });
+
+            return image;
+        }
+
+        /// <summary>
+        /// Convert to a binary image.
+        /// </summary>
+        /// <returns>The binary image.</returns>
+        public BinaryImage2D ToBinaryImage()
+        {
+            var image = new BinaryImage2D(Width, Height);
+
+            image.Iterate((x, y) =>
+            {
+                SetPixel(x, y, GetPixel(x, y));
+            });
+
+            return image;
+        }
+
+        /// <summary>
+        /// Convert to a color image.
+        /// </summary>
+        /// <returns>The color image.</returns>
+        public ColorImage2D ToColorImage()
+        {
+            var image = new ColorImage2D(Width, Height);
+
+            image.Iterate((x, y) =>
+            {
+                SetPixel(x, y, GetPixel(x, y));
+            });
+
+            return image;
         }
 
         /// <summary>

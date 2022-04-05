@@ -61,43 +61,13 @@ namespace ImageProcessing.Console
         static void Main(string[] args)
         {
 
-            var bitmap = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/TexturesCom_Gravel0174_1_S.jpg"));
+            var bitmap = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/TexturesCom_Gravel0101_2_S.jpg"));
             var image = ToImage(bitmap);
-
 
             var set = new WangTileSet(2, 2, 128);
             set.Test(image);
             WriteLine("Done");
 
-            /*
-            var timer = new Timer();    
-            timer.Start();
-
-            var bitmap = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/TexturesCom_Gravel0174_1_S.jpg"));
-
-            var image = new ColorImage2D(bitmap.Width, bitmap.Height);
-            image.Fill((x, y) =>
-            {
-                return ToColorRGB(bitmap.GetPixel(x, y));
-            });
-
-            int overlap = 8;
-            int exemplarSize = 128 + overlap;
-            int imageSize = 512;
-
-            var exemplars = new ExemplarSet(exemplarSize);
-            exemplars.CreateExemplarFromRandom(image, 0, 32);
-
-            var systhesis = new ImageSynthesis(exemplars, imageSize, overlap);
-
-            systhesis.CreateSeamlessImage();
-
-            systhesis.Image.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Image1.raw");
-
-            timer.Stop();
-
-            WriteLine("Done in " + timer.ElapsedMilliseconds);
-            */
         }
 
     }
