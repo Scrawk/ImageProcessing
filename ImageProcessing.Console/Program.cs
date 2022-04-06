@@ -62,11 +62,20 @@ namespace ImageProcessing.Console
         {
 
             var bitmap = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/TexturesCom_Gravel0101_2_S.jpg"));
-            var image = ToImage(bitmap);
+            var source = ToImage(bitmap);
+
+            var timer = new Timer();
+            timer.Start();
 
             var set = new WangTileSet(2, 2, 128);
-            set.Test(image);
-            WriteLine("Done");
+            set.CreateTiles(source, 1);
+
+            var image = set.CreateOrthogonalCompaction();
+            WriteLine(image);
+            image.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Image.raw");
+
+            timer.Stop();
+            WriteLine("Done in " + timer.ElapsedSeconds);
 
         }
 

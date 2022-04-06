@@ -10,12 +10,12 @@ namespace ImageProcessing.Images
 {
     public partial class Image2D<T>
     {
-        public void DrawLine(Polyline2f line, ColorRGBA color, WRAP_MODE mode = WRAP_MODE.NONE)
+        public void DrawLine(Polyline2f line, ColorRGBA color, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.NONE)
         {
-            DrawLine(line.Positions, color, mode);
+            DrawLine(line.Positions, color, mask, mode);
         }
 
-        public void DrawLine(IList<Point2f> line, ColorRGBA color, WRAP_MODE mode = WRAP_MODE.NONE)
+        public void DrawLine(IList<Point2f> line, ColorRGBA color, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             int points = line.Count;
             for (int i = 0; i < points - 1; i++)
@@ -26,11 +26,11 @@ namespace ImageProcessing.Images
                 int x2 = (int)Math.Round(line[i * 2 + 1].x);
                 int y2 = (int)Math.Round(line[i * 2 + 1].y);
 
-                DrawLine(x1, y1, x2, y2, color, mode);
+                DrawLine(x1, y1, x2, y2, color, mask, mode);
             }
         }
 
-        public void DrawLine(IList<Point2i> line, ColorRGBA color, WRAP_MODE mode = WRAP_MODE.NONE)
+        public void DrawLine(IList<Point2i> line, ColorRGBA color, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             int points = line.Count;
             for (int i = 0; i < points - 1; i++)
@@ -41,11 +41,11 @@ namespace ImageProcessing.Images
                 int x2 = line[i * 2 + 1].x;
                 int y2 = line[i * 2 + 1].y;
 
-                DrawLine(x1, y1, x2, y2, color, mode);
+                DrawLine(x1, y1, x2, y2, color, mask, mode);
             }
         }
 
-        public void DrawLine(Segment2f segment, ColorRGBA color, WRAP_MODE mode = WRAP_MODE.NONE)
+        public void DrawLine(Segment2f segment, ColorRGBA color, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             int x1 = (int)Math.Round(segment.A.x);
             int y1 = (int)Math.Round(segment.A.y);
@@ -56,7 +56,7 @@ namespace ImageProcessing.Images
             DrawLine(x1, y1, x2, y2, color);
         }
 
-        public void DrawLine(Point2f a, Point2f b, ColorRGBA color, WRAP_MODE mode = WRAP_MODE.NONE)
+        public void DrawLine(Point2f a, Point2f b, ColorRGBA color, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             int x1 = (int)Math.Round(a.x);
             int y1 = (int)Math.Round(a.y);
@@ -64,17 +64,17 @@ namespace ImageProcessing.Images
             int x2 = (int)Math.Round(b.x);
             int y2 = (int)Math.Round(b.y);
 
-            DrawLine(x1, y1, x2, y2, color, mode);
+            DrawLine(x1, y1, x2, y2, color, mask, mode);
         }
 
-        public void DrawLine(Point2i a, Point2i b, ColorRGBA color, WRAP_MODE mode = WRAP_MODE.NONE)
+        public void DrawLine(Point2i a, Point2i b, ColorRGBA color, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.NONE)
         {
-            DrawLine(a.x, a.y, b.x, b.y, color, mode);
+            DrawLine(a.x, a.y, b.x, b.y, color, mask, mode);
         }
 
-        public void DrawLine(int x1, int y1, int x2, int y2, ColorRGBA color, WRAP_MODE mode = WRAP_MODE.NONE)
+        public void DrawLine(int x1, int y1, int x2, int y2, ColorRGBA color, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.NONE)
         {
-            DrawLineDDA(x1, y1, x2, y2, color, mode);
+            DrawLineDDA(x1, y1, x2, y2, color, mask, mode);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace ImageProcessing.Images
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color for the line.</param>
         /// <param name="mode"></param>
-        private void DrawLineDDA(int x1, int y1, int x2, int y2, ColorRGBA color, WRAP_MODE mode)
+        private void DrawLineDDA(int x1, int y1, int x2, int y2, ColorRGBA color, GreyScaleImage2D mask, WRAP_MODE mode)
         {
             if (x1 == x2 && y1 == y2) return;
             int w = Width;
@@ -115,7 +115,7 @@ namespace ImageProcessing.Images
                 for (int i = 0; i < len; i++)
                 {
                     if (y < h && y >= 0 && x < w && x >= 0)
-                        SetPixel((int)x, (int)y, color, mode);
+                        SetPixel((int)x, (int)y, color, mask, mode);
 
                     x += incx;
                     y += incy;
@@ -133,7 +133,7 @@ namespace ImageProcessing.Images
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color for the line.</param>
         /// <param name="mode"></param>
-        private void DrawLineBresenham(int x1, int y1, int x2, int y2, ColorRGBA color, WRAP_MODE mode)
+        private void DrawLineBresenham(int x1, int y1, int x2, int y2, ColorRGBA color, GreyScaleImage2D mask, WRAP_MODE mode)
         {
             if (x1 == x2 && y1 == y2) return;
             int w = Width;
@@ -189,7 +189,7 @@ namespace ImageProcessing.Images
             int y = y1;
             int error = el >> 1;
             if (y < h && y >= 0 && x < w && x >= 0)
-                SetPixel(x, y, color, mode);
+                SetPixel(x, y, color, mask, mode);
 
             // Walk the line!
             for (int i = 0; i < el; i++)
@@ -212,9 +212,23 @@ namespace ImageProcessing.Images
 
                 // Set pixel
                 if (y < h && y >= 0 && x < w && x >= 0)
-                    SetPixel(x, y, color, mode);
+                    SetPixel(x, y, color, mask, mode);
             }
 
+        }
+
+        private void SetPixel(int x, int y, ColorRGBA color, GreyScaleImage2D mask, WRAP_MODE mode)
+        {
+            if (mask != null)
+            {
+                float a = mask.GetValue((int)x, (int)y, mode);
+                color.a = MathUtil.Clamp01(color.a * a);
+                SetPixel(x, y, color, mode);
+            }
+            else
+            {
+                SetPixel(x, y, color, mode);
+            }
         }
 
         private bool Clip(Box2i extents, ref int xi0, ref int yi0, ref int xi1, ref int yi1)

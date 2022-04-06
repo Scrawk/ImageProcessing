@@ -68,47 +68,7 @@ namespace ImageProcessing.Synthesis
             return exemplars;
         }
 
-        private (Point2i, float) FindBestOffset(ColorImage2D image, ColorImage2D image2, GreyScaleImage2D mask, int offset)
-        {
-            Point2i bestOffset = new Point2i();
-            float bestCost = float.PositiveInfinity;
-
-            for (int i = -offset; i < offset; i++)
-            {
-                for (int j = -offset; j < offset; j++)
-                {
-                    float cost = 0;
-                    int count = 0;
- 
-                    for (int x = 0; x < image.Width; x++)
-                    {
-                        for (int y = 0; y < image.Height; y++)
-                        {
-                            if (mask != null && mask[x, y] == 0) continue;
-
-                            var pixel1 = image[x, y];
-                            var pixel2 = image2[x+i, y+j];
-
-                            cost += ColorRGB.SqrDistance(pixel1, pixel2);
-                            count++;
-                        }
-                    }
-
-                    if (count == 0) continue;
-                    cost /= count;
-
-                    if (cost < bestCost)
-                    {
-                        bestCost = cost;
-                        bestOffset = new Point2i(i, j);
-                    }
-                }
-            }
-
-            return (bestOffset, bestCost);
-        }
-
-        public (Exemplar, Point2i) FindBestMatch(ColorImage2D image, GreyScaleImage2D mask, int maxOffset)
+        public (Exemplar, Point2i) FindBestMatch(ColorImage2D image, BinaryImage2D mask, int maxOffset)
         {
             Exemplar bestMatch = null;
             float bestCost = float.PositiveInfinity;
@@ -132,7 +92,7 @@ namespace ImageProcessing.Synthesis
                     {
                         for (int y = 0; y < exemplar.Height; y++)
                         {
-                            if (mask != null && mask[x, y] == 0) continue;
+                            if (mask != null && !mask[x, y]) continue;
 
                             var pixel1 = image[x, y];
                             var pixel2 = exemplar[x, y];
@@ -163,117 +123,44 @@ namespace ImageProcessing.Synthesis
             return (bestMatch, bestOffset);
         }
 
-        public (Exemplar, Point2i) FindBestMatch(ColorImage2D image, BinaryImage2D mask)
+        private (Point2i, float) FindBestOffset(ColorImage2D image, ColorImage2D image2, BinaryImage2D mask, int offset)
         {
-            Exemplar bestMatch = null;
-            float bestCost = float.PositiveInfinity;
             Point2i bestOffset = new Point2i();
+            float bestCost = float.PositiveInfinity;
 
-            foreach (var exemplar in Exemplars)
+            for (int i = -offset; i < offset; i++)
             {
-                if (exemplar.Image == image)
-                    continue;
-
-                if (exemplar.Used > 0)
-                    continue;
-
-                float cost = 0;
-                int count = 0;
-                Point2i offset = new Point2i();
-
-                for (int x = 0; x < exemplar.Width; x++)
+                for (int j = -offset; j < offset; j++)
                 {
-                    for (int y = 0; y < exemplar.Height; y++)
+                    float cost = 0;
+                    int count = 0;
+
+                    for (int x = 0; x < image.Width; x++)
                     {
-                        if (mask != null && !mask[x, y]) continue;
+                        for (int y = 0; y < image.Height; y++)
+                        {
+                            if (mask != null && !mask[x, y]) continue;
 
-                        var pixel1 = image[x, y];
-                        var pixel2 = exemplar[x, y];
+                            var pixel1 = image[x, y];
+                            var pixel2 = image2[x + i, y + j];
 
-                        cost += ColorRGB.SqrDistance(pixel1, pixel2);
-                        count++;
+                            cost += ColorRGB.SqrDistance(pixel1, pixel2);
+                            count++;
+                        }
+                    }
+
+                    if (count == 0) continue;
+                    cost /= count;
+
+                    if (cost < bestCost)
+                    {
+                        bestCost = cost;
+                        bestOffset = new Point2i(i, j);
                     }
                 }
-
-                if (count == 0) continue;
-                cost /= count;
-
-                if (cost < bestCost)
-                {
-                    bestCost = cost;
-                    bestMatch = exemplar;
-                    bestOffset = offset;
-                }
             }
 
-            return (bestMatch, bestOffset);
-        }
-
-        public Exemplar FindBestMatch(ColorImage2D image, GreyScaleImage2D mask, Exemplar[,] previous, Point2i current, Point2i start)
-        {
-            Exemplar match = null;
-            float cost = float.PositiveInfinity;
-
-            foreach (var exemplar in Exemplars)
-            {
-                if (IsNeighbour(exemplar, previous, current))
-                    continue;
-
-                if (exemplar.Used > 0)
-                    continue;
-
-                float c = 0;
-                int count = 0;
-
-                for (int x = 0; x < exemplar.Width; x++)
-                {
-                    for (int y = 0; y < exemplar.Height; y++)
-                    {
-                        int i = start.x + x;
-                        int j = start.y + y;
-
-                        if (mask != null && mask.GetValue(i, j, WRAP_MODE.WRAP) == 0) continue;
-
-                        var pixel1 = image.GetPixel(i, j, WRAP_MODE.WRAP);
-                        var pixel2 = exemplar[x, y];
-
-                        c += ColorRGB.SqrDistance(pixel1, pixel2);
-                        count++;
-                    }
-                }
-
-                if (count == 0) continue;
-
-                c /= count;
-
-                if (c < cost)
-                {
-                    cost = c;
-                    match = exemplar;
-                }
-            }
-
-            return match;
-        }
-
-        private bool IsNeighbour(Exemplar exemplar, Exemplar[,] previous, Point2i current)
-        {
-            int width = previous.GetLength(0);
-            int height = previous.GetLength(1);
-
-            for(int i = 0; i < 4; i++)
-            {
-                int x = current.x + D4.OFFSETS[i, 0];
-                int y = current.y + D4.OFFSETS[i, 1];
-
-                x = MathUtil.Wrap(x, width);
-                y = MathUtil.Wrap(y, height);
-
-                if (previous[x, y] == exemplar)
-                    return true;
-            }
-
-            return false;
+            return (bestOffset, bestCost);
         }
 
         public void CreateExemplarFromCrop(ColorImage2D image)

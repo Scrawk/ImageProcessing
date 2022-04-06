@@ -5,6 +5,7 @@ using Common.Core.Colors;
 using Common.Core.Numerics;
 using Common.Core.Shapes;
 using Common.Core.Directions;
+using Common.Core.Threading;
 using Common.GraphTheory.GridGraphs;
 
 using ImageProcessing.Images;
@@ -29,15 +30,12 @@ namespace ImageProcessing.Synthesis
 			TileCount = numHColors * numHColors * numVColors * numVColors;
 
 			TileSize = tileSize;
-			BorderSize = 8;
 
 		}
 
 		public int TileCount { get; private set; }
 
 		public int TileSize { get; private set; }
-
-		public int BorderSize { get; private set; }
 
 		public int NumHColors { get; private set; }
 
@@ -59,13 +57,13 @@ namespace ImageProcessing.Synthesis
 			ColorRGB.Yellow
 		};
 
-		public void Test(ColorImage2D source)
+		public void CreateTiles(ColorImage2D source, int seed)
 		{
 
 			var exemplarSet = new ExemplarSet(TileSize);
-			exemplarSet.CreateExemplarFromRandom(source, 0, 32);
+			exemplarSet.CreateExemplarFromRandom(source, seed, 32);
 
-			var exemplars = exemplarSet.GetRandomExemplars(Math.Max(NumHColors, NumVColors), 0);
+			var exemplars = exemplarSet.GetRandomExemplars(Math.Max(NumHColors, NumVColors) + 4, seed);
 
 			var tilables = new List<ColorImage2D>();
 
@@ -88,26 +86,25 @@ namespace ImageProcessing.Synthesis
 
 			CreateTiles();
 
-			for (int i = 0; i < Tiles.Length; i++)
+			ThreadingBlock1D.ParallelAction(Tiles.Length, 2, i =>
 			{
 				var tile = Tiles[i];
 				tile.CreateMap();
 				tile.CreateMask();
 				tile.FillImage(tilables);
 
-				ImageSynthesis.Test(tile, exemplarSet);
-	
-				//tile.ColorEdges(BorderSize, Colors, 0.5f);
-			}
+				Console.WriteLine("Creating " + tile);
 
+				ImageSynthesis.CreateTileImage(tile, exemplarSet);
+
+				//tile.ColorEdges(4, Colors, 0.25f);
+			});
+		}
+
+		public ColorImage2D CreateOrthogonalCompaction()
+        {
 			var compaction = OrthogonalCompaction();
-
-			var image = CreateImage(compaction);
-
-			Console.WriteLine(image);
-
-			image.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Image.raw");
-
+			return CreateImage(compaction);
 		}
 
 		int GetIndex(int e0, int e1, int e2, int e3)
@@ -141,13 +138,13 @@ namespace ImageProcessing.Synthesis
 			}
 		}
 
-		private WangTile[,] OrthogonalCompaction()
+		private int[,] OrthogonalCompaction()
 		{
 
 			int width = NumHColors * NumHColors;
 			int height = NumVColors * NumVColors;
 
-			var result = new WangTile[width, height];
+			var result = new int[width, height];
 
 			var travelHEdges = TravelEdges(0, NumHColors - 1);
 			var travelVEdges = TravelEdges(0, NumVColors - 1);
@@ -168,9 +165,7 @@ namespace ImageProcessing.Synthesis
 					int e3 = travelHEdges[hIndex0];
 					
 					int index = GetIndex(e0, e1, e2, e3);
-					var tile = Tiles[index];
-
-					result[x, y] = tile.Copy();
+					result[x, y] = index;
 				}
 			}
 
@@ -216,7 +211,7 @@ namespace ImageProcessing.Synthesis
 			}
 		}
 
-		private ColorImage2D CreateImage(WangTile[,] compaction)
+		private ColorImage2D CreateImage(int[,] compaction)
 		{
 
 			int numTilesY = compaction.GetLength(1);
@@ -231,8 +226,7 @@ namespace ImageProcessing.Synthesis
 			{
 				for (int y = 0; y < numTilesY; y++)
 				{
-					int idx = GetIndex(NumHColors, NumVColors, compaction[x, y]);
-
+					int idx = compaction[x, y];
 					var tile = Tiles[idx];
 
 					for (int i = 0; i < TileSize; i++)

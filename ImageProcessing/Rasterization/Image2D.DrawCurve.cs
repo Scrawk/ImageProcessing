@@ -12,7 +12,7 @@ namespace ImageProcessing.Images
     {
         private const float StepFactor = 2;
 
-        public void DrawCurve(Bezier2f curve, ColorRGBA color, WRAP_MODE mode = WRAP_MODE.NONE)
+        public void DrawCurve(Bezier2f curve, ColorRGBA color, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             // Determine distances between controls points (bounding rect) to find the optimal stepsize
             var box = Box2f.CalculateBounds(curve.Control);
@@ -56,13 +56,13 @@ namespace ImageProcessing.Images
                     ty2 = (int)Math.Round(p.y);
 
                     // Draw line
-                    DrawLine(tx1, ty1, tx2, ty2, color, mode);
+                    DrawLine(tx1, ty1, tx2, ty2, color, mask, mode);
                     tx1 = tx2;
                     ty1 = ty2;
                 }
 
                 // Prevent rounding gap
-                DrawLine(tx1, ty1, x2, y2, color, mode);
+                DrawLine(tx1, ty1, x2, y2, color, mask, mode);
             }
         }
     }

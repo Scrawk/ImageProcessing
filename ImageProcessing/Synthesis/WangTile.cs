@@ -143,7 +143,6 @@ namespace ImageProcessing.Synthesis
 
 			if (wEdge != sEdge)
 				Mask.DrawLine(mid, new Point2i(0, Size), ColorRGBA.White);
-			
 
 			Mask = BinaryImage2D.Dilate(Mask, 5);
 

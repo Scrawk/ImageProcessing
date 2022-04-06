@@ -7,6 +7,7 @@ using Common.Core.Numerics;
 using Common.Core.Colors;
 using Common.Core.Shapes;
 using Common.Core.Threading;
+using Common.Core.Extensions;
 
 using ImageProcessing.Pixels;
 
@@ -18,7 +19,6 @@ namespace ImageProcessing.Images
     /// <typeparam name="T">The element type</typeparam>
     public abstract partial class Image2D<T> : IImage2D
     {
-
 
         /// <summary>
         /// The number of elements in the array.
@@ -530,54 +530,6 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Convert to a greyscale image.
-        /// </summary>
-        /// <returns>The greayscale image.</returns>
-        public GreyScaleImage2D ToGreyScaleImage()
-        {
-            var image = new GreyScaleImage2D(Width, Height);
-
-            image.Iterate((x, y) =>
-            {
-                SetPixel(x, y, GetPixel(x, y));
-            });
-
-            return image;
-        }
-
-        /// <summary>
-        /// Convert to a binary image.
-        /// </summary>
-        /// <returns>The binary image.</returns>
-        public BinaryImage2D ToBinaryImage()
-        {
-            var image = new BinaryImage2D(Width, Height);
-
-            image.Iterate((x, y) =>
-            {
-                SetPixel(x, y, GetPixel(x, y));
-            });
-
-            return image;
-        }
-
-        /// <summary>
-        /// Convert to a color image.
-        /// </summary>
-        /// <returns>The color image.</returns>
-        public ColorImage2D ToColorImage()
-        {
-            var image = new ColorImage2D(Width, Height);
-
-            image.Iterate((x, y) =>
-            {
-                SetPixel(x, y, GetPixel(x, y));
-            });
-
-            return image;
-        }
-
-        /// <summary>
         /// Do these two images contain the the same contents.
         /// </summary>
         /// <param name="image">The other image.</param>
@@ -602,6 +554,53 @@ namespace ImageProcessing.Images
             return true;
         }
 
+        /// <summary>
+        /// Convert to a greyscale image.
+        /// </summary>
+        /// <returns>The greayscale image.</returns>
+        public GreyScaleImage2D ToGreyScaleImage()
+        {
+            var copy = new GreyScaleImage2D(Width, Height);
+            copy.Iterate((x, y) =>
+            {
+                var pixel = GetPixel(x, y);
+                copy.SetPixel(x, y, pixel);
+            });
+
+            return copy;
+        }
+
+        /// <summary>
+        /// Convert to a binary image.
+        /// </summary>
+        /// <returns>The binary image.</returns>
+        public BinaryImage2D ToBinaryImage()
+        {
+            var copy = new BinaryImage2D(Width, Height);
+            copy.Iterate((x, y) =>
+            {
+                var pixel = GetPixel(x, y);
+                copy.SetPixel(x, y, pixel);
+            });
+
+            return copy;
+        }
+
+        /// <summary>
+        /// Convert to a color image.
+        /// </summary>
+        /// <returns>The color image.</returns>
+        public ColorImage2D ToColorImage()
+        {
+            var copy = new ColorImage2D(Width, Height);
+            copy.Iterate((x, y) =>
+            {
+                var pixel = GetPixel(x, y);
+                copy.SetPixel(x, y, pixel);
+            });
+
+            return copy;
+        }
 
     }
 }

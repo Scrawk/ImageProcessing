@@ -33,7 +33,7 @@ namespace ImageProcessing.Synthesis
             var cutBounds = new Box2i(cutOffset, cutOffset, width - 1 - cutOffset, height - 1 - cutOffset);
             var sinkBounds = new Box2i(sinkOffsetX, sinkOffsetY, width - 1 - sinkOffsetX, height - 1 - sinkOffsetY);
 
-            var mask = new GreyScaleImage2D(width, height);
+            var mask = new BinaryImage2D(width, height);
             mask.DrawBox(cutBounds, ColorRGBA.White, true);
             mask.DrawBox(sinkBounds, ColorRGBA.Black, true);
 
@@ -50,24 +50,24 @@ namespace ImageProcessing.Synthesis
             var graph = CreateGraph(tileable, mask, match, cutBounds, sinkBounds);
             var cost = PerformGraphCut(graph, tileable, match, cutOffset);
 
-            var points = graph.FindBoundaryPoints();
-            BlurSeams(tileable, points, cutOffset);
+            BlurSeams(tileable, graph, cutOffset);
 
             return (tileable, cost);
         }
 
-        public static void Test(WangTile tile, ExemplarSet set)
+        public static void CreateTileImage(WangTile tile, ExemplarSet set)
         {
             if(tile.IsConst)
                 return;   
 
             int width = tile.Size;
             int height = tile.Size;
+            int sinkOffset = 20;
             var map = tile.Map;
             var mask = tile.Mask;
 
             var sourceBounds = new Box2i(0, 0, width - 1, height - 1);
-            var sinkBounds = new Box2i(20, 20, width - 1 - 20, height - 1 - 20);
+            var sinkBounds = new Box2i(sinkOffset, sinkOffset, width - 1 - sinkOffset, height - 1 - sinkOffset);
 
             foreach (var p in sourceBounds.EnumeratePerimeter())
             {
@@ -79,27 +79,27 @@ namespace ImageProcessing.Synthesis
                 mask[p.x, p.y] = true;
             }
 
-            var pair = set.FindBestMatch(tile.Image, mask);
-            //pair.Item1.IncrementUsed();
+            var pair = set.FindBestMatch(tile.Image, mask, 0);
 
+            if (pair.Item1 == null)
+                return;
+
+            pair.Item1.IncrementUsed();
             var match = pair.Item1.Image;
+            var image = tile.Image;
 
-            var graph = CreateGraph(tile.Image, match, mask, map);
+            var graph = CreateGraph(image, match, mask, sourceBounds, sinkBounds);
 
             graph.Calculate();
 
-            var image = tile.Image;
-
             image.Iterate((x, y) =>
             {
-                //if (graph.IsSource(x, y))
-                //    image[x, y] = ColorRGB.Red;
-                //else if (graph.IsSink(x, y))
-                //    image[x, y] = ColorRGB.Green;
-
                 if (graph.IsSink(x, y))
                     image[x, y] = match[x, y];
             });
+
+            BlurSeams(tile, graph);
+
         }
 
         private static void BlurSeams(ColorImage2D image, Segment2f horzontal, Segment2f vertical)
@@ -120,13 +120,13 @@ namespace ImageProcessing.Synthesis
             image.Fill(blurred);
         }
 
-        private static void BlurSeams(ColorImage2D image, List<Point2i> points, int offset)
+        private static void BlurSeams(ColorImage2D image, GridFlowGraph graph, int offset)
         {
             int width = image.Width;
             int height = image.Height;
-
             var binary = new BinaryImage2D(width, height);
 
+            var points = graph.FindBoundaryPoints();
             foreach (var p in points)
                 binary[p.x + offset, p.y + offset] = true;
 
@@ -137,6 +137,62 @@ namespace ImageProcessing.Synthesis
 
             var blurred = ColorImage2D.GaussianBlur(image, 0.5f, null, mask, WRAP_MODE.WRAP);
             image.Fill(blurred);
+        }
+
+        private static void BlurSeams(WangTile tile, GridFlowGraph graph)
+        {
+            var image = tile.Image; 
+            int width = image.Width;
+            int height = image.Height;
+            var binary = new BinaryImage2D(width, height);
+
+            var points = graph.FindBoundaryPoints();
+            foreach (var p in points)
+                binary[p.x, p.y] = true;
+
+            DrawEdgeLines(tile, binary, graph);
+
+            binary = BinaryImage2D.Dilate(binary, 2);
+
+            var mask = binary.ToGreyScaleImage();
+            mask = GreyScaleImage2D.GaussianBlur(mask, 0.5f, null, null, WRAP_MODE.WRAP);
+
+            var blurred = ColorImage2D.GaussianBlur(image, 0.5f, null, mask, WRAP_MODE.WRAP);
+            image.Fill(blurred);
+        }
+
+        private static void DrawEdgeLines(WangTile tile, BinaryImage2D binary, GridFlowGraph graph)
+        {
+            int Size = tile.Size;
+
+            var mask = CreateMaskFromSink(graph);
+
+            var mid = new Point2i(Size / 2, Size / 2);
+
+            if (tile.sEdge != tile.eEdge)
+                binary.DrawLine(mid, new Point2i(Size, Size), ColorRGBA.White, mask);
+
+            if (tile.eEdge != tile.nEdge)
+                binary.DrawLine(mid, new Point2i(Size, 0), ColorRGBA.White, mask);
+
+            if (tile.nEdge != tile.wEdge)
+                binary.DrawLine(mid, new Point2i(0, 0), ColorRGBA.White, mask);
+
+            if (tile.wEdge != tile.sEdge)
+                binary.DrawLine(mid, new Point2i(0, Size), ColorRGBA.White, mask);
+        }
+
+        private static GreyScaleImage2D CreateMaskFromSink(GridFlowGraph graph)
+        {
+            var mask = new GreyScaleImage2D(graph.Width, graph.Height);
+
+            graph.Iterate((x, y) =>
+            {
+                if (!graph.IsSink(x, y))
+                    mask[x, y] = 1.0f;
+            });
+
+            return mask;
         }
 
         private static float PerformGraphCut(GridFlowGraph graph, ColorImage2D image, ColorImage2D match, int cutOffset)
@@ -166,7 +222,7 @@ namespace ImageProcessing.Synthesis
             return cost;
         }
 
-        private static GridFlowGraph CreateGraph(ColorImage2D image, GreyScaleImage2D mask, ColorImage2D match, Box2i cutBounds, Box2i sinkBounds)
+        private static GridFlowGraph CreateGraph(ColorImage2D image, BinaryImage2D mask, ColorImage2D match, Box2i cutBounds, Box2i sinkBounds)
         {
             int cutOffset = cutBounds.Min.x;
             var graph = new GridFlowGraph(cutBounds.Width + 1, cutBounds.Height + 1);
@@ -176,7 +232,7 @@ namespace ImageProcessing.Synthesis
                 int xo = x + cutOffset;
                 int yo = y + cutOffset;
 
-                if (mask[xo, yo] != 0)
+                if (mask[xo, yo])
                 {
                     var col1 = match[xo, yo];
                     var col2 = image[xo, yo];
@@ -190,7 +246,7 @@ namespace ImageProcessing.Synthesis
 
                         if (xi < 0 || xi >= graph.Width) continue;
                         if (yi < 0 || yi >= graph.Height) continue;
-                        if (mask[xi, yi] == 0) continue;
+                        if (!mask[xi, yi]) continue;
 
                         var col1i = match[xi, yi];
                         var col2i = image[xi, yi];
@@ -221,12 +277,9 @@ namespace ImageProcessing.Synthesis
             return graph;
         }
 
-        private static GridFlowGraph CreateGraph(ColorImage2D image1, ColorImage2D image2, BinaryImage2D mask, GreyScaleImage2D map)
+        private static GridFlowGraph CreateGraph(ColorImage2D image1, ColorImage2D image2, BinaryImage2D mask, Box2i sourceBounds, Box2i sinkBounds)
         {
             var graph = new GridFlowGraph(image1.Width, image1.Height);
-
-            var sourceBounds = new Box2i(0, 0, graph.Width - 1, graph.Height - 1);
-            var sinkBounds = new Box2i(20, 20, graph.Width - 1 - 20, graph.Height - 1 - 20);
 
             graph.Iterate((x, y) =>
             {

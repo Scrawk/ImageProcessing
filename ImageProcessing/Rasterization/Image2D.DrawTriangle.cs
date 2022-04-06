@@ -9,29 +9,29 @@ namespace ImageProcessing.Images
 {
     public partial class Image2D<T>
     {
-        public void DrawTriangle(Triangle2f triangle, ColorRGBA color, bool filled, WRAP_MODE mode = WRAP_MODE.NONE)
+        public void DrawTriangle(Triangle2f triangle, ColorRGBA color, bool filled, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.NONE)
         {
-            DrawTriangle(triangle.A, triangle.B, triangle.C, color, filled);
+            DrawTriangle(triangle.A, triangle.B, triangle.C, color, filled, mask, mode);
         }
 
-        public void DrawTriangle(Point2f a, Point2f b, Point2f c, ColorRGBA color, bool filled, WRAP_MODE mode = WRAP_MODE.NONE)
+        public void DrawTriangle(Point2f a, Point2f b, Point2f c, ColorRGBA color, bool filled, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             if (filled)
             {
-                DrawFilledTriangle(a, b, c, color, mode);
+                DrawFilledTriangle(a, b, c, color, mask, mode);
             }
             else
             {
-                DrawLine(a, b, color, mode);
-                DrawLine(b, c, color, mode);
-                DrawLine(c, a, color, mode);
+                DrawLine(a, b, color, mask, mode);
+                DrawLine(b, c, color, mask, mode);
+                DrawLine(c, a, color, mask, mode);
             }
         }
 
         /// <summary>
         /// http://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
         /// </summary>
-        private void DrawFilledTriangle(Point2f a, Point2f b, Point2f c, ColorRGBA color, WRAP_MODE mode)
+        private void DrawFilledTriangle(Point2f a, Point2f b, Point2f c, ColorRGBA color, GreyScaleImage2D mask, WRAP_MODE mode)
         {
             int width1 = Width - 1;
             int height1 = Height - 1;
@@ -53,7 +53,7 @@ namespace ImageProcessing.Images
                     var bc = triangle.Barycentric(new Point2f(x, y));
 
                     if (bc.x >= 0 && bc.y >= 0 && bc.z >= 0)
-                        SetPixel(x, y, color, mode);
+                        SetPixel(x, y, color, mask, mode);
                 }
             }
         }

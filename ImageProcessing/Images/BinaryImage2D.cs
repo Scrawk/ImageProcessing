@@ -235,7 +235,7 @@ namespace ImageProcessing.Images
         /// <returns>The pixel at index x,y.</returns>
         public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            var value = GetValue(x, y, mode) ? 1.0f : 0.0f; ;
+            var value = GetValue(x, y, mode) ? 1.0f : 0.0f;
             return new ColorRGB(value);
         }
 
@@ -300,6 +300,7 @@ namespace ImageProcessing.Images
 
             return copy;
         }
+
     }
 
 }
