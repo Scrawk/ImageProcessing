@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Common.Core.Colors;
 using Common.Core.Numerics;
 using Common.Core.Shapes;
-using Common.Core.Directions;
+using Common.Core.Extensions;
 using Common.Core.Threading;
 using Common.GraphTheory.GridGraphs;
 
@@ -57,7 +57,7 @@ namespace ImageProcessing.Synthesis
 			ColorRGB.Yellow
 		};
 
-		public void CreateTiles(ColorImage2D source, int seed)
+		public void CreateTiles(ColorImage2D source, int seed, bool addEdgeColors = false)
 		{
 
 			var exemplarSet = new ExemplarSet(TileSize);
@@ -65,7 +65,7 @@ namespace ImageProcessing.Synthesis
 
 			var exemplars = exemplarSet.GetRandomExemplars(Math.Max(NumHColors, NumVColors) + 4, seed);
 
-			var tilables = new List<ColorImage2D>();
+			var pairs = new List<ValueTuple<ColorImage2D, float>>();
 
 			for (int i = 0; i < exemplars.Count; i++)
 			{
@@ -74,45 +74,60 @@ namespace ImageProcessing.Synthesis
 				var pair = ImageSynthesis.MakeTileable(exemplar.Image, exemplarSet);
 
 				var tileable = pair.Item1;
-				//var cost = pair.Item2;
+				var cost = pair.Item2;
 
-				tilables.Add(tileable);
+				pairs.Add(pair);
 
-				tileable.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/tileable" + i + ".raw");
+				//tileable.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/tileable" + i + ".raw");
             }
 
-			Console.WriteLine(this);
-			Console.WriteLine(exemplarSet);
+			pairs.Sort((a,b) => a.Item2.CompareTo(b.Item2));
+
+			var tilables = new List<ColorImage2D>();
+			for(int i = 0; i < pairs.Count; i++)
+            {
+				tilables.Add(pairs[i].Item1);
+            }
+
+			//Console.WriteLine(this);
+			//Console.WriteLine(exemplarSet);
 
 			CreateTiles();
 
-			ThreadingBlock1D.ParallelAction(Tiles.Length, 2, i =>
+			for(int i = 0; i < TileCount; i++)
 			{
 				var tile = Tiles[i];
 				tile.CreateMap();
 				tile.CreateMask();
 				tile.FillImage(tilables);
 
-				Console.WriteLine("Creating " + tile);
+				//Console.WriteLine("Creating " + tile);
 
 				ImageSynthesis.CreateTileImage(tile, exemplarSet);
 
-				//tile.ColorEdges(4, Colors, 0.25f);
-			});
+				if(addEdgeColors)
+					tile.ColorEdges(4, Colors, 0.25f);
+			}
 		}
 
-		public ColorImage2D CreateOrthogonalCompaction()
+		public ColorImage2D CreateOrthogonalTiling()
         {
-			var compaction = OrthogonalCompaction();
-			return CreateImage(compaction);
+			var tiling = OrthogonalTiling();
+			return CreateImage(tiling);
 		}
 
-		int GetIndex(int e0, int e1, int e2, int e3)
+		public ColorImage2D CreateSequentialTiling(int numHTiles, int numVTiles, int seed)
+		{
+			var tileing = SequentialTiling(numHTiles, numVTiles, seed);
+			return CreateImage(tileing);
+		}
+
+		private int GetIndex(int e0, int e1, int e2, int e3)
 		{
 			return (e0 * (NumHColors * NumVColors * NumHColors) + e1 * (NumVColors * NumHColors) + e2 * (NumHColors) + e3);
 		}
 
-		public int GetIndex(int numHColors, int numVColors, WangTile tile)
+		private int GetIndex(int numHColors, int numVColors, WangTile tile)
 		{
 			return (tile.sEdge * (numHColors * numVColors * numHColors) + tile.eEdge * (numVColors * numHColors) + tile.nEdge * (numHColors) + tile.wEdge);
 		}
@@ -138,7 +153,106 @@ namespace ImageProcessing.Synthesis
 			}
 		}
 
-		private int[,] OrthogonalCompaction()
+		private int[,] SequentialTiling(int numHTiles, int numVTiles, int seed)
+		{
+
+			var edges = new Index4[numHTiles, numVTiles];
+			edges.Fill((x,y) => new Index4(-1,-1,-1,-1));
+
+			var indices = new int[numHTiles, numVTiles];
+			indices.Fill(-1);
+
+			var rnd = new Random(seed);
+
+			for (int j = 0; j < numVTiles; j++)
+			{
+				for (int i = 0; i < numHTiles; i++)
+				{
+					var possible = GetPossibleTiles(i, j, edges);
+
+					var count = possible.Count;
+					if (count == 0) continue;
+
+					int e0 = edges.GetWrapped(i, j - 1)[2];
+					int e1 = edges.GetWrapped(i + 1, j)[3];
+					int e2 = edges.GetWrapped(i, j + 1)[0];
+					int e3 = edges.GetWrapped(i - 1, j)[1];
+
+					int attempts = 0;
+					Index4 index = new Index4();
+
+					while (attempts++ < 10)
+					{
+						index = possible[rnd.Next(0, count)];
+	
+						if (e0 != -1) index[0] = e0;
+						if (e1 != -1) index[1] = e1;
+						if (e2 != -1) index[2] = e2;
+						if (e3 != -1) index[3] = e3;
+
+						if (possible.Contains(index))
+							break;
+					}
+
+					edges[i, j] = index;
+					indices[i, j] = GetIndex(index[2], index[1], index[0], index[3]);
+				}
+			}
+
+			return indices;
+		}
+
+		private List<Index4> GetPossibleTiles(int i, int j, Index4[,] edges)
+        {
+			var list = new List<Index4>();
+
+			for (int e0 = 0; e0 < NumVColors; e0++)
+			{
+				for (int e1 = 0; e1 < NumHColors; e1++)
+				{
+					for (int e2 = 0; e2 < NumVColors; e2++)
+					{
+						for (int e3 = 0; e3 < NumHColors; e3++)
+						{
+							var index = new Index4(e0, e1, e2, e3);
+
+							if (AreSame(index, i - 1, j, edges)) continue;
+							if (AreSame(index, i, j + 1, edges)) continue;
+							if (AreSame(index, i + 1, j, edges)) continue;
+							if (AreSame(index, i, j - 1, edges)) continue;
+
+							list.Add(index);
+						}
+					}
+				}
+			}
+
+			return list;
+		}
+
+		private bool AreSame(Index4 index, int x, int y, Index4[,] edges)
+        {
+			int nullCount = 0;
+			for(int i = 0; i < 4; i++)
+            {
+				int e = edges.GetWrapped(x, y)[i];
+				if (e == -1)
+				{
+					nullCount++;
+					continue;
+				}
+
+				if(e != index[i]) return false;
+            }
+
+			if (nullCount == 4)
+				return false;
+			else
+				return true;
+        }
+
+
+		private int[,] OrthogonalTiling()
 		{
 
 			int width = NumHColors * NumHColors;
@@ -211,11 +325,11 @@ namespace ImageProcessing.Synthesis
 			}
 		}
 
-		private ColorImage2D CreateImage(int[,] compaction)
+		private ColorImage2D CreateImage(int[,] tiling)
 		{
 
-			int numTilesY = compaction.GetLength(1);
-			int numTilesX = compaction.GetLength(0);
+			int numTilesY = tiling.GetLength(1);
+			int numTilesX = tiling.GetLength(0);
 
 			int height = TileSize * numTilesY;
 			int width = TileSize * numTilesX;
@@ -226,7 +340,9 @@ namespace ImageProcessing.Synthesis
 			{
 				for (int y = 0; y < numTilesY; y++)
 				{
-					int idx = compaction[x, y];
+					int idx = tiling[x, y];
+					if (idx < 0) continue;
+
 					var tile = Tiles[idx];
 
 					for (int i = 0; i < TileSize; i++)

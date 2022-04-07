@@ -68,11 +68,15 @@ namespace ImageProcessing.Console
             timer.Start();
 
             var set = new WangTileSet(2, 2, 128);
-            set.CreateTiles(source, 1);
+            set.CreateTiles(source, 0, true);
 
-            var image = set.CreateOrthogonalCompaction();
-            WriteLine(image);
-            image.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/Image.raw");
+            var orthogonalTiling = set.CreateOrthogonalTiling();
+            WriteLine(orthogonalTiling);
+            orthogonalTiling.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/OrthogonalTiling.raw");
+
+            var sequentialTiling = set.CreateSequentialTiling(4, 4, 0);
+            WriteLine(sequentialTiling);
+            sequentialTiling.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/SequentialTiling.raw");
 
             timer.Stop();
             WriteLine("Done in " + timer.ElapsedSeconds);

@@ -28,7 +28,7 @@ namespace ImageProcessing.Synthesis
 
             var horzontalLine = new Segment2f(0, height / 2, width, height / 2);
             var verticalLine = new Segment2f(width / 2, 0, width / 2, height);
-            BlurSeams(tileable, horzontalLine, verticalLine);
+            BlurSeams(tileable, horzontalLine, verticalLine, 0.5f);
 
             var cutBounds = new Box2i(cutOffset, cutOffset, width - 1 - cutOffset, height - 1 - cutOffset);
             var sinkBounds = new Box2i(sinkOffsetX, sinkOffsetY, width - 1 - sinkOffsetX, height - 1 - sinkOffsetY);
@@ -50,7 +50,7 @@ namespace ImageProcessing.Synthesis
             var graph = CreateGraph(tileable, mask, match, cutBounds, sinkBounds);
             var cost = PerformGraphCut(graph, tileable, match, cutOffset);
 
-            BlurSeams(tileable, graph, cutOffset);
+            BlurSeams(tileable, graph, cutOffset, 0.5f);
 
             return (tileable, cost);
         }
@@ -63,21 +63,16 @@ namespace ImageProcessing.Synthesis
             int width = tile.Size;
             int height = tile.Size;
             int sinkOffset = 20;
-            var map = tile.Map;
             var mask = tile.Mask;
 
             var sourceBounds = new Box2i(0, 0, width - 1, height - 1);
             var sinkBounds = new Box2i(sinkOffset, sinkOffset, width - 1 - sinkOffset, height - 1 - sinkOffset);
 
             foreach (var p in sourceBounds.EnumeratePerimeter())
-            {
                 mask[p.x,p.y] = true;
-            }
 
             foreach (var p in sinkBounds.EnumerateBounds())
-            {
                 mask[p.x, p.y] = true;
-            }
 
             var pair = set.FindBestMatch(tile.Image, mask, 0);
 
@@ -98,11 +93,11 @@ namespace ImageProcessing.Synthesis
                     image[x, y] = match[x, y];
             });
 
-            BlurSeams(tile, graph);
+            BlurSeamsAndEdgeLines(tile, graph, 0.75f);
 
         }
 
-        private static void BlurSeams(ColorImage2D image, Segment2f horzontal, Segment2f vertical)
+        private static void BlurSeams(ColorImage2D image, Segment2f horzontal, Segment2f vertical, float strength)
         {
             int width = image.Width;
             int height = image.Height;
@@ -116,11 +111,11 @@ namespace ImageProcessing.Synthesis
             var mask = binary.ToGreyScaleImage();
             mask = GreyScaleImage2D.GaussianBlur(mask, 0.5f, null, null, WRAP_MODE.WRAP);
 
-            var blurred = ColorImage2D.GaussianBlur(image, 0.5f, null, mask, WRAP_MODE.WRAP);
+            var blurred = ColorImage2D.GaussianBlur(image, strength, null, mask, WRAP_MODE.WRAP);
             image.Fill(blurred);
         }
 
-        private static void BlurSeams(ColorImage2D image, GridFlowGraph graph, int offset)
+        private static void BlurSeams(ColorImage2D image, GridFlowGraph graph, int offset, float strength)
         {
             int width = image.Width;
             int height = image.Height;
@@ -135,11 +130,11 @@ namespace ImageProcessing.Synthesis
             var mask = binary.ToGreyScaleImage();
             mask = GreyScaleImage2D.GaussianBlur(mask, 0.5f, null, null, WRAP_MODE.WRAP);
 
-            var blurred = ColorImage2D.GaussianBlur(image, 0.5f, null, mask, WRAP_MODE.WRAP);
+            var blurred = ColorImage2D.GaussianBlur(image, strength, null, mask, WRAP_MODE.WRAP);
             image.Fill(blurred);
         }
 
-        private static void BlurSeams(WangTile tile, GridFlowGraph graph)
+        private static void BlurSeamsAndEdgeLines(WangTile tile, GridFlowGraph graph, float strength)
         {
             var image = tile.Image; 
             int width = image.Width;
@@ -157,7 +152,7 @@ namespace ImageProcessing.Synthesis
             var mask = binary.ToGreyScaleImage();
             mask = GreyScaleImage2D.GaussianBlur(mask, 0.5f, null, null, WRAP_MODE.WRAP);
 
-            var blurred = ColorImage2D.GaussianBlur(image, 0.5f, null, mask, WRAP_MODE.WRAP);
+            var blurred = ColorImage2D.GaussianBlur(image, strength, null, mask, WRAP_MODE.WRAP);
             image.Fill(blurred);
         }
 

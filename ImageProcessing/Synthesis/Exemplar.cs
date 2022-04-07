@@ -37,6 +37,12 @@ namespace ImageProcessing.Synthesis
 
         private Exemplar Original {  get; set; }
 
+        public override string ToString()
+        {
+            return String.Format("[Exemplar: Width={0}, Height={1}, Used={2}, IsVariant={3}]",
+                Width, Height, Used, IsVariant);
+        }
+
         public void IncrementUsed()
         {
             Used++;
