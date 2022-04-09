@@ -43,6 +43,8 @@ namespace ImageProcessing.Synthesis
 
 		private WangTile[] Tiles { get; set; }
 
+		private WangTile[,] Tiles2 { get; set; }
+
 		public override string ToString()
 		{
 			return String.Format("[WangTileSet: NumHColors={0}, NumVColors={1}, TileCount={2}, TileSize={3}]", 
@@ -59,7 +61,7 @@ namespace ImageProcessing.Synthesis
 
 		public void CreateTiles(ColorImage2D source, int seed, bool addEdgeColors = false)
 		{
-
+			
 			var exemplarSet = new ExemplarSet(TileSize);
 			exemplarSet.CreateExemplarFromRandom(source, seed, 32);
 
@@ -89,8 +91,8 @@ namespace ImageProcessing.Synthesis
 				tilables.Add(pairs[i].Item1);
             }
 
-			//Console.WriteLine(this);
-			//Console.WriteLine(exemplarSet);
+			Console.WriteLine(this);
+			Console.WriteLine(exemplarSet);
 
 			CreateTiles();
 
@@ -103,17 +105,19 @@ namespace ImageProcessing.Synthesis
 
 				Console.WriteLine("Creating " + tile);
 
-				ImageSynthesis.CreateTileImage(tile, exemplarSet);
+				//ImageSynthesis.CreateTileImage(tile, exemplarSet);
 
 				if(addEdgeColors)
 					tile.ColorEdges(4, Colors, 0.25f);
 			}
+			
 		}
 
 		public ColorImage2D CreateTilesImage()
         {
 			var tiling = OrthogonalTiling();
-			return CreateTileImage(tiling);
+			RepackTiles(tiling);
+			return CreateTileImage(Tiles2);
 		}
 
 		public ColorImage2D CreateTileMappingImage(int numHTiles, int numVTiles, int seed)
@@ -136,6 +140,8 @@ namespace ImageProcessing.Synthesis
         {
 			Tiles = new WangTile[TileCount];
 
+			Tiles2 = new WangTile[NumHColors* NumHColors, NumVColors* NumVColors];
+
 			int index = 0;
 			for (int sEdge = 0; sEdge < NumVColors; sEdge++)
 			{
@@ -145,12 +151,40 @@ namespace ImageProcessing.Synthesis
 					{
 						for (int wEdge = 0; wEdge < NumHColors; wEdge++)
 						{
+							//index == GetIndex(sEdge, eEdge, nEdge, wEdge);
+
 							var tile = new WangTile(index, sEdge, eEdge, nEdge, wEdge, TileSize);
+
 							Tiles[index++] = tile;
 						}
 					}
 				}
 			}
+
+			index = 0;
+			for(int y = 0; y < Tiles2.GetLength(1); y++)
+            {
+				for (int x = 0; x < Tiles2.GetLength(0); x++)
+				{
+					Tiles2[x,y] = Tiles[index++];
+				}
+			}
+		}
+
+		private void RepackTiles(int[,] tiles)
+		{
+			WangTile[,] repacked = new WangTile[Tiles2.GetLength(0), Tiles2.GetLength(1)];
+
+			for (int y = 0; y < Tiles2.GetLength(1); y++)
+			{
+				for (int x = 0; x < Tiles2.GetLength(0); x++)
+				{
+					var idx = tiles[x,y];
+					repacked[x, y] = Tiles[idx];
+				}
+			}
+
+			Tiles2 = repacked;
 		}
 
 		private Index2[,] SequentialTiling(int numHTiles, int numVTiles, int seed)
@@ -213,10 +247,7 @@ namespace ImageProcessing.Synthesis
 
 					var index = GetIndex(e2, e1, e0, e3);
 
-					int xi = index % 4;
-					int yi = index / 4;
-
-					indices[i, j] = new Index2(xi, yi);
+					//indices[i, j] = new Index2(xi, yi);
 				}
 			}
 
@@ -346,6 +377,39 @@ namespace ImageProcessing.Synthesis
 			}
 		}
 
+		private ColorImage2D CreateTileImage(WangTile[,] tiling)
+		{
+
+			int numTilesY = tiling.GetLength(1);
+			int numTilesX = tiling.GetLength(0);
+
+			int height = TileSize * numTilesY;
+			int width = TileSize * numTilesX;
+
+			var image = new ColorImage2D(width, height);
+
+			for (int x = 0; x < numTilesX; x++)
+			{
+				for (int y = 0; y < numTilesY; y++)
+				{
+					var tile = tiling[x, y];
+
+					for (int i = 0; i < TileSize; i++)
+					{
+						for (int j = 0; j < TileSize; j++)
+						{
+							int xi = x * TileSize + i;
+							int yj = y * TileSize + j;
+
+							image[xi, yj] = tile.Image[i, j];
+						}
+					}
+				}
+			}
+
+			return image;
+		}
+
 		private ColorImage2D CreateTileImage(int[,] tiling)
 		{
 
@@ -399,7 +463,7 @@ namespace ImageProcessing.Synthesis
 				{
 					var idx = tiling[x, y];
 	
-					var tile = Tiles[idx.x + idx.y * 4];
+					//var tile = Tiles[idx.x + idx.y * 4];
 
 					for (int i = 0; i < TileSize; i++)
 					{
@@ -408,7 +472,7 @@ namespace ImageProcessing.Synthesis
 							int xi = x * TileSize + i;
 							int yj = y * TileSize + j;
 
-							image[xi, yj] = tile.Image[i, j];
+							//image[xi, yj] = tile.Image[i, j];
 						}
 					}
 				}
@@ -430,9 +494,7 @@ namespace ImageProcessing.Synthesis
 				for (int y = 0; y < height; y++)
 				{
 					var idx = tiling[x, y];
-			
-					image[x, y] = new ColorRGB(idx.x / 4.0f, idx.y / 4.0f, 0);
-
+					image[x, y] = new ColorRGB(idx.x / 16.0f, idx.y / 16.0f, 0);
 				}
 			}
 
