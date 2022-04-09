@@ -12,9 +12,8 @@ namespace ImageProcessing.Synthesis
     public class WangTile
     {
 
-		public WangTile(int index, int sEdge, int eEdge, int nEdge, int wEdge, int tileSize)
+		public WangTile(int sEdge, int eEdge, int nEdge, int wEdge, int tileSize)
 		{
-			Index = index;
 			Edges = new int[]
 			{
 				sEdge, eEdge, nEdge, wEdge
@@ -25,7 +24,9 @@ namespace ImageProcessing.Synthesis
 			Mask = new BinaryImage2D(tileSize, tileSize);
 		}
 
-		public int Index { get; private set; }
+		public int Index { get; set; }
+
+		public Index2 Index2 { get; set; }
 
 		public int sEdge => Edges[0];
 
@@ -66,7 +67,9 @@ namespace ImageProcessing.Synthesis
 
 		public WangTile Copy()
         {
-			var tile = new WangTile(Index, sEdge, eEdge, nEdge, wEdge, Size);
+			var tile = new WangTile(sEdge, eEdge, nEdge, wEdge, Size);
+			tile.Index = Index;
+			tile.Index2 = Index2;
 			tile.Image.Fill(Image);
 			tile.Map.Fill(Map);
 			tile.Mask.Fill(Mask);
