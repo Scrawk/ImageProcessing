@@ -101,7 +101,7 @@ namespace ImageProcessing.Synthesis
 				tile.CreateMask();
 				tile.FillImage(tilables);
 
-				//Console.WriteLine("Creating " + tile);
+				Console.WriteLine("Creating " + tile);
 
 				ImageSynthesis.CreateTileImage(tile, exemplarSet);
 
@@ -110,16 +110,16 @@ namespace ImageProcessing.Synthesis
 			}
 		}
 
-		public ColorImage2D CreateOrthogonalTiling()
+		public ColorImage2D CreateTilesImage()
         {
 			var tiling = OrthogonalTiling();
-			return CreateImage(tiling);
+			return CreateTileImage(tiling);
 		}
 
-		public ColorImage2D CreateSequentialTiling(int numHTiles, int numVTiles, int seed)
+		public ColorImage2D CreateTileMappingImage(int numHTiles, int numVTiles, int seed)
 		{
-			var tileing = SequentialTiling(numHTiles, numVTiles, seed);
-			return CreateImage(tileing);
+			var tiling = SequentialTiling(numHTiles, numVTiles, seed);
+			return CreateTileImage(tiling);
 		}
 
 		private int GetIndex(int e0, int e1, int e2, int e3)
@@ -153,14 +153,14 @@ namespace ImageProcessing.Synthesis
 			}
 		}
 
-		private int[,] SequentialTiling(int numHTiles, int numVTiles, int seed)
+		private Index2[,] SequentialTiling(int numHTiles, int numVTiles, int seed)
 		{
 
 			var edges = new Index4[numHTiles, numVTiles];
 			edges.Fill((x,y) => new Index4(-1,-1,-1,-1));
 
-			var indices = new int[numHTiles, numVTiles];
-			indices.Fill(-1);
+			var indices = new Index2[numHTiles, numVTiles];
+			indices.Fill((x, y) => new Index2(-1, -1));
 
 			var rnd = new Random(seed);
 
@@ -168,6 +168,7 @@ namespace ImageProcessing.Synthesis
 			{
 				for (int i = 0; i < numHTiles; i++)
 				{
+					/*
 					var possible = GetPossibleTiles(i, j, edges);
 
 					var count = possible.Count;
@@ -196,6 +197,26 @@ namespace ImageProcessing.Synthesis
 
 					edges[i, j] = index;
 					indices[i, j] = GetIndex(index[2], index[1], index[0], index[3]);
+					*/
+
+					int e0 = edges.GetWrapped(i, j - 1)[2];
+					int e1 = edges.GetWrapped(i + 1, j)[3];
+					int e2 = edges.GetWrapped(i, j + 1)[0];
+					int e3 = edges.GetWrapped(i - 1, j)[1];
+
+					if (e0 < 0) e0 = rnd.Next(0, NumVColors);
+					if (e1 < 0) e1 = rnd.Next(0, NumHColors);
+					if (e2 < 0) e2 = rnd.Next(0, NumVColors);
+					if (e3 < 0) e3 = rnd.Next(0, NumHColors);
+
+					edges[i, j] = new Index4(e0, e1, e2, e3);
+
+					var index = GetIndex(e2, e1, e0, e3);
+
+					int xi = index % 4;
+					int yi = index / 4;
+
+					indices[i, j] = new Index2(xi, yi);
 				}
 			}
 
@@ -325,7 +346,7 @@ namespace ImageProcessing.Synthesis
 			}
 		}
 
-		private ColorImage2D CreateImage(int[,] tiling)
+		private ColorImage2D CreateTileImage(int[,] tiling)
 		{
 
 			int numTilesY = tiling.GetLength(1);
@@ -353,15 +374,67 @@ namespace ImageProcessing.Synthesis
 							int yj = y * TileSize + j;
 
 							image[xi, yj] = tile.Image[i, j];
-
-							//if (tile.Mask[i, j])
-							//	image[xi, yj] = ColorRGB.White;
 						}
 					}
 				}
 			}
 
-			//image = ColorImage2D.FlipVertical(image);
+			return image;
+		}
+
+		private ColorImage2D CreateTileImage(Index2[,] tiling)
+		{
+
+			int numTilesY = tiling.GetLength(1);
+			int numTilesX = tiling.GetLength(0);
+
+			int height = TileSize * numTilesY;
+			int width = TileSize * numTilesX;
+
+			var image = new ColorImage2D(width, height);
+
+			for (int x = 0; x < numTilesX; x++)
+			{
+				for (int y = 0; y < numTilesY; y++)
+				{
+					var idx = tiling[x, y];
+	
+					var tile = Tiles[idx.x + idx.y * 4];
+
+					for (int i = 0; i < TileSize; i++)
+					{
+						for (int j = 0; j < TileSize; j++)
+						{
+							int xi = x * TileSize + i;
+							int yj = y * TileSize + j;
+
+							image[xi, yj] = tile.Image[i, j];
+						}
+					}
+				}
+			}
+
+			return image;
+		}
+
+		private ColorImage2D CreateMappingImage(Index2[,] tiling)
+		{
+
+			int width = tiling.GetLength(1);
+			int height = tiling.GetLength(0);
+
+			var image = new ColorImage2D(width, height);
+
+			for (int x = 0; x < width; x++)
+			{
+				for (int y = 0; y < height; y++)
+				{
+					var idx = tiling[x, y];
+			
+					image[x, y] = new ColorRGB(idx.x / 4.0f, idx.y / 4.0f, 0);
+
+				}
+			}
 
 			return image;
 		}

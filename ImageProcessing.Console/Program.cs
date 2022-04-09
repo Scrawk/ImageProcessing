@@ -70,11 +70,11 @@ namespace ImageProcessing.Console
             var set = new WangTileSet(2, 2, 128);
             set.CreateTiles(source, 0, true);
 
-            var orthogonalTiling = set.CreateOrthogonalTiling();
+            var orthogonalTiling = set.CreateTilesImage();
             WriteLine(orthogonalTiling);
             orthogonalTiling.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/OrthogonalTiling.raw");
 
-            var sequentialTiling = set.CreateSequentialTiling(4, 4, 0);
+            var sequentialTiling = set.CreateTileMappingImage(4, 4, 0);
             WriteLine(sequentialTiling);
             sequentialTiling.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/SequentialTiling.raw");
 
