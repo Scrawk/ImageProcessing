@@ -117,8 +117,6 @@ namespace ImageProcessing.Synthesis
 
 		public ColorImage2D CreateTilesImage()
         {
-			//var tiling = OrthogonalTiling();
-			//RepackTiles(tiling);
 			return CreateTileImage(Tiles2);
 		}
 
@@ -377,11 +375,11 @@ namespace ImageProcessing.Synthesis
 		private ColorImage2D CreateTileImage(WangTile[,] tiling)
 		{
 
-			int numTilesY = tiling.GetLength(1);
 			int numTilesX = tiling.GetLength(0);
+			int numTilesY = tiling.GetLength(1);
 
-			int height = TileSize * numTilesY;
 			int width = TileSize * numTilesX;
+			int height = TileSize * numTilesY;
 
 			var image = new ColorImage2D(width, height);
 
@@ -407,51 +405,14 @@ namespace ImageProcessing.Synthesis
 			return image;
 		}
 
-		private ColorImage2D CreateTileImage(int[,] tiling)
-		{
-
-			int numTilesY = tiling.GetLength(1);
-			int numTilesX = tiling.GetLength(0);
-
-			int height = TileSize * numTilesY;
-			int width = TileSize * numTilesX;
-
-			var image = new ColorImage2D(width, height);
-
-			for (int x = 0; x < numTilesX; x++)
-			{
-				for (int y = 0; y < numTilesY; y++)
-				{
-					int idx = tiling[x, y];
-					if (idx < 0) continue;
-
-					var tile = Tiles[idx];
-
-					for (int i = 0; i < TileSize; i++)
-					{
-						for (int j = 0; j < TileSize; j++)
-						{
-							int xi = x * TileSize + i;
-							int yj = y * TileSize + j;
-
-							image[xi, yj] = tile.Image[i, j];
-						}
-					}
-				}
-			}
-
-			return image;
-		}
-
 		private ColorImage2D CreateTileImage(Index2[,] tiling)
 		{
-
-			int numTilesY = tiling.GetLength(1);
 			int numTilesX = tiling.GetLength(0);
-
-			int height = TileSize * numTilesY;
+			int numTilesY = tiling.GetLength(1);
+			
 			int width = TileSize * numTilesX;
-
+			int height = TileSize * numTilesY;
+			
 			var image = new ColorImage2D(width, height);
 
 			for (int x = 0; x < numTilesX; x++)
@@ -459,7 +420,6 @@ namespace ImageProcessing.Synthesis
 				for (int y = 0; y < numTilesY; y++)
 				{
 					var idx = tiling[x, y];
-
 					var tile = Tiles2[idx.x, idx.y];
 
 					for (int i = 0; i < TileSize; i++)
@@ -481,8 +441,8 @@ namespace ImageProcessing.Synthesis
 		private ColorImage2D CreateMappingImage(Index2[,] tiling)
 		{
 
-			int width = tiling.GetLength(1);
-			int height = tiling.GetLength(0);
+			int width = tiling.GetLength(0);
+			int height = tiling.GetLength(1);
 
 			var image = new ColorImage2D(width, height);
 
@@ -491,10 +451,8 @@ namespace ImageProcessing.Synthesis
 				for (int y = 0; y < height; y++)
 				{
 					var idx = tiling[x, y];
-					//var tile = Tiles2[idx.x, idx.y];
-					//idx = tile.Index2;
-
-					image[x, y] = new ColorRGB(idx.x / 255.0f, idx.y / 255.0f, 0);
+	
+					image[x, y] = new ColorRGB(idx.x / 255.0f, idx.y/ 255.0f, 0);
 				}
 			}
 

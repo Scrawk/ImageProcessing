@@ -74,7 +74,7 @@ namespace ImageProcessing.Console
             WriteLine(orthogonalTiling);
             orthogonalTiling.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/OrthogonalTiling.raw");
 
-            var sequentialTiling = set.CreateTileMappingImage(4, 4, 0);
+            var sequentialTiling = set.CreateTileMappingImage(256, 256, 0);
             WriteLine(sequentialTiling);
             sequentialTiling.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/SequentialTiling.raw");
 
