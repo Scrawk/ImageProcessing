@@ -35,18 +35,6 @@ namespace ImageProcessing.Console
             return new ColorRGB(r, g, b);
         }
 
-        private static GreyScaleImage2D SquareDifference(ColorImage2D image1, ColorImage2D image2)
-        {
-            var image = new GreyScaleImage2D(image1.Width, image1.Height);
-            image.Fill((x, y) =>
-            {
-                var sd = ColorRGB.SqrDistance(image1[x, y], image2[x, y]);
-                return Math.Max(1, sd * 255);
-            });
-
-            return image;
-        }
-
         private static ColorImage2D ToImage(Bitmap bitmap)
         {
             var image = new ColorImage2D(bitmap.Width, bitmap.Height);
@@ -67,7 +55,7 @@ namespace ImageProcessing.Console
             var timer = new Timer();
             timer.Start();
 
-            var set = new WangTileSet(2, 2, 128);
+            var set = new WangTileSet(3, 2, 128);
             set.CreateTiles(source, 0, true);
 
             var orthogonalTiling = set.CreateTilesImage();
