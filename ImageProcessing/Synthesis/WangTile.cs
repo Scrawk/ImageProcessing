@@ -9,7 +9,17 @@ using ImageProcessing.Images;
 
 namespace ImageProcessing.Synthesis
 {
-    public class WangTile
+
+
+	public enum TILE_EDGE
+	{
+		SOUTH,
+		EAST,
+		NORTH,
+		WEST
+	}
+
+	public class WangTile
     {
 
 		public WangTile(int sEdge, int eEdge, int nEdge, int wEdge, int tileSize)
@@ -24,9 +34,7 @@ namespace ImageProcessing.Synthesis
 			Mask = new BinaryImage2D(tileSize, tileSize);
 		}
 
-		public int Index { get; set; }
-
-		public Index2 Index2 { get; set; }
+		public Index2 Index { get; set; }
 
 		public int sEdge => Edges[0];
 
@@ -69,7 +77,7 @@ namespace ImageProcessing.Synthesis
         {
 			var tile = new WangTile(sEdge, eEdge, nEdge, wEdge, Size);
 			tile.Index = Index;
-			tile.Index2 = Index2;
+			tile.Index = Index;
 			tile.Image.Fill(Image);
 			tile.Map.Fill(Map);
 			tile.Mask.Fill(Mask);

@@ -55,14 +55,18 @@ namespace ImageProcessing.Console
             var timer = new Timer();
             timer.Start();
 
-            var set = new WangTileSet(3, 2, 128);
+            var set = new WangTileSet(3, 3, 128);
             set.CreateTiles(source, 0, true);
 
-            var orthogonalTiling = set.CreateTilesImage();
+            var orthogonalTiling = set.CreateTileImage();
             WriteLine(orthogonalTiling);
             orthogonalTiling.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/OrthogonalTiling.raw");
 
-            var sequentialTiling = set.CreateTileMappingImage(256, 256, 0);
+            var tiling = set.CreateTileImage(9, 9, 0);
+            WriteLine(tiling);
+            tiling.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/tiling.raw");
+
+            var sequentialTiling = set.CreateTileMappingImage(9, 9, 0);
             WriteLine(sequentialTiling);
             sequentialTiling.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/SequentialTiling.raw");
 
