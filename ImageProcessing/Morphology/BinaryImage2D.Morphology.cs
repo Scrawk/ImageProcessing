@@ -259,7 +259,7 @@ namespace ImageProcessing.Images
 			for(int x = 0; x < points.Count; x++)
 			{
 				var p = points[x];
-				p.Value = true ^ HitAndMiss(p.Index.x, p.Index.y, a, b, i);
+				p.Value = true ^ HitAndMiss(p.x, p.y, a, b, i);
 				points[x] = p;
 			}
 
@@ -275,7 +275,7 @@ namespace ImageProcessing.Images
 				{
 					//If value is false remove from image
 					//and mark that the algorithm is not done.
-					a[p.Index] = false;
+					a[p.x, p.y] = false;
 					done = false;
 				}
 			}
@@ -285,7 +285,7 @@ namespace ImageProcessing.Images
 			for (int x = 0; x < points1.Count; x++)
 			{
 				var p = points1[x];
-				p.Value = true ^ HitAndMiss(p.Index.x, p.Index.y, a, c, i);
+				p.Value = true ^ HitAndMiss(p.x, p.y, a, c, i);
 				points1[x] = p;
 			}
 
@@ -299,7 +299,7 @@ namespace ImageProcessing.Images
 				{
 					//If value is false remove from image
 					//and mark that the algorithm is not done.
-					a[p.Index] = false;
+					a[p.x, p.y] = false;
 					done = false;
 				}
 			}

@@ -126,11 +126,15 @@ namespace ImageProcessing.Images
 		public static ColorImage2D ColorizeForest(BinaryImage2D image, int seed, GraphForest forest)
 		{
 			var roots = new List<Point2i>();
+			
+			
 			foreach(var tree in forest.Trees)
             {
 				int root = tree.Root;
 				var pixel = tree.Graph.GetVertexData<PixelIndex2D<bool>>(root);
-				roots.Add(pixel.Index);
+
+				var index = new Point2i(pixel.x, pixel.y);
+				roots.Add(index);
             }
 
 			var colors = SegmentationColors.Generate(seed, roots);
@@ -141,13 +145,15 @@ namespace ImageProcessing.Images
 			{
 				int root = tree.Root;
 				var pixel = tree.Graph.GetVertexData<PixelIndex2D<bool>>(root);
-				var color = colors[pixel.Index];
+
+				var index = new Point2i(pixel.x, pixel.y);
+				var color = colors[index];
 
 				pixels.Clear();
 				tree.GetData(pixels);
 
 				foreach (var p in pixels)
-					image2[p.Index] = color;
+					image2[p.x, p.y] = color;
 
 			}
 

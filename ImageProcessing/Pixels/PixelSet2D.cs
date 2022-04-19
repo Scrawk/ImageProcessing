@@ -52,11 +52,13 @@ namespace ImageProcessing.Pixels
 
             for(int i = 0; i < Pixels.Count; i++)
             {
-                var idx = Pixels[i].Index;
-                if (idx.x < min.x) min.x = idx.x;
-                if (idx.y < min.y) min.y = idx.y;
-                if (idx.x > max.x) max.x = idx.x;
-                if (idx.y > max.y) max.y = idx.y;
+                var x = Pixels[i].x;
+                var y = Pixels[i].y;
+
+                if (x < min.x) min.x = x;
+                if (y < min.y) min.y = y;
+                if (x > max.x) max.x = x;
+                if (y > max.y) max.y = y;
             }
 
             return new Box2i(min, max);
@@ -77,9 +79,8 @@ namespace ImageProcessing.Pixels
 
             for (int i = 0; i < Pixels.Count; i++)
             {
-                var idx = Pixels[i].Index;
-                centroid.x += idx.x;
-                centroid.y += idx.y;
+                centroid.x += Pixels[i].x;
+                centroid.y += Pixels[i].y;
             }
 
             return centroid / Count;

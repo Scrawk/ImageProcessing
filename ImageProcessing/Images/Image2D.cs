@@ -390,7 +390,7 @@ namespace ImageProcessing.Images
             for (int i = 0; i < indices.Count; i++)
             {
                 var p = indices[i];
-                this[p.Index] = p.Value;
+                this[p.x, p.y] = p.Value;
             }
         }
 

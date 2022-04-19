@@ -49,24 +49,24 @@ namespace ImageProcessing.Console
         static void Main(string[] args)
         {
 
-            var bitmap = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/TexturesCom_Gravel0101_2_S.jpg"));
+            var bitmap = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/TexturesCom_Grass0169_2_S.jpg"));
             var source = ToImage(bitmap);
 
             var timer = new Timer();
             timer.Start();
 
-            var set = new WangTileSet(3, 3, 128);
+            var set = new WangTileSet(2, 2, 128);
             set.CreateTiles(source, 0, true);
 
             var orthogonalTiling = set.CreateTileImage();
             WriteLine(orthogonalTiling);
             orthogonalTiling.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/OrthogonalTiling.raw");
 
-            var tiling = set.CreateTileImage(9, 9, 0);
+            var tiling = set.CreateTileImage(4, 4, 0);
             WriteLine(tiling);
             tiling.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/tiling.raw");
 
-            var sequentialTiling = set.CreateTileMappingImage(9, 9, 0);
+            var sequentialTiling = set.CreateTileMappingImage(4, 4, 0);
             WriteLine(sequentialTiling);
             sequentialTiling.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/SequentialTiling.raw");
 

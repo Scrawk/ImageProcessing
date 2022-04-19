@@ -7,7 +7,7 @@ namespace ImageProcessing.Pixels
 {
     public struct PixelIndex2D<T>
     {
-        public Point2i Index;
+        public int x, y;
 
         public T Value;
 
@@ -15,21 +15,23 @@ namespace ImageProcessing.Pixels
 
         public PixelIndex2D(int x, int y, T value)
         {
-            Index = new Point2i(x, y);
+            this.x = x;
+            this.y = y;
             Value = value;
             Tag = 0;
         }
 
         public PixelIndex2D(int x, int y, T value, int tag)
         {
-            Index = new Point2i(x, y);
+            this.x = x;
+            this.y = y;
             Value = value;
             Tag = tag;
         }
 
         public override string ToString()
         {
-            return string.Format("[PixelIndex2D: Index={0}, Value={1}]", Index, Value);
+            return string.Format("[PixelIndex2D: x={0}, y={1}, Value={2}]", x, y, Value);
         }
     }
 }

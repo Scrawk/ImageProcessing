@@ -55,7 +55,7 @@ namespace ImageProcessing.Pixels
                 var color = colors[idx];
 
                 foreach (var p in set.Pixels)
-                    image[p.Index] = color;
+                    image[p.x, p.y] = color;
             }
 
             return image;

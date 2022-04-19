@@ -5,17 +5,126 @@ using Common.Core.Numerics;
 using Common.Core.Colors;
 using Common.Core.Shapes;
 using Common.Core.Directions;
-using Common.GraphTheory.AdjacencyGraphs;
+using Common.Core.Extensions;
 using Common.GraphTheory.GridGraphs;
 
 using ImageProcessing.Images;
+using ImageProcessing.Pixels;
 
 namespace ImageProcessing.Synthesis
 {
     public static class ImageSynthesis
     {
 
-        public static (ColorImage2D, float) MakeTileable(ColorImage2D image, ExemplarSet set)
+        public static ColorImage2D MakeTileable(ColorImage2D image, ColorImage2D exemplar)
+        {
+            int width = image.Width;
+            int height = image.Height;
+
+            var tileable = ColorImage2D.Offset(image, width / 2, height / 2);
+            var mask = new BinaryImage2D(width, height);
+
+            mask.DrawLine(0, height / 2, width-1, height / 2, ColorRGBA.White);
+            mask.DrawLine(width / 2, 0, width / 2, height - 1, ColorRGBA.White);
+
+            mask = BinaryImage2D.Dilate(mask, 10);
+
+            var dist = BinaryImage2D.CityBlockDistance(mask, WRAP_MODE.WRAP);
+            dist.Normalize();
+
+            int seed = 0;
+            var rnd = new Random(seed);
+
+            mask.Iterate((x, y) =>
+            {
+                if (mask[x, y])
+                {
+                    var d = dist[x, y];
+
+                    if (rnd.NextFloat() > d * d * 4)
+                        dist[x, y] = 0;
+                }
+            });
+
+            mask = dist.ToBinaryImage();
+
+            mask.Iterate((x, y) =>
+            {
+                if (mask[x, y])
+                {
+                    var index = new Point2i(x, y);
+                    var pixel = FindBestMatch(index, tileable, mask, exemplar, 1000, 9, rnd);
+
+                    tileable[x, y] = pixel;
+                    mask[x, y] = false;
+                }
+            });
+
+            return tileable;
+        }
+
+        private static ColorRGB FindBestMatch(Point2i index, ColorImage2D image, BinaryImage2D mask, ColorImage2D exemplar, int samples, int window, Random rnd)
+        {
+            ColorRGB bestPixel = new ColorRGB();
+            float bestCost = float.PositiveInfinity;
+
+            //var set = new HashSet<Point2i>();
+
+            for (int s = 0; s < samples; s++)
+            {
+                int x = rnd.Next(0, exemplar.Width);
+                int y = rnd.Next(0, exemplar.Height);
+                int half = window / 2;
+
+                //var p = new Point2i(x, y);
+                //if (set.Contains(p)) continue;
+                //set.Add(p);
+
+                float cost = 0;
+                int count = 0;
+                ColorRGB pixel = new ColorRGB();
+
+                for(int i = 0; i < window; i++)
+                {
+                    for (int j = 0; j < window; j++)
+                    {
+                        int ixi = index.x + i - half;
+                        int iyj = index.y + j - half;
+
+                        if (!mask.GetValue(ixi, iyj, WRAP_MODE.WRAP))
+                        {
+                            int xi = x + i - half;
+                            int yj = y + j - half;
+
+                            var p1 = exemplar.GetPixel(xi, yj, WRAP_MODE.WRAP);
+                            var p2 = image.GetPixel(ixi, iyj, WRAP_MODE.WRAP);
+
+                            var sd = ColorRGB.SqrDistance(p1, p2);
+
+                            cost += sd;
+                            count++;
+                            pixel = p2;
+                        }
+                    }
+                }
+
+                if (count == 0) continue;
+
+                cost /= count;
+
+                if(cost < bestCost)
+                {
+                    bestCost = cost;
+                    bestPixel = pixel;
+                }
+
+            }
+
+            return bestPixel;
+        }
+
+
+        public static ColorImage2D MakeTileable(ColorImage2D image, ExemplarSet set)
         {
             int width = image.Width;
             int height = image.Height;
@@ -52,7 +161,7 @@ namespace ImageProcessing.Synthesis
 
             BlurSeams(tileable, graph, cutOffset, 0.5f);
 
-            return (tileable, cost);
+            return tileable;
         }
 
         public static void CreateTileImage(WangTile tile, ExemplarSet set)
@@ -93,7 +202,7 @@ namespace ImageProcessing.Synthesis
                     image[x, y] = match[x, y];
             });
 
-            BlurSeamsAndEdgeLines(tile, graph, 0.75f);
+            BlurSeamsAndEdgeLines(tile, graph, 0.5f);
 
         }
 

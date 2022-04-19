@@ -64,29 +64,17 @@ namespace ImageProcessing.Synthesis
 			exemplarSet.CreateExemplarFromRandom(source, seed, 32);
 
 			var exemplars = exemplarSet.GetRandomExemplars(Math.Max(NumHColors, NumVColors), seed);
-
-			var pairs = new List<ValueTuple<ColorImage2D, float>>();
+			var tilables = new List<ColorImage2D>();
 
 			for (int i = 0; i < exemplars.Count; i++)
 			{
 				var exemplar = exemplars[i];
 
-				var pair = ImageSynthesis.MakeTileable(exemplar.Image, exemplarSet);
+				var tileable = ImageSynthesis.MakeTileable(exemplar.Image, exemplarSet);
 
-				var tileable = pair.Item1;
-				var cost = pair.Item2;
+				tilables.Add(tileable);
 
-				pairs.Add(pair);
-
-				//tileable.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/tileable" + i + ".raw");
-			}
-
-			pairs.Sort((a, b) => a.Item2.CompareTo(b.Item2));
-
-			var tilables = new List<ColorImage2D>();
-			for (int i = 0; i < pairs.Count; i++)
-			{
-				tilables.Add(pairs[i].Item1);
+				tileable.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/tileable" + i + ".raw");
 			}
 
 			Console.WriteLine(this);
@@ -100,9 +88,9 @@ namespace ImageProcessing.Synthesis
 				tile.CreateMask();
 				tile.FillImage(tilables);
 
-				//Console.WriteLine("Creating " + tile);
+				Console.WriteLine("Creating " + tile);
 
-				//ImageSynthesis.CreateTileImage(tile, exemplarSet);
+				ImageSynthesis.CreateTileImage(tile, exemplarSet);
 
 				if (addEdgeColors)
 					tile.ColorEdges(4, Colors, 0.25f);
@@ -124,7 +112,7 @@ namespace ImageProcessing.Synthesis
 		public ColorImage2D CreateTileMappingImage(int numHTiles, int numVTiles, int seed)
 		{
 			var tiling = SequentialTiling(numHTiles, numVTiles, seed);
-			return CreateMappingImage(tiling, true);
+			return CreateMappingImage(tiling, false);
 		}
 
 		private void CreateTiles()
@@ -163,6 +151,7 @@ namespace ImageProcessing.Synthesis
 			{
 				for (int x = 0; x < numHTiles; x++)
 				{
+
 					int sEdge = rnd.Next(0, NumVColors);
 					int eEdge = rnd.Next(0, NumHColors);
 					int nEdge = rnd.Next(0, NumVColors);
@@ -187,6 +176,7 @@ namespace ImageProcessing.Synthesis
 				}
 			}
 
+			/*
 			for (int y = 0; y < numVTiles; y++)
 			{
 				for (int x = 0; x < numHTiles; x++)
@@ -201,6 +191,7 @@ namespace ImageProcessing.Synthesis
 					Console.WriteLine(tile.sEdge + " : " + tiles.GetWrapped(x, y - 1).nEdge);
 				}
 			}
+			*/
 
 			return tiles;
 		}
@@ -314,15 +305,10 @@ namespace ImageProcessing.Synthesis
 				for (int x = 0; x < width; x++)
 				{
 					var tile = tiling[x, y];
-					if (tile == null)
-                    {
-						image[x, y] = new ColorRGB(1, 1, 1);
-					}
-                    else
-                    {
-						var idx = tile.Index;
-						image[x, y] = new ColorRGB(idx.x / 255.0f, idx.y / 255.0f, 0);
-					}
+
+					var idx = tile.Index;
+					image[x, y] = new ColorRGB(x / 255.0f, y / 255.0f, 0);
+
 
 				}
 			}

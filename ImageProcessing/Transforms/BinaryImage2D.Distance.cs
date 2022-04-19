@@ -11,19 +11,19 @@ namespace ImageProcessing.Images
 	public partial class BinaryImage2D
 	{
 
-		public static GreyScaleImage2D CityBlockDistance(BinaryImage2D image)
+		public static GreyScaleImage2D CityBlockDistance(BinaryImage2D image, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
 			var e = StructureElement2D.CityBlockElement();
-			return Distance(image, e);
+			return Distance(image, e, mode);
 		}
 
-		public static GreyScaleImage2D ChessBoardDistance(BinaryImage2D image)
+		public static GreyScaleImage2D ChessBoardDistance(BinaryImage2D image, WRAP_MODE mode = WRAP_MODE.CLAMP)
 		{
 			var e = StructureElement2D.ChessBoardElement();
-			return Distance(image, e);
+			return Distance(image, e, mode);
 		}
 
-		public static GreyScaleImage2D Distance(BinaryImage2D image, StructureElement2D b)
+		public static GreyScaleImage2D Distance(BinaryImage2D image, StructureElement2D b, WRAP_MODE mode = WRAP_MODE.CLAMP)
 		{
 			var image2 = new GreyScaleImage2D(image.Size);
 			image2.Fill((x, y) => image[x, y] ? float.PositiveInfinity : 0);
@@ -33,7 +33,7 @@ namespace ImageProcessing.Images
 				for (int x = 0; x < image.Width; x++)
 				{
 					if (!image[x, y]) continue;
-					image2[x, y] = MinDistance(x, y, image2, b);
+					image2[x, y] = MinDistance(x, y, image2, b, mode);
 				}
 			}
 
@@ -42,14 +42,14 @@ namespace ImageProcessing.Images
 				for (int x = image.Width - 1; x >= 0; x--)
 				{
 					if (!image[x, y]) continue;
-					image2[x, y] = MinDistance(x, y, image2, b);
+					image2[x, y] = MinDistance(x, y, image2, b, mode);
 				}
 			}
 
 			return image2;
 		}
 
-		public static GreyScaleImage2D ApproxEuclideanDistance(BinaryImage2D image)
+		public static GreyScaleImage2D ApproxEuclideanDistance(BinaryImage2D image, WRAP_MODE mode = WRAP_MODE.CLAMP)
 		{
 			var image2 = new GreyScaleImage2D(image.Size);
 			image2.Fill((x, y) => image[x, y] ? float.PositiveInfinity : 0);
@@ -63,8 +63,8 @@ namespace ImageProcessing.Images
 				{
 					if (!image[x, y]) continue;
 
-					float d4 = MinDistance(x, y, image2, k4);
-					float d8 = MinDistance(x, y, image2, k8);
+					float d4 = MinDistance(x, y, image2, k4, mode);
+					float d8 = MinDistance(x, y, image2, k8, mode);
 
 					float d1 = MathUtil.Sqr(d4 - d8);
 					float d2 = MathUtil.Sqr(d8);
@@ -79,8 +79,8 @@ namespace ImageProcessing.Images
 				{
 					if (!image[x, y]) continue;
 
-					float d4 = MinDistance(x, y, image2, k4);
-					float d8 = MinDistance(x, y, image2, k8);
+					float d4 = MinDistance(x, y, image2, k4, mode);
+					float d8 = MinDistance(x, y, image2, k8, mode);
 
 					float d1 = MathUtil.Sqr(d4 - d8);
 					float d2 = MathUtil.Sqr(d8);
@@ -92,7 +92,7 @@ namespace ImageProcessing.Images
 			return image2;
 		}
 
-		private static float MinDistance(int i, int j, GreyScaleImage2D a, StructureElement2D b)
+		private static float MinDistance(int i, int j, GreyScaleImage2D a, StructureElement2D b, WRAP_MODE mode)
 		{
 			int half = b.Size / 2;
 
@@ -105,12 +105,21 @@ namespace ImageProcessing.Images
 					int xi = x + i - half;
 					int yj = y + j - half;
 
-					float v = 0;
+					if(mode == WRAP_MODE.CLAMP)
+                    {
+						float v = 0;
 
-					if (a.InBounds(xi, yj))
-						v = a[xi, yj];
+						if (a.InBounds(xi, yj))
+							v = a[xi, yj];
 
-					dist = MathUtil.Min(dist, v - b[x, y]);
+						dist = MathUtil.Min(dist, v - b[x, y]);
+					}
+                    else
+                    {
+						float v = a.GetValue(xi, yj, mode);
+						dist = MathUtil.Min(dist, v - b[x, y]);
+					}
+
 				}
 			}
 
