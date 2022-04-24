@@ -307,9 +307,7 @@ namespace ImageProcessing.Synthesis
 					var tile = tiling[x, y];
 
 					var idx = tile.Index;
-					image[x, y] = new ColorRGB(x / 255.0f, y / 255.0f, 0);
-
-
+					image[x, y] = new ColorRGB(idx.x / 255.0f, idx.y / 255.0f, 0);
 				}
 			}
 

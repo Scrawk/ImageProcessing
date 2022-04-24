@@ -98,7 +98,7 @@ namespace ImageProcessing.Images
 					var p = new Point2f(x, y);
 					if (center) p += 0.5f;
 
-					if (shape.Contains(p))
+					if (shape.Contains(p, true))
 						this[x, y] = 1;
 				}
 			}

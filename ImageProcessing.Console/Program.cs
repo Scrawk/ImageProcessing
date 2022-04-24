@@ -18,60 +18,9 @@ namespace ImageProcessing.Console
 {
     class Program
     {
-        static void WriteLine(object obj)
-        {
-            if (obj == null)
-                System.Console.WriteLine("Null");
-            else
-                System.Console.WriteLine(obj.ToString());
-        }
-
-        private static ColorRGB ToColorRGB(Color pixel)
-        {
-            float r = pixel.R / 255.0f;
-            float g = pixel.G / 255.0f;
-            float b = pixel.B / 255.0f;
-
-            return new ColorRGB(r, g, b);
-        }
-
-        private static ColorImage2D ToImage(Bitmap bitmap)
-        {
-            var image = new ColorImage2D(bitmap.Width, bitmap.Height);
-            image.Fill((x, y) =>
-            {
-                return ToColorRGB(bitmap.GetPixel(x, y));
-            });
-
-            return image;
-        }
 
         static void Main(string[] args)
         {
-
-            var bitmap = new Bitmap(Image.FromFile("C:/Users/Justin/OneDrive/Desktop/TexturesCom_Grass0169_2_S.jpg"));
-            var source = ToImage(bitmap);
-
-            var timer = new Timer();
-            timer.Start();
-
-            var set = new WangTileSet(2, 2, 128);
-            set.CreateTiles(source, 0, true);
-
-            var orthogonalTiling = set.CreateTileImage();
-            WriteLine(orthogonalTiling);
-            orthogonalTiling.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/OrthogonalTiling.raw");
-
-            var tiling = set.CreateTileImage(4, 4, 0);
-            WriteLine(tiling);
-            tiling.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/tiling.raw");
-
-            var sequentialTiling = set.CreateTileMappingImage(4, 4, 0);
-            WriteLine(sequentialTiling);
-            sequentialTiling.SaveAsRaw("C:/Users/Justin/OneDrive/Desktop/SequentialTiling.raw");
-
-            timer.Stop();
-            WriteLine("Done in " + timer.ElapsedSeconds);
 
         }
 
