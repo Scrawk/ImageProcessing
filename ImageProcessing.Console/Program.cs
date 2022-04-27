@@ -10,7 +10,6 @@ using Common.Core.Colors;
 using Common.GraphTheory.GridGraphs;
 
 using ImageProcessing.Images;
-using ImageProcessing.Synthesis;
 
 using CONSOLE = System.Console;
 
