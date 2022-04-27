@@ -80,7 +80,7 @@ namespace ImageProcessing.Images
 		public static ColorImage2D Filter(ColorImage2D image, FilterKernel2D k, Box2i? bounds, GreyScaleImage2D mask, WRAP_MODE mode)
 		{
 			if (bounds == null)
-				bounds = new Box2i(0, 0, image.Width, image.Height);
+				bounds = image.Bounds;
 
 			var image2 = image.Copy();
 
