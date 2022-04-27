@@ -48,7 +48,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// The size of the image as a box.
         /// </summary>
-        public Box2i Bounds => new Box2i(new Point2i(0, 0), Size);
+        public Box2i Bounds => new Box2i(new Point2i(0, 0), Size-1);
 
         /// <summary>
         /// Access a element at index x,y.
