@@ -78,6 +78,25 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// Create a hashcode by hasing all pixels in the image together.
+        /// </summary>
+        /// <returns>The hashcode.</returns>
+        public int HashCode()
+        {
+            unchecked
+            {
+                int hash = (int)MathUtil.HASH_PRIME_1;
+
+                Iterate((x, y) =>
+                {
+                    hash = (hash * MathUtil.HASH_PRIME_2) ^ this[x,y].GetHashCode();
+                });
+
+                return hash;
+            }
+        }
+
+        /// <summary>
         /// Get a pixel from the image at index x,y.
         /// </summary>
         /// <param name="x">The first index.</param>
@@ -278,9 +297,9 @@ namespace ImageProcessing.Images
             var blocks = ThreadingBlock2D.CreateBlocks(Width, Height, blockSize);
             Parallel.ForEach(blocks, (block) =>
             {
-                for (int y = block.Min.y; y < block.Max.y; y++)
+                for (int y = block.Start.y; y <= block.End.y; y++)
                 {
-                    for (int x = block.Min.x; x < block.Max.x; x++)
+                    for (int x = block.Start.x; x <= block.End.x; x++)
                     {
                         func(x, y);
                     }
@@ -424,9 +443,9 @@ namespace ImageProcessing.Images
             var blocks = ThreadingBlock2D.CreateBlocks(Width, Height, blockSize);
             Parallel.ForEach(blocks, (block) =>
             {
-                for (int y = block.Min.y; y < block.Max.y; y++)
+                for (int y = block.Start.y; y <= block.End.y; y++)
                 {
-                    for (int x = block.Min.x; x < block.Max.x; x++)
+                    for (int x = block.Start.x; x <= block.End.x; x++)
                     {
                         this[x, y] = func(x, y);
                     }
@@ -464,9 +483,9 @@ namespace ImageProcessing.Images
             var blocks = ThreadingBlock2D.CreateBlocks(Width, Height, blockSize);
             Parallel.ForEach(blocks, (block) =>
             {
-                for (int y = block.Min.y; y < block.Max.y; y++)
+                for (int y = block.Start.y; y <= block.End.y; y++)
                 {
-                    for (int x = block.Min.x; x < block.Max.x; x++)
+                    for (int x = block.Start.x; x <= block.End.x; x++)
                     {
                         this[x, y] = func(this[x, y]);
                     }
