@@ -68,6 +68,12 @@ namespace ImageProcessing.Images
         private float[,] Data;
 
         /// <summary>
+        /// The images mipmaps.
+        /// CreateMipmaps must be called for the image to have mipmaps.
+        /// </summary>
+        private GreyScaleImage2D[] Mipmaps { get; set; }
+
+        /// <summary>
         /// The number of elements in the array.
         /// </summary>
         public override int Count => Data.Length;
@@ -86,6 +92,12 @@ namespace ImageProcessing.Images
         /// The number of channels in the images pixel.
         /// </summary>
         public override int Channels => 1;
+
+        /// <summary>
+        /// The number of mipmap levels in image.
+        /// CreateMipmaps must be called for the image to have mipmaps.
+        /// </summary>
+        public override int MipmapLevels => (Mipmaps != null) ? Mipmaps.Length : 0;
 
         /// <summary>
         /// Access a element at index x,y.
@@ -128,14 +140,6 @@ namespace ImageProcessing.Images
         public override void Resize(int width, int height)
         {
             Data = new float[width, height];
-        }
-
-        /// <summary>
-        /// Resize the array. Will clear any existing data.
-        /// </summary>
-        public override void Resize(Point2i size)
-        {
-            Data = new float[size.x, size.y];
         }
 
         /// <summary>
@@ -183,33 +187,42 @@ namespace ImageProcessing.Images
 
             float v00, v10, v01, v11;
 
-            if (mode == WRAP_MODE.CLAMP)
+            switch (mode)
             {
-                v00 = GetClamped(ix, iy);
-                v10 = GetClamped(ix + 1, iy);
-                v01 = GetClamped(ix, iy + 1);
-                v11 = GetClamped(ix + 1, iy + 1);
-            }
-            else if (mode == WRAP_MODE.WRAP)
-            {
-                v00 = GetWrapped(ix, iy);
-                v10 = GetWrapped(ix + 1, iy);
-                v01 = GetWrapped(ix, iy + 1);
-                v11 = GetWrapped(ix + 1, iy + 1);
-            }
-            else if (mode == WRAP_MODE.MIRROR)
-            {
-                v00 = GetMirrored(ix, iy);
-                v10 = GetMirrored(ix + 1, iy);
-                v01 = GetMirrored(ix, iy + 1);
-                v11 = GetMirrored(ix + 1, iy + 1);
-            }
-            else
-            {
-                v00 = this[ix, iy];
-                v10 = this[ix + 1, iy];
-                v01 = this[ix, iy + 1];
-                v11 = this[ix + 1, iy + 1];
+                case WRAP_MODE.CLAMP:
+                    v00 = GetClamped(ix, iy);
+                    v10 = GetClamped(ix + 1, iy);
+                    v01 = GetClamped(ix, iy + 1);
+                    v11 = GetClamped(ix + 1, iy + 1);
+                    break;
+
+                case WRAP_MODE.WRAP:
+                    v00 = GetWrapped(ix, iy);
+                    v10 = GetWrapped(ix + 1, iy);
+                    v01 = GetWrapped(ix, iy + 1);
+                    v11 = GetWrapped(ix + 1, iy + 1);
+                    break;
+
+                case WRAP_MODE.MIRROR:
+                    v00 = GetMirrored(ix, iy);
+                    v10 = GetMirrored(ix + 1, iy);
+                    v01 = GetMirrored(ix, iy + 1);
+                    v11 = GetMirrored(ix + 1, iy + 1);
+                    break;
+
+                case WRAP_MODE.NONE:
+                    v00 = this[ix, iy];
+                    v10 = this[ix + 1, iy];
+                    v01 = this[ix, iy + 1];
+                    v11 = this[ix + 1, iy + 1];
+                    break;
+
+                default:
+                    v00 = this[ix, iy];
+                    v10 = this[ix + 1, iy];
+                    v01 = this[ix, iy + 1];
+                    v11 = this[ix + 1, iy + 1];
+                    break;
             }
 
             return MathUtil.Blerp(v00, v10, v01, v11, x - ix, y - iy);
@@ -275,6 +288,32 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// Get a pixels channel value from the image at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="c">The pixels channel index (0-2).</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds</param>
+        /// <returns>The pixels channel at index x,y,c.</returns>
+        public override float GetChannel(int x, int y, int c, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        {
+            return GetValue(x, y, mode);
+        }
+
+        /// <summary>
+        /// Get a pixels channel value from the image at normalized index u,v.
+        /// </summary>
+        /// <param name="u">The first normalized (0-1) index.</param>
+        /// <param name="v">The second normalized (0-1) index.</param>
+        /// <param name="c">The pixels channel index (0-2).</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds</param>
+        /// <returns>The pixels channel at index x,y,c.</returns>
+        public override float GetChannel(float u, float v, int c, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        {
+            return GetValue(u, v, mode);
+        }
+
+        /// <summary>
         /// Set the pixel at index x,y.
         /// </summary>
         /// <param name="x">The first index.</param>
@@ -305,6 +344,19 @@ namespace ImageProcessing.Images
                     this[x, y] = pixel.Intensity;
                     break;
             }
+        }
+
+        /// <summary>
+        /// Set the pixels channel at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="c">The pixels channel index (0-2).</param>
+        /// <param name="value">The pixels channel value.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        public override void SetChannel(int x, int y, int c, float value, WRAP_MODE mode = WRAP_MODE.NONE)
+        {
+            SetValue(x, y, value, mode);
         }
 
         /// <summary>
@@ -508,6 +560,57 @@ namespace ImageProcessing.Images
             var d2 = new Vector3f(-zxx, -zyy, -zxy);
 
             return (d1, d2);
+        }
+
+        /// <summary>
+        /// Get the mipmap at index i.
+        /// </summary>
+        /// <param name="i">The mipmap level.</param>
+        /// <returns>The mipmap at index i.</returns>
+        /// <exception cref="IndexOutOfRangeException">If the index is out of bounds or if there are no mipmaps.</exception>
+        public GreyScaleImage2D GetMipmap(int i)
+        {
+            if (i < 0 || i >= MipmapLevels)
+                throw new IndexOutOfRangeException("The mipmap level " + i + "is out of range.");
+
+            return Mipmaps[i];
+        }
+
+        /// <summary>
+        /// Get the mipmap at index i.
+        /// </summary>
+        /// <param name="i">The mipmap level.</param>
+        /// <returns>The mipmap at index i.</returns>
+        protected override IImage2D GetMipmapInterface(int i)
+        {
+            if (i < 0 || i >= MipmapLevels)
+                throw new IndexOutOfRangeException("The mipmap level " + i + "is out of range.");
+
+            return Mipmaps[i];
+        }
+
+        /// <summary>
+        /// Creates the images mipmaps.
+        /// </summary>
+        /// <param name="mode">The wrap mode to use.</param>
+        /// <param name="method">The interpolation method to use.</param>
+        public override void CreateMipmaps(WRAP_MODE mode = WRAP_MODE.CLAMP, RESCALE method = RESCALE.BICUBIC)
+        {
+            GreyScaleImage2D image = this;
+            List<GreyScaleImage2D> levels = new List<GreyScaleImage2D>();
+            levels.Add(image);
+
+            int min = Math.Min(image.Width, image.Height);
+
+            while (min > 1)
+            {
+                image = Rescale(image, image.Width / 2, image.Height / 2, mode, method);
+                levels.Add(image);
+
+                min = Math.Min(image.Width, image.Height);
+            }
+
+            Mipmaps = levels.ToArray();
         }
 
     }

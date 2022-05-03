@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 using Common.Core.Numerics;
-using Common.Core.Shapes;
+using Common.Core.Colors;
 using Common.Core.Extensions;
 
 namespace ImageProcessing.Images

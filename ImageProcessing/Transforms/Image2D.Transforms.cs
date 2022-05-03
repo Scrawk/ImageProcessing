@@ -18,16 +18,19 @@ namespace ImageProcessing.Images
         /// <param name="offsetY">The offset on the y axis.</param>
         /// <returns>The offset image.</returns>
         public static IMAGE Offset<IMAGE>(IMAGE image, int offsetX, int offsetY)
-            where IMAGE : Image2D<T>, new()
+            where IMAGE : IImage2D, new()
         {
             var image2 = new IMAGE();
             image2.Resize(image.Height, image.Width);
 
-            image2.Iterate((x, y) =>
+            for(int y = 0; y < image.Height; y++)
             {
-                var pixel = image.GetPixel(x - offsetX, y - offsetY, WRAP_MODE.WRAP);
-                image2.SetPixel(x, y, pixel);
-            });
+                for(int x = 0; x < image.Width; x++)
+                {
+                    var pixel = image.GetPixel(x - offsetX, y - offsetY, WRAP_MODE.WRAP);
+                    image2.SetPixel(x, y, pixel);
+                }
+            }
 
             return image2;
         }
@@ -39,11 +42,20 @@ namespace ImageProcessing.Images
         /// <param name="image">The image to flip.</param>
         /// <returns>The flipped image.</returns>
         public static IMAGE FlipHorizontal<IMAGE>(IMAGE image)
-            where IMAGE : Image2D<T>, new()
+            where IMAGE : IImage2D, new()
         {
             var image2 = new IMAGE();
             image2.Resize(image.Height, image.Width);
-            image2.Fill((x, y) => image[image.Width - x - 1, y]);
+
+            for (int y = 0; y < image.Height; y++)
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    var pixel = image.GetPixel(image.Width - x - 1, y);
+                    image2.SetPixel(x, y, pixel);
+                }
+            }
+
             return image2;
         }
 
@@ -54,11 +66,20 @@ namespace ImageProcessing.Images
         /// <param name="image">The image ti flip.</param>
         /// <returns>The flipped image.</returns>
         public static IMAGE FlipVertical<IMAGE>(IMAGE image)
-            where IMAGE : Image2D<T>, new()
+            where IMAGE : IImage2D, new()
         {
             var image2 = new IMAGE();
             image2.Resize(image.Height, image.Width);
-            image2.Fill((x, y) => image[x, image.Height - y - 1]);
+
+            for (int y = 0; y < image.Height; y++)
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    var pixel = image.GetPixel(x, image.Height - y - 1);
+                    image2.SetPixel(x, y, pixel);
+                }
+            }
+
             return image2;
         }
 
@@ -68,11 +89,20 @@ namespace ImageProcessing.Images
         /// <param name="image">The image to rotate.</param>
         /// <returns>The rotated image.</returns>
         public static IMAGE Rotate90<IMAGE>(IMAGE image)
-            where IMAGE : Image2D<T>, new()
+            where IMAGE : IImage2D, new()
         {
             var image2 = new IMAGE();
             image2.Resize(image.Height, image.Width);
-            image2.Fill((x, y) => image[y, image2.Width - 1 - x]);
+
+            for (int y = 0; y < image.Height; y++)
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    var pixel = image.GetPixel(y, image2.Width - 1 - x);
+                    image2.SetPixel(x, y, pixel);
+                }
+            }
+
             return image2;
         }
 
@@ -82,11 +112,20 @@ namespace ImageProcessing.Images
         /// <param name="image">The image to rotate.</param>
         /// <returns>The rotated image.</returns>
         public static IMAGE Rotate180<IMAGE>(IMAGE image)
-            where IMAGE : Image2D<T>, new()
+            where IMAGE : IImage2D, new()
         {
             var image2 = new IMAGE();
             image2.Resize(image.Width, image.Height);
-            image2.Fill((x, y) => image[image2.Width - 1 - x, image2.Height - 1 - y]);
+
+            for (int y = 0; y < image.Height; y++)
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    var pixel = image.GetPixel(image2.Width - 1 - x, image2.Height - 1 - y);
+                    image2.SetPixel(x, y, pixel);
+                }
+            }
+
             return image2;
         }
 
@@ -96,11 +135,20 @@ namespace ImageProcessing.Images
         /// <param name="image">The image to rotate.</param>
         /// <returns>The rotated image.</returns>
         public static IMAGE Rotate270<IMAGE>(IMAGE image)
-            where IMAGE : Image2D<T>, new()
+            where IMAGE : IImage2D, new()
         {
             var image2 = new IMAGE();
             image2.Resize(image.Height, image.Width);
-            image2.Fill((x, y) => image[image2.Height - 1 - y, x]);
+
+            for (int y = 0; y < image.Height; y++)
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    var pixel = image.GetPixel(image2.Height - 1 - y, x);
+                    image2.SetPixel(x, y, pixel);
+                }
+            }
+
             return image2;
         }
 
@@ -112,10 +160,10 @@ namespace ImageProcessing.Images
         /// <param name="mode">The wrap mode to use for pixels outside the bounds.</param>
         /// <returns>The cropped image.</returns>
         public static IMAGE Crop<IMAGE>(IMAGE image, Box2i bounds, WRAP_MODE mode = WRAP_MODE.CLAMP)
-            where IMAGE : Image2D<T>, new()
+            where IMAGE : IImage2D, new()
         {
             var image2 = new IMAGE();
-            image2.Resize(bounds.Size);
+            image2.Resize(bounds.Width, bounds.Height);
 
             for(int y = bounds.Min.y, j = 0; y < bounds.Max.y; y++, j++)
             {
@@ -138,7 +186,7 @@ namespace ImageProcessing.Images
         /// <param name="mode">The wrap mode</param>
         /// <returns>A list of the new images.</returns>
         public static List<IMAGE> Crop<IMAGE>(IMAGE image, int numX, int numY, WRAP_MODE mode = WRAP_MODE.CLAMP)
-            where IMAGE : Image2D<T>, new()
+            where IMAGE : IImage2D, new()
         {
             int width = image.Width / numX;
             int height = image.Height / numY;

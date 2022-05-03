@@ -72,30 +72,8 @@ namespace ImageProcessing.Interpolation
             return Weights[column * WindowSize + x];
         }
 
-        public void ApplyHorizontal(int y, GreyScaleImage2D src, GreyScaleImage2D dst)
-        {
-            int srcWidth = src.Width;
-            float scale = Length / (float)srcWidth;
-            float iscale = 1.0f / scale;
-
-            for (int i = 0; i < Length; i++)
-            {
-                float center = (0.5f + i) * iscale;
-
-                int left = (int)Math.Floor(center - Width);
-
-                float sum = 0;
-                for (int j = 0; j < WindowSize; ++j)
-                {
-                    int x = MathUtil.Clamp(j + left, 0, srcWidth - 1);
-                    sum += src[x, y] * GetWeight(i, j);
-                }
-
-                dst[i, y] = sum;
-            }
-        }
-
-        public void ApplyHorizontal(int y, ColorImage2D src, ColorImage2D dst)
+        public void ApplyHorizontal<IMAGE>(int y, IMAGE src, IMAGE dst, WRAP_MODE mode)
+            where IMAGE : IImage2D, new()
         {
             int srcWidth = src.Width;
             float scale = Length / (float)srcWidth;
@@ -110,38 +88,16 @@ namespace ImageProcessing.Interpolation
                 ColorRGB sum = new ColorRGB();
                 for (int j = 0; j < WindowSize; ++j)
                 {
-                    int x = MathUtil.Clamp(j + left, 0, srcWidth - 1);
-                    sum += src[x, y] * GetWeight(i, j);
+                    int x = j + left;
+                    sum += src.GetPixel(x, y, mode) * GetWeight(i, j);
                 }
 
-                dst[i, y] = sum;
+                dst.SetPixel(i, y, sum);
             }
         }
 
-        public void ApplyVertical(int x, GreyScaleImage2D src, GreyScaleImage2D dst)
-        {
-            int srcHeight = src.Height;
-            float scale = Length / (float)srcHeight;
-            float iscale = 1.0f / scale;
-
-            for (int i = 0; i < Length; i++)
-            {
-                float center = (0.5f + i) * iscale;
-
-                int left = (int)Math.Floor(center - Width);
-
-                float sum = 0;
-                for (int j = 0; j < WindowSize; ++j)
-                {
-                    int y = MathUtil.Clamp(j + left, 0, srcHeight - 1);
-                    sum += src[x, y] * GetWeight(i, j);
-                }
-
-                dst[x, i] = sum;
-            }
-        }
-
-        public void ApplyVertical(int x, ColorImage2D src, ColorImage2D dst)
+        public void ApplyVertical<IMAGE>(int x, IMAGE src, IMAGE dst, WRAP_MODE mode)
+            where IMAGE : IImage2D, new()
         {
             int srcHeight = src.Height;
             float scale = Length / (float)srcHeight;
@@ -156,11 +112,11 @@ namespace ImageProcessing.Interpolation
                 ColorRGB sum = new ColorRGB();
                 for (int j = 0; j < WindowSize; ++j)
                 {
-                    int y = MathUtil.Clamp(j + left, 0, srcHeight - 1);
-                    sum += src[x, y] * GetWeight(i, j);
+                    int y = j + left;
+                    sum += src.GetPixel(x, y, mode) * GetWeight(i, j);
                 }
 
-                dst[x, i] = sum;
+                dst.SetPixel(x, i, sum);
             }
         }
 

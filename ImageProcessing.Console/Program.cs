@@ -21,6 +21,13 @@ namespace ImageProcessing.Console
         static void Main(string[] args)
         {
 
+            var image = new ColorImage2D(60, 57);
+
+        }
+
+        private static void WriteLine(object obj)
+        {
+            CONSOLE.WriteLine(obj);
         }
 
     }

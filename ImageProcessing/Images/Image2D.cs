@@ -41,6 +41,12 @@ namespace ImageProcessing.Images
         public abstract int Channels { get; }
 
         /// <summary>
+        /// The number of mipmap levels in image.
+        /// CreateMipmaps must be called for the image to have mipmaps.
+        /// </summary>
+        public abstract int MipmapLevels { get; }
+
+        /// <summary>
         /// The size of the image as a vector.
         /// </summary>
         public Point2i Size => new Point2i(Width, Height);
@@ -97,6 +103,43 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// Get the mipmaps width at level m.
+        /// </summary>
+        /// <param name="m">The mipmap level.</param>
+        /// <returns>The mipmaps width.</returns>
+        public int MipmapWidth(int m)
+        {
+            return GetMipmapInterface(m).Width;
+        }
+
+        /// <summary>
+        /// Get the mipmaps height at level m.
+        /// </summary>
+        /// <param name="m">The mipmap level.</param>
+        /// <returns>The mipmaps height.</returns>
+        public int MipmapHeight(int m)
+        {
+            return GetMipmapInterface(m).Height;
+        }
+
+        /// <summary>
+        /// Get the mipmaps size at level m.
+        /// </summary>
+        /// <param name="m">The mipmap level.</param>
+        /// <returns>The mipmaps size.</returns>
+        public Point2i MipmapSize(int m)
+        {
+            return new Point2i(MipmapWidth(m), MipmapHeight(m));
+        }
+
+        /// <summary>
+        /// Get the mipmap at index i.
+        /// </summary>
+        /// <param name="i">The mipmap level.</param>
+        /// <returns>The mipmap at index i.</returns>
+        protected abstract IImage2D GetMipmapInterface(int i);
+
+        /// <summary>
         /// Get a pixel from the image at index x,y.
         /// </summary>
         /// <param name="x">The first index.</param>
@@ -108,11 +151,79 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Get a pixel from the image at normalized index u,v.
         /// </summary>
-        /// <param name="u">The first index.</param>
-        /// <param name="v">The second index.</param>
+        /// <param name="u">The first normalized (0-1) index.</param>
+        /// <param name="v">The second normalized (0-1) index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
         public abstract ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
+
+        /// <summary>
+        /// Get a pixel from the image at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="m">The mipmap index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The pixel at index x,y.</returns>
+        public ColorRGB GetPixelMipmap(int x, int y, int m, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        {
+            return GetMipmapInterface(m).GetPixel(x, y, mode);
+        }
+
+        /// <summary>
+        /// Get a pixel from the image at normalized index u,v.
+        /// </summary>
+        /// <param name="u">The first normalized (0-1) index.</param>
+        /// <param name="v">The second normalized (0-1) index.</param>
+        /// <param name="m">The mipmap index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The pixel at index x,y.</returns>
+        public ColorRGB GetPixelMipmap(float u, float v, int m, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        {
+            return GetMipmapInterface(m).GetPixel(u, v, mode);
+        }
+
+        /// <summary>
+        /// Get a pixel from the image at normalized index u,v.
+        /// </summary>
+        /// <param name="u">The first normalized (0-1) index.</param>
+        /// <param name="v">The second normalized (0-1) index.</param>
+        /// <param name="m">The mipmap normalized (0-1) index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The pixel at index x,y.</returns>
+        public ColorRGB GetPixelMipmap(float u, float v, float m, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        {
+            int levels = MipmapLevels - 1;
+ 
+            float m0 = MathUtil.Clamp(m * levels, 0.0f, levels);
+            float m1 = MathUtil.Clamp((m * levels) + 1, 0.0f, levels);
+            float a = m1 - m0;
+
+            var p0 = GetMipmapInterface((int)m0).GetPixel(u, v, mode);
+            var p1 = GetMipmapInterface((int)m1).GetPixel(u, v, mode);
+
+            return ColorRGB.Lerp(p0, p1, a);
+        }
+
+        /// <summary>
+        /// Get a pixels channel value from the image at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="c">The pixels channel index (0-2).</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds</param>
+        /// <returns>The pixels channel at index x,y,c.</returns>
+        public abstract float GetChannel(int x, int y, int c, WRAP_MODE mode = WRAP_MODE.CLAMP);
+
+        /// <summary>
+        /// Get a pixels channel value from the image at normalized index u,v.
+        /// </summary>
+        /// <param name="u">The first normalized (0-1) index.</param>
+        /// <param name="v">The second normalized (0-1) index.</param>
+        /// <param name="c">The pixels channel index (0-2).</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds</param>
+        /// <returns>The pixels channel at index x,y,c.</returns>
+        public abstract float GetChannel(float u, float v, int c, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
         /// Set the pixel at index x,y.
@@ -135,6 +246,29 @@ namespace ImageProcessing.Images
             var col = ColorRGB.Lerp(GetPixel(x, y, mode), pixel.rgb, pixel.a);
             SetPixel(x, y, col, mode);
         }
+
+        /// <summary>
+        /// Set the pixel at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="m">The mipmap index.</param>
+        /// <param name="pixel">The pixel.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        public void SetPixelMipmap(int x, int y, int m, ColorRGB pixel, WRAP_MODE mode = WRAP_MODE.NONE)
+        {
+            GetMipmapInterface(m).SetPixel(x, y, pixel, mode);
+        }
+
+        /// <summary>
+        /// Set the pixels channel at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="c">The pixels channel index (0-2).</param>
+        /// <param name="value">The pixels channel value.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        public abstract void SetChannel(int x, int y, int c, float value, WRAP_MODE mode = WRAP_MODE.NONE);
 
         /// <summary>
         /// Is this array the same size as the other array.
@@ -167,22 +301,6 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Are the x and y index in the bounds of the array.
-        /// </summary>
-        public bool InBounds(Point2i i)
-        {
-            return InBounds(i.x, i.y);
-        }
-
-        /// <summary>
-        /// Are the x and y index not in the bounds of the array.
-        /// </summary>
-        public bool NotInBounds(Point2i i)
-        {
-            return !InBounds(i.x, i.y);
-        }
-
-        /// <summary>
         /// Sets all elements in the array to default value.
         /// </summary>
         public abstract void Clear();
@@ -191,11 +309,6 @@ namespace ImageProcessing.Images
         /// Resize the array. Will clear any existing data.
         /// </summary>
         public abstract void Resize(int width, int height);
-
-        /// <summary>
-        /// Resize the array. Will clear any existing data.
-        /// </summary>
-        public abstract void Resize(Point2i size);
 
         /// <summary>
         /// Get the element at clamped index x,y.
@@ -620,6 +733,13 @@ namespace ImageProcessing.Images
 
             return copy;
         }
+
+        /// <summary>
+        /// Creates the images mipmaps.
+        /// </summary>
+        /// <param name="mode">The wrap mode to use.</param>
+        /// <param name="method">The interpolation method to use.</param>
+        public abstract void CreateMipmaps(WRAP_MODE mode = WRAP_MODE.CLAMP, RESCALE method = RESCALE.BICUBIC);
 
     }
 }

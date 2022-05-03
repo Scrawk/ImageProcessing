@@ -13,6 +13,7 @@ namespace ImageProcessing.Images
     /// </summary>
     public partial class ColorImage2D : Image2D<ColorRGB>
     {
+
         /// <summary>
         /// Create a default of image.
         /// </summary>
@@ -68,6 +69,12 @@ namespace ImageProcessing.Images
         private ColorRGB[,] Data;
 
         /// <summary>
+        /// The images mipmaps.
+        /// CreateMipmaps must be called for the image to have mipmaps.
+        /// </summary>
+        private ColorImage2D[] Mipmaps { get; set; }
+
+        /// <summary>
         /// The number of elements in the array.
         /// </summary>
         public override int Count => Data.Length;
@@ -86,6 +93,12 @@ namespace ImageProcessing.Images
         /// The number of channels in the images pixel.
         /// </summary>
         public override int Channels => 3;
+
+        /// <summary>
+        /// The number of mipmap levels in image.
+        /// CreateMipmaps must be called for the image to have mipmaps.
+        /// </summary>
+        public override int MipmapLevels => (Mipmaps != null) ? Mipmaps.Length : 0;
 
         /// <summary>
         /// Access a element at index x,y.
@@ -111,7 +124,8 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[ColorImage2D: Width={0}, Height={1}]", Width, Height);
+            return string.Format("[ColorImage2D: Width={0}, Height={1}, Channels={2}, Mipmaps={3}]", 
+                Width, Height, Channels, MipmapLevels);
         }
 
         /// <summary>
@@ -131,14 +145,6 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Resize the array. Will clear any existing data.
-        /// </summary>
-        public override void Resize(Point2i size)
-        {
-            Data = new ColorRGB[size.x, size.y];
-        }
-
-        /// <summary>
         /// Get a channels value from the image at index x,y.
         /// </summary>
         /// <param name="x">The first index.</param>
@@ -146,7 +152,7 @@ namespace ImageProcessing.Images
         /// <param name="c">The channel index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public float GetChannel(int x, int y, int c, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override float GetChannel(int x, int y, int c, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             return GetPixel(x, y, mode)[c];
         }
@@ -159,7 +165,7 @@ namespace ImageProcessing.Images
         /// <param name="c">The channel index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public float GetChannel(float u, float v, int c, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override float GetChannel(float u, float v, int c, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float x = u * (Width - 1);
             float y = v * (Height - 1);
@@ -169,43 +175,45 @@ namespace ImageProcessing.Images
 
             ColorRGB v00, v10, v01, v11;
 
-            if (mode == WRAP_MODE.CLAMP)
+            switch (mode)
             {
-                v00 = GetClamped(xi, yi);
-                v10 = GetClamped(xi + 1, yi);
-                v01 = GetClamped(xi, yi + 1);
-                v11 = GetClamped(xi + 1, yi + 1);
-            }
-            else if (mode == WRAP_MODE.WRAP)
-            {
-                v00 = GetWrapped(xi, yi);
-                v10 = GetWrapped(xi + 1, yi);
-                v01 = GetWrapped(xi, yi + 1);
-                v11 = GetWrapped(xi + 1, yi + 1);
-            }
-            else
-            {
-                v00 = GetMirrored(xi, yi);
-                v10 = GetMirrored(xi + 1, yi);
-                v01 = GetMirrored(xi, yi + 1);
-                v11 = GetMirrored(xi + 1, yi + 1);
+                case WRAP_MODE.CLAMP:
+                    v00 = GetClamped(xi, yi);
+                    v10 = GetClamped(xi + 1, yi);
+                    v01 = GetClamped(xi, yi + 1);
+                    v11 = GetClamped(xi + 1, yi + 1);
+                    break;
+
+                case WRAP_MODE.WRAP:
+                    v00 = GetWrapped(xi, yi);
+                    v10 = GetWrapped(xi + 1, yi);
+                    v01 = GetWrapped(xi, yi + 1);
+                    v11 = GetWrapped(xi + 1, yi + 1);
+                    break;
+
+                case WRAP_MODE.MIRROR:
+                    v00 = GetMirrored(xi, yi);
+                    v10 = GetMirrored(xi + 1, yi);
+                    v01 = GetMirrored(xi, yi + 1);
+                    v11 = GetMirrored(xi + 1, yi + 1);
+                    break;
+
+                case WRAP_MODE.NONE:
+                    v00 = this[xi, yi];
+                    v10 = this[xi + 1, yi];
+                    v01 = this[xi, yi + 1];
+                    v11 = this[xi + 1, yi + 1];
+                    break;
+
+                default:
+                    v00 = this[xi, yi];
+                    v10 = this[xi + 1, yi];
+                    v01 = this[xi, yi + 1];
+                    v11 = this[xi + 1, yi + 1];
+                    break;
             }
 
             return MathUtil.Blerp(v00[c], v10[c], v01[c], v11[c], x - xi, y - yi);
-        }
-
-        /// <summary>
-        /// Set the channel value at index x,y.
-        /// </summary>
-        /// <param name="x">The first index.</param>
-        /// <param name="y">The second index.</param>
-        /// <param name="c">The channel index.</param>
-        /// <param name="value">The value.</param>
-        public void SetChannel(int x, int y, int c, float value)
-        {
-            var pixel = this[x, y];
-            pixel[c] = value;
-            this[x, y] = pixel;
         }
 
         /// <summary>
@@ -253,33 +261,42 @@ namespace ImageProcessing.Images
 
             ColorRGB v00, v10, v01, v11;
 
-            if (mode == WRAP_MODE.CLAMP)
+            switch (mode)
             {
-                v00 = GetClamped(xi, yi);
-                v10 = GetClamped(xi + 1, yi);
-                v01 = GetClamped(xi, yi + 1);
-                v11 = GetClamped(xi + 1, yi + 1);
-            }
-            else if (mode == WRAP_MODE.WRAP)
-            {
-                v00 = GetWrapped(xi, yi);
-                v10 = GetWrapped(xi + 1, yi);
-                v01 = GetWrapped(xi, yi + 1);
-                v11 = GetWrapped(xi + 1, yi + 1);
-            }
-            else if (mode == WRAP_MODE.MIRROR)
-            {
-                v00 = GetMirrored(xi, yi);
-                v10 = GetMirrored(xi + 1, yi);
-                v01 = GetMirrored(xi, yi + 1);
-                v11 = GetMirrored(xi + 1, yi + 1);
-            }
-            else
-            {
-                v00 = this[xi, yi];
-                v10 = this[xi + 1, yi];
-                v01 = this[xi, yi + 1];
-                v11 = this[xi + 1, yi + 1];
+                case WRAP_MODE.CLAMP:
+                    v00 = GetClamped(xi, yi);
+                    v10 = GetClamped(xi + 1, yi);
+                    v01 = GetClamped(xi, yi + 1);
+                    v11 = GetClamped(xi + 1, yi + 1);
+                    break;
+
+                case WRAP_MODE.WRAP:
+                    v00 = GetWrapped(xi, yi);
+                    v10 = GetWrapped(xi + 1, yi);
+                    v01 = GetWrapped(xi, yi + 1);
+                    v11 = GetWrapped(xi + 1, yi + 1);
+                    break;
+
+                case WRAP_MODE.MIRROR:
+                    v00 = GetMirrored(xi, yi);
+                    v10 = GetMirrored(xi + 1, yi);
+                    v01 = GetMirrored(xi, yi + 1);
+                    v11 = GetMirrored(xi + 1, yi + 1);
+                    break;
+
+                case WRAP_MODE.NONE:
+                    v00 = this[xi, yi];
+                    v10 = this[xi + 1, yi];
+                    v01 = this[xi, yi + 1];
+                    v11 = this[xi + 1, yi + 1];
+                    break;
+
+                default:
+                    v00 = this[xi, yi];
+                    v10 = this[xi + 1, yi];
+                    v01 = this[xi, yi + 1];
+                    v11 = this[xi + 1, yi + 1];
+                    break;
             }
 
             var col = new ColorRGB();
@@ -324,12 +341,78 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// Set the channel value at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="c">The channel index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <param name="value">The value.</param>
+        public override void SetChannel(int x, int y, int c, float value, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        {
+            var pixel = GetPixel(x, y, mode);
+            pixel[c] = value;
+            SetPixel(x, y, pixel, mode);
+        }
+
+        /// <summary>
         /// Return a copy of the image.
         /// </summary>
         /// <returns></returns>
         public ColorImage2D Copy()
         {
             return new ColorImage2D(Data);
+        }
+
+        /// <summary>
+        /// Get the mipmap at index i.
+        /// </summary>
+        /// <param name="i">The mipmap level.</param>
+        /// <returns>The mipmap at index i.</returns>
+        /// <exception cref="IndexOutOfRangeException">If the index is out of bounds or if there are no mipmaps.</exception>
+        public ColorImage2D GetMipmap(int i)
+        {
+            if (i < 0 || i >= MipmapLevels)
+                throw new IndexOutOfRangeException("The mipmap level " + i + "is out of range.");
+
+            return Mipmaps[i];
+        }
+
+        /// <summary>
+        /// Get the mipmap at index i.
+        /// </summary>
+        /// <param name="i">The mipmap level.</param>
+        /// <returns>The mipmap at index i.</returns>
+        protected override IImage2D GetMipmapInterface(int i)
+        {
+            if (i < 0 || i >= MipmapLevels)
+                throw new IndexOutOfRangeException("The mipmap level " + i + "is out of range.");
+
+            return Mipmaps[i];
+        }
+
+        /// <summary>
+        /// Creates the images mipmaps.
+        /// </summary>
+        /// <param name="mode">The wrap mode to use.</param>
+        /// <param name="method">The interpolation method to use.</param>
+        public override void CreateMipmaps(WRAP_MODE mode = WRAP_MODE.CLAMP, RESCALE method = RESCALE.BICUBIC)
+        {
+            ColorImage2D image = this;
+            List<ColorImage2D> levels = new List<ColorImage2D>();
+            levels.Add(image);
+
+            int min = Math.Min(image.Width, image.Height);
+
+            while (min > 1)
+            {
+                image = Rescale(image, image.Width / 2, image.Height / 2, mode, method);
+                levels.Add(image);
+
+                min = Math.Min(image.Width, image.Height);
+            }
+
+            Mipmaps = levels.ToArray();
         }
 
     }
