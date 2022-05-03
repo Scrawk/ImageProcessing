@@ -1,34 +1,73 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Common.Core.Numerics;
 using Common.Core.Colors;
 
 namespace ImageProcessing.Images
 {
+    public enum BIT_DEPTH
+    {
+        B8 = 8, 
+        B16 = 16, 
+        B32 = 32
+    };
+
     public partial class Image2D<T>
     {
 
         /// <summary>
-        /// Save the file as raw bytes.
+        /// Save the image as raw bytes.
         /// </summary>
         /// <param name="filename">The filename.</param>
         /// <param name="bitDepth">The bitdepth of the file.</param>
-        public void SaveAsRaw(string filename, int bitDepth = 8)
+        /// <param name="bigEndian">The endianness if 16 bits.</param>
+        public void SaveAsRaw(string filename, BIT_DEPTH bitDepth = BIT_DEPTH.B8, bool bigEndian = false)
         {
-            var bytes = ToBytes(8);
+            if (!filename.EndsWith(".raw"))
+                filename += ".raw";
+
+            var bytes = ToBytes(bitDepth);
             System.IO.File.WriteAllBytes(filename, bytes);
         }
 
         /// <summary>
-        /// 
+        /// Save the images mipmaps as raw bytes.
         /// </summary>
-        /// <param name="bitDepth"></param>
-        /// <param name="bigEndian"></param>
-        /// <returns></returns>
-        public byte[] ToBytes(int bitDepth, bool bigEndian = false)
+        /// <param name="filename">The filename.</param>
+        /// <param name="bitDepth">The bitdepth of the file.</param>
+        /// <param name="bigEndian">The endianness if 16 bits.</param>
+        public void SaveMipmapsAsRaw(string filename, BIT_DEPTH bitDepth = BIT_DEPTH.B8, bool bigEndian = false)
         {
-            int numBytes = bitDepth / 8;
+            if(!HasMipmaps)
+            {
+                SaveAsRaw(filename, bitDepth, bigEndian);
+            }
+            else
+            {
+                if (filename.EndsWith(".raw"))
+                    filename = filename.Substring(0, filename.Length - 4);
+
+                for (int i = 0; i < MipmapLevels; i++)
+                {
+                    string name = filename + i + ".raw";
+                    var bytes = GetMipmapInterface(i).ToBytes(bitDepth);
+                    System.IO.File.WriteAllBytes(name, bytes);
+                }
+
+            }
+        }
+
+        /// <summary>
+        /// Get the images data as bytes.
+        /// </summary>
+        /// <param name="bitDepth">The bitdepth of the bytes.</param>
+        /// <param name="bigEndian">The endianness if 16 bits.</param>
+        /// <returns></returns>
+        public byte[] ToBytes(BIT_DEPTH bitDepth, bool bigEndian = false)
+        {
+            int numBytes = (int)bitDepth / 8;
             var bytes = new byte[Width * Height * Channels * numBytes];
 
             for (int y = 0; y < Height; y++)
@@ -40,7 +79,7 @@ namespace ImageProcessing.Images
                     for (int c = 0; c < Channels; c++)
                     {
                         int i = (x + y * Width) * Channels + c;
-                        Write(pixel[c], i, bytes, bitDepth, bigEndian);
+                        Write(pixel[c], i, bytes, (int)bitDepth, bigEndian);
                     }
                 }
             }
@@ -54,7 +93,7 @@ namespace ImageProcessing.Images
         /// <param name="bytes"></param>
         /// <param name="bitDepth"></param>
         /// <param name="bigEndian"></param>
-        public void FromBytes(byte[] bytes, int bitDepth, bool bigEndian = false)
+        public void FromBytes(byte[] bytes, BIT_DEPTH bitDepth, bool bigEndian = false)
         {
             for (int y = 0; y < Height; y++)
             {
@@ -64,7 +103,7 @@ namespace ImageProcessing.Images
                     for (int c = 0; c < Channels; c++)
                     {
                         int i = (x + y * Width) * Channels + c;
-                        pixel[c] = Read(i, bytes, bitDepth, bigEndian);
+                        pixel[c] = Read(i, bytes, (int)bitDepth, bigEndian);
                     }
 
                     if (Channels == 1)

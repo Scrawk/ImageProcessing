@@ -47,6 +47,11 @@ namespace ImageProcessing.Images
         public abstract int MipmapLevels { get; }
 
         /// <summary>
+        /// Does the image have mipmaps.
+        /// </summary>
+        public bool HasMipmaps => MipmapLevels > 0;
+
+        /// <summary>
         /// The size of the image as a vector.
         /// </summary>
         public Point2i Size => new Point2i(Width, Height);
@@ -80,7 +85,33 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[Image2D: Width={0}, Height={1}]", Width, Height);
+            return string.Format("[Image2D: Width={0}, Height={1}, Channels={2}, Mipmaps={3}]", 
+                Width, Height, Channels, MipmapLevels);
+        }
+
+        /// <summary>
+        /// Clear the image of all data.
+        /// </summary>
+        public abstract void Clear();
+
+        /// <summary>
+        /// Clear the image of all mipmaps.
+        /// </summary>
+        public abstract void ClearMipmaps();
+
+        /// <summary>
+        /// Helper function to create generic image.
+        /// </summary>
+        /// <typeparam name="IMAGE">THe images generic type.</typeparam>
+        /// <param name="width">The images width.</param>
+        /// <param name="height">The images height.</param>
+        /// <returns>The image.</returns>
+        protected static IMAGE NewImage<IMAGE>(int width, int height)
+            where IMAGE : IImage2D, new()
+        {
+            var image = new IMAGE();
+            image.Resize(width, height);
+            return image;
         }
 
         /// <summary>
@@ -101,43 +132,6 @@ namespace ImageProcessing.Images
                 return hash;
             }
         }
-
-        /// <summary>
-        /// Get the mipmaps width at level m.
-        /// </summary>
-        /// <param name="m">The mipmap level.</param>
-        /// <returns>The mipmaps width.</returns>
-        public int MipmapWidth(int m)
-        {
-            return GetMipmapInterface(m).Width;
-        }
-
-        /// <summary>
-        /// Get the mipmaps height at level m.
-        /// </summary>
-        /// <param name="m">The mipmap level.</param>
-        /// <returns>The mipmaps height.</returns>
-        public int MipmapHeight(int m)
-        {
-            return GetMipmapInterface(m).Height;
-        }
-
-        /// <summary>
-        /// Get the mipmaps size at level m.
-        /// </summary>
-        /// <param name="m">The mipmap level.</param>
-        /// <returns>The mipmaps size.</returns>
-        public Point2i MipmapSize(int m)
-        {
-            return new Point2i(MipmapWidth(m), MipmapHeight(m));
-        }
-
-        /// <summary>
-        /// Get the mipmap at index i.
-        /// </summary>
-        /// <param name="i">The mipmap level.</param>
-        /// <returns>The mipmap at index i.</returns>
-        protected abstract IImage2D GetMipmapInterface(int i);
 
         /// <summary>
         /// Get a pixel from the image at index x,y.
@@ -299,11 +293,6 @@ namespace ImageProcessing.Images
         {
             return !InBounds(x, y);
         }
-
-        /// <summary>
-        /// Sets all elements in the array to default value.
-        /// </summary>
-        public abstract void Clear();
 
         /// <summary>
         /// Resize the array. Will clear any existing data.
@@ -735,11 +724,81 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// Get the mipmaps width at level m.
+        /// </summary>
+        /// <param name="m">The mipmap level.</param>
+        /// <returns>The mipmaps width.</returns>
+        public int MipmapWidth(int m)
+        {
+            return GetMipmapInterface(m).Width;
+        }
+
+        /// <summary>
+        /// Get the mipmaps height at level m.
+        /// </summary>
+        /// <param name="m">The mipmap level.</param>
+        /// <returns>The mipmaps height.</returns>
+        public int MipmapHeight(int m)
+        {
+            return GetMipmapInterface(m).Height;
+        }
+
+        /// <summary>
+        /// Get the mipmaps size at level m.
+        /// </summary>
+        /// <param name="m">The mipmap level.</param>
+        /// <returns>The mipmaps size.</returns>
+        public Point2i MipmapSize(int m)
+        {
+            return new Point2i(MipmapWidth(m), MipmapHeight(m));
+        }
+
+        /// <summary>
+        /// Get the mipmap at index i.
+        /// </summary>
+        /// <param name="i">The mipmap level.</param>
+        /// <returns>The mipmap at index i.</returns>
+        protected abstract IImage2D GetMipmapInterface(int i);
+
+        /// <summary>
+        /// Calculate how many mipmap levels a image of thie size would have.
+        /// </summary>
+        /// <param name="width">The images width.</param>
+        /// <param name="height">The images height.</param>
+        /// <returns>How many mipmap levels a image of thie size would have</returns>
+        public static int CalculateMipmapLevels(int width, int height)
+        {
+            int min = Math.Min(width, height);
+
+            int levels = 1;
+            while (min > 1)
+            {
+                min /= 2;
+                levels++;
+            }
+
+            return levels;
+        }
+
+        /// <summary>
         /// Creates the images mipmaps.
         /// </summary>
         /// <param name="mode">The wrap mode to use.</param>
         /// <param name="method">The interpolation method to use.</param>
-        public abstract void CreateMipmaps(WRAP_MODE mode = WRAP_MODE.CLAMP, RESCALE method = RESCALE.BICUBIC);
+        /// <exception cref="ArgumentException">If max levels is not greater than 0.</exception>
+        public void CreateMipmaps(WRAP_MODE mode = WRAP_MODE.CLAMP, RESCALE method = RESCALE.BICUBIC)
+        {
+            int maxLevel = CalculateMipmapLevels(Width, Height);
+            CreateMipmaps(maxLevel, mode, method);
+        }
+
+        /// <summary>
+        /// Creates the images mipmaps.
+        /// </summary>
+        /// <param name="maxLevel">The max level of mipmaps to create.</param>
+        /// <param name="mode">The wrap mode to use.</param>
+        /// <param name="method">The interpolation method to use.</param>
+        public abstract void CreateMipmaps(int maxLevel, WRAP_MODE mode = WRAP_MODE.CLAMP, RESCALE method = RESCALE.BICUBIC);
 
     }
 }

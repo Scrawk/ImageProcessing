@@ -123,7 +123,8 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[GreyScaleImage2D: Width={0}, Height={1}]", Width, Height);
+            return string.Format("[GreyScaleImage2D: Width={0}, Height={1}, Channels={2}, Mipmaps={3}]",
+                Width, Height, Channels, MipmapLevels);
         }
 
         /// <summary>
@@ -132,6 +133,15 @@ namespace ImageProcessing.Images
         public override void Clear()
         {
             Data.Clear();
+            ClearMipmaps();
+        }
+
+        /// <summary>
+        /// Clear the image of all mipmaps.
+        /// </summary>
+        public override void ClearMipmaps()
+        {
+            Mipmaps = null;
         }
 
         /// <summary>
@@ -592,17 +602,22 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Creates the images mipmaps.
         /// </summary>
+        /// <param name="maxLevel">The max level of mipmaps to create. -1 to ignore</param>
         /// <param name="mode">The wrap mode to use.</param>
         /// <param name="method">The interpolation method to use.</param>
-        public override void CreateMipmaps(WRAP_MODE mode = WRAP_MODE.CLAMP, RESCALE method = RESCALE.BICUBIC)
+        /// <exception cref="ArgumentException">If max levels is not greater than 0.</exception>
+        public override void CreateMipmaps(int maxLevel, WRAP_MODE mode = WRAP_MODE.CLAMP, RESCALE method = RESCALE.BICUBIC)
         {
+            if (maxLevel <= 0)
+                throw new ArgumentException($"Max levels ({maxLevel}) must be greater that 0.");
+
             GreyScaleImage2D image = this;
-            List<GreyScaleImage2D> levels = new List<GreyScaleImage2D>();
+            var levels = new List<GreyScaleImage2D>();
             levels.Add(image);
 
             int min = Math.Min(image.Width, image.Height);
 
-            while (min > 1)
+            while (min > 1 && levels.Count < maxLevel)
             {
                 image = Rescale(image, image.Width / 2, image.Height / 2, mode, method);
                 levels.Add(image);

@@ -158,5 +158,13 @@ namespace ImageProcessing.Images
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         void SetChannel(int x, int y, int c, float value, WRAP_MODE mode = WRAP_MODE.NONE);
 
+        /// <summary>
+        /// Get the images data as bytes.
+        /// </summary>
+        /// <param name="bitDepth">The bitdepth of the bytes.</param>
+        /// <param name="bigEndian">The endianness if 16 bits.</param>
+        /// <returns></returns>
+        byte[] ToBytes(BIT_DEPTH bitDepth, bool bigEndian = false);
+
     }
 }
