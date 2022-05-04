@@ -18,8 +18,8 @@ namespace ImageProcessing.Images
         /// <param name="height">The images height.</param>
         /// <param name="seed">The random generators seed.</param>
         /// <param name="min">The min value generated.</param>
-        /// <param name=max">The max value generated.</param>
-        /// <returns>THe new image.</returns>
+        /// <param name="max">The max value generated.</param>
+        /// <returns>The new image.</returns>
         public static IMAGE Random<IMAGE>(int width, int height, int seed, float min = 0, float max = 1)
             where IMAGE : IImage2D, new()
         {
@@ -35,7 +35,7 @@ namespace ImageProcessing.Images
         /// <param name="height">The images height.</param>
         /// <param name="rnd">The random generator.</param>
         /// <param name="min">The min value generated.</param>
-        /// <param name=max">The max value generated.</param>
+        /// <param name="max">The max value generated.</param>
         /// <returns>The new image.</returns>
         public static IMAGE Random<IMAGE>(int width, int height, Random rnd, float min = 0, float max = 1)
             where IMAGE : IImage2D, new()
@@ -56,7 +56,7 @@ namespace ImageProcessing.Images
                         var r = rnd.NextFloat(min, max);
                         var g = rnd.NextFloat(min, max);
                         var b = rnd.NextFloat(min, max);
-                        image.SetPixel(x, y, new ColorRGB(r,g,b));
+                        image.SetPixel(x, y, new ColorRGBA(r,g,b, 1));
                     }
                 }
             }
@@ -81,7 +81,7 @@ namespace ImageProcessing.Images
             {
                 for (int x = 0; x < width; x++)
                 {
-                    image.SetPixel(x, y, new ColorRGB(value));
+                    image.SetPixel(x, y, new ColorRGBA(value,1));
                 }
             }
 
@@ -96,7 +96,7 @@ namespace ImageProcessing.Images
         /// <param name="height">The images height.</param>
         /// <param name="value">The constant value.</param>
         /// <returns>The new image.</returns>
-        public static IMAGE Const<IMAGE>(int width, int height, ColorRGB value)
+        public static IMAGE Const<IMAGE>(int width, int height, ColorRGBA value)
             where IMAGE : IImage2D, new()
         {
             var image = NewImage<IMAGE>(width, height);

@@ -95,7 +95,7 @@ namespace ImageProcessing.Images
 
 			foreach (var p in bounds.Value.EnumerateBounds())
 			{
-				ColorRGB pixel;
+				ColorRGBA pixel;
 
 				if (mask == null)
 				{
@@ -107,9 +107,10 @@ namespace ImageProcessing.Images
 					var pixel2 = Filter(p.x, p.y, image, k, mode) * k.Scale;
 
 					var a = MathUtil.Clamp01(mask[p]);
-					pixel = ColorRGB.Lerp(pixel1, pixel2, a);
+					pixel = ColorRGBA.Lerp(pixel1, pixel2, a);
 				}
 
+				pixel.a = 1;
 				image2.SetPixel(p.x, p.y, pixel, mode);
 			}
 
@@ -125,12 +126,12 @@ namespace ImageProcessing.Images
 		/// <param name="k">The filter to apply.</param>
 		/// <param name="mode">The wrap mode to use.</param>
 		/// <returns>The filter result.</returns>
-		private static ColorRGB Filter<IMAGE>(int i, int j, IMAGE image, FilterKernel2D k, WRAP_MODE mode)
+		private static ColorRGBA Filter<IMAGE>(int i, int j, IMAGE image, FilterKernel2D k, WRAP_MODE mode)
 			where IMAGE : IImage2D, new()
 		{
 			int half = k.Size / 2;
 
-			ColorRGB sum = new ColorRGB(); ;
+			ColorRGBA sum = new ColorRGBA(); ;
 			for (int y = 0; y < k.Size; y++)
 			{
 				for (int x = 0; x < k.Size; x++)

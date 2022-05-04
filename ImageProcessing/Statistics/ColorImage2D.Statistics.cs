@@ -12,9 +12,9 @@ namespace ImageProcessing.Images
         /// <summary>
         /// The sum of all pixels in the image.
         /// </summary>
-        public ColorRGB Sum()
+        public ColorRGBA Sum()
         {
-            ColorRGB sum = new ColorRGB();
+            ColorRGBA sum = new ColorRGBA();
             for (int y = 0; y < Height; y++)
             {
                 for (int x = 0; x < Width; x++)
@@ -30,10 +30,10 @@ namespace ImageProcessing.Images
         /// The mean of the pixels in the image.
         /// </summary>
         /// <returns></returns>
-        public ColorRGB Mean()
+        public ColorRGBA Mean()
         {
             int size = Size.Product;
-            if (size == 0) return new ColorRGB();
+            if (size == 0) return new ColorRGBA();
             return Sum() / size;
         }
 

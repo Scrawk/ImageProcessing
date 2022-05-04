@@ -17,7 +17,7 @@ namespace ImageProcessing.Statistics
             Set = new ColorPixelSet2D();
         }
 
-        public KMeansCluster(int index, ColorRGB mean)
+        public KMeansCluster(int index, ColorRGBA mean)
         {
             Index = index;
             Mean = mean;
@@ -26,7 +26,7 @@ namespace ImageProcessing.Statistics
 
         public int Index { get; private set; }
 
-        public ColorRGB Mean { get; internal set; }
+        public ColorRGBA Mean { get; internal set; }
 
         public ColorPixelSet2D Set { get; private set; }
 
@@ -109,7 +109,7 @@ namespace ImageProcessing.Statistics
                 var col = image[x, y];
                 var closest = Closest(col);
 
-                float d = ColorRGB.SqrDistance(closest.Mean, col);
+                float d = ColorRGBA.SqrDistance(closest.Mean, col);
                 sum += d;
                 return d;
             });
@@ -117,7 +117,7 @@ namespace ImageProcessing.Statistics
             weights.Modify( x => x / sum);
         }
 
-        private ColorRGB ChoosePixel(ColorImage2D image, GreyScaleImage2D weights, double t)
+        private ColorRGBA ChoosePixel(ColorImage2D image, GreyScaleImage2D weights, double t)
         {
             double sum = 0;
             var size = image.Size;
@@ -150,7 +150,7 @@ namespace ImageProcessing.Statistics
 
                 int i = cluster.Index;
 
-                cluster.Set.Add(new PixelIndex2D<ColorRGB>(x, y, col, i));
+                cluster.Set.Add(new PixelIndex2D<ColorRGBA>(x, y, col, i));
             });
         }
 
@@ -190,14 +190,14 @@ namespace ImageProcessing.Statistics
                 cluster.Mean = cluster.Set.Mean();
         }
 
-        private KMeansCluster Closest(ColorRGB col)
+        private KMeansCluster Closest(ColorRGBA col)
         {
             KMeansCluster closest = null;
             float dist = float.PositiveInfinity;
 
             foreach(var cluster in Clusters)
             {
-                float d2 = ColorRGB.SqrDistance(cluster.Mean, col);
+                float d2 = ColorRGBA.SqrDistance(cluster.Mean, col);
                 if(d2 < dist)
                 {
                     dist = d2;

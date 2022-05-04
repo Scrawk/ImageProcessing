@@ -9,17 +9,17 @@ namespace ImageProcessing.Images
 {
     public partial class Image2D<T>
     {
-        public void DrawCircle(Circle2f circle, ColorRGB color, bool filled)
+        public void DrawCircle(Circle2f circle, ColorRGBA color, bool filled)
         {
             DrawEllipse(circle.Center, circle.Radius, circle.Radius, color, filled);
         }
 
-        public void DrawCircle(Point2f center, float radius, ColorRGB color, bool filled)
+        public void DrawCircle(Point2f center, float radius, ColorRGBA color, bool filled)
         {
             DrawEllipse(center, radius, radius, color, filled);
         }
 
-        public void DrawEllipse(Point2f center, float radiusX, float radiusY, ColorRGB color, bool filled)
+        public void DrawEllipse(Point2f center, float radiusX, float radiusY, ColorRGBA color, bool filled)
         {
             int xc = (int)Math.Round(center.x);
             int yc = (int)Math.Round(center.y);
@@ -41,7 +41,7 @@ namespace ImageProcessing.Images
         /// <param name="xr">The radius of the ellipse in x-direction.</param>
         /// <param name="yr">The radius of the ellipse in y-direction.</param>
         /// <param name="color">The color for the line.</param>
-        private void DrawEllipseOutline(int xc, int yc, int xr, int yr, ColorRGB color)
+        private void DrawEllipseOutline(int xc, int yc, int xr, int yr, ColorRGBA color)
         {
             var w = Width;
             var h = Height;
@@ -164,7 +164,7 @@ namespace ImageProcessing.Images
         /// <param name="xr">The radius of the ellipse in x-direction.</param>
         /// <param name="yr">The radius of the ellipse in y-direction.</param>
         /// <param name="color">The color for the line.</param>
-        private void DrawEllipseFilled(int xc, int yc, int xr, int yr, ColorRGB color)
+        private void DrawEllipseFilled(int xc, int yc, int xr, int yr, ColorRGBA color)
         {
             int w = Width;
             int h = Height;

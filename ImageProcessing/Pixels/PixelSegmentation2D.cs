@@ -65,15 +65,15 @@ namespace ImageProcessing.Pixels
 
     public static class SegmentationColors
     {
-        public static Dictionary<Point2i, ColorRGB> Generate(int seed, IEnumerable<Point2i> keys)
+        public static Dictionary<Point2i, ColorRGBA> Generate(int seed, IEnumerable<Point2i> keys)
         {
             var rnd = new Random(seed);
-            var colors = new Dictionary<Point2i, ColorRGB>();
+            var colors = new Dictionary<Point2i, ColorRGBA>();
 
             foreach (var p in keys)
             {
                 if(!colors.ContainsKey(p))
-                    colors.Add(p, rnd.NextColorRGB());
+                    colors.Add(p, rnd.NextColorRGB().rgb1);
             }
 
             return colors;

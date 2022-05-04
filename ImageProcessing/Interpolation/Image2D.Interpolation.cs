@@ -30,19 +30,19 @@ namespace ImageProcessing.Images
 		/// <param name="func"></param>
 		/// <param name="mode"></param>
 		/// <returns></returns>
-		public ColorRGB GetInterpolatedPixel(float u, float v, InterpolationFunction func, WRAP_MODE mode = WRAP_MODE.CLAMP)
+		public ColorRGBA GetInterpolatedPixel(float u, float v, InterpolationFunction func, WRAP_MODE mode = WRAP_MODE.CLAMP)
 		{
 			float x = u * (Width - 1);
 			float y = v * (Height - 1);
 			int n = func.Size;
 			int N = 2 * n - 1;
 
-			ColorRGB q = new ColorRGB();
+			ColorRGBA q = new ColorRGBA();
 			for (int j = 0; j <= N; j++)
 			{
 				int yj = (int)Math.Floor(y) - n + 1 + j;
 
-				ColorRGB p = new ColorRGB();
+				ColorRGBA p = new ColorRGBA();
 				for (int i = 0; i <= N; i++)
 				{
 					int xi = (int)Math.Floor(x) - n + 1 + i;

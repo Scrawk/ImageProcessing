@@ -11,7 +11,7 @@ namespace ImageProcessing.Images
     /// <summary>
     /// A 2D image containing RGB color values.
     /// </summary>
-    public partial class ColorImage2D : Image2D<ColorRGB>
+    public partial class ColorImage2D : Image2D<ColorRGBA>
     {
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace ImageProcessing.Images
         /// <param name="height">The height of the image.</param>
         public ColorImage2D(int width, int height)
         {
-            Data = new ColorRGB[width, height];
+            Data = new ColorRGBA[width, height];
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace ImageProcessing.Images
         /// <param name="size">The size of the image. x is the width and y is the height.</param>
         public ColorImage2D(Point2i size)
         {
-            Data = new ColorRGB[size.x, size.y];
+            Data = new ColorRGBA[size.x, size.y];
         }
 
         /// <summary>
@@ -47,9 +47,9 @@ namespace ImageProcessing.Images
         /// <param name="width">The width of the image.</param>
         /// <param name="height">The height of the image.</param>
         /// <param name="value">The value to fill the image with.</param>
-        public ColorImage2D(int width, int height, ColorRGB value)
+        public ColorImage2D(int width, int height, ColorRGBA value)
         {
-            Data = new ColorRGB[width, height];
+            Data = new ColorRGBA[width, height];
             Fill(value);
         }
 
@@ -57,7 +57,7 @@ namespace ImageProcessing.Images
         /// Create a image from the given data.
         /// </summary>
         /// <param name="data">The images data.</param>
-        public ColorImage2D(ColorRGB[,] data)
+        public ColorImage2D(ColorRGBA[,] data)
         {
             Data = data.Copy();
         }
@@ -65,7 +65,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// The images pixels.
         /// </summary>
-        private ColorRGB[,] Data;
+        private ColorRGBA[,] Data;
 
         /// <summary>
         /// The images mipmaps.
@@ -102,7 +102,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Access a element at index x,y.
         /// </summary>
-        public override ColorRGB this[int x, int y]
+        public override ColorRGBA this[int x, int y]
         {
             get { return Data[x, y]; }
             set { Data[x, y] = value; }
@@ -111,7 +111,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Access a element at index x,y.
         /// </summary>
-        public override ColorRGB this[Point2i i]
+        public override ColorRGBA this[Point2i i]
         {
             get { return Data[i.x, i.y]; }
             set { Data[i.x, i.y] = value; }
@@ -149,7 +149,7 @@ namespace ImageProcessing.Images
         /// </summary>
         public override void Resize(int width, int height)
         {
-            Data = new ColorRGB[width, height];
+            Data = new ColorRGBA[width, height];
         }
 
         /// <summary>
@@ -180,48 +180,18 @@ namespace ImageProcessing.Images
 
             int xi = (int)x;
             int yi = (int)y;
+            int xi1 = xi + 1;
+            int yi1 = yi + 1;
 
-            ColorRGB v00, v10, v01, v11;
+            Indices(ref xi, ref yi, mode);
+            Indices(ref xi1, ref yi1, mode);
 
-            switch (mode)
-            {
-                case WRAP_MODE.CLAMP:
-                    v00 = GetClamped(xi, yi);
-                    v10 = GetClamped(xi + 1, yi);
-                    v01 = GetClamped(xi, yi + 1);
-                    v11 = GetClamped(xi + 1, yi + 1);
-                    break;
+            float v00 = this[xi, yi][c];
+            float v10 = this[xi1, yi][c];
+            float v01 = this[xi, yi1][c];
+            float v11 = this[xi1, yi1][c];
 
-                case WRAP_MODE.WRAP:
-                    v00 = GetWrapped(xi, yi);
-                    v10 = GetWrapped(xi + 1, yi);
-                    v01 = GetWrapped(xi, yi + 1);
-                    v11 = GetWrapped(xi + 1, yi + 1);
-                    break;
-
-                case WRAP_MODE.MIRROR:
-                    v00 = GetMirrored(xi, yi);
-                    v10 = GetMirrored(xi + 1, yi);
-                    v01 = GetMirrored(xi, yi + 1);
-                    v11 = GetMirrored(xi + 1, yi + 1);
-                    break;
-
-                case WRAP_MODE.NONE:
-                    v00 = this[xi, yi];
-                    v10 = this[xi + 1, yi];
-                    v01 = this[xi, yi + 1];
-                    v11 = this[xi + 1, yi + 1];
-                    break;
-
-                default:
-                    v00 = this[xi, yi];
-                    v10 = this[xi + 1, yi];
-                    v01 = this[xi, yi + 1];
-                    v11 = this[xi + 1, yi + 1];
-                    break;
-            }
-
-            return MathUtil.Blerp(v00[c], v10[c], v01[c], v11[c], x - xi, y - yi);
+            return MathUtil.BLerp(v00, v10, v01, v11, x - xi, y - yi);
         }
 
         /// <summary>
@@ -231,25 +201,10 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override ColorRGBA GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            switch (mode)
-            {
-                case WRAP_MODE.CLAMP:
-                    return GetClamped(x, y);
-
-                case WRAP_MODE.WRAP:
-                    return GetWrapped(x, y);
-
-                case WRAP_MODE.MIRROR:
-                    return GetMirrored(x, y);
-
-                case WRAP_MODE.NONE:
-                    return this[x, y];
-
-                default:
-                    return this[x, y];
-            }
+            Indices(ref x, ref y, mode);
+            return this[x, y];
         }
 
         /// <summary>
@@ -259,59 +214,25 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override ColorRGBA GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float x = u * (Width-1);
             float y = v * (Height-1);
 
             int xi = (int)x;
             int yi = (int)y;
+            int xi1 = xi + 1;
+            int yi1 = yi + 1;
 
-            ColorRGB v00, v10, v01, v11;
+            Indices(ref xi, ref yi, mode);
+            Indices(ref xi1, ref yi1, mode);
 
-            switch (mode)
-            {
-                case WRAP_MODE.CLAMP:
-                    v00 = GetClamped(xi, yi);
-                    v10 = GetClamped(xi + 1, yi);
-                    v01 = GetClamped(xi, yi + 1);
-                    v11 = GetClamped(xi + 1, yi + 1);
-                    break;
+            ColorRGBA v00 = this[xi, yi];
+            ColorRGBA v10 = this[xi1, yi];
+            ColorRGBA v01 = this[xi, yi1];
+            ColorRGBA v11 = this[xi1, yi1];
 
-                case WRAP_MODE.WRAP:
-                    v00 = GetWrapped(xi, yi);
-                    v10 = GetWrapped(xi + 1, yi);
-                    v01 = GetWrapped(xi, yi + 1);
-                    v11 = GetWrapped(xi + 1, yi + 1);
-                    break;
-
-                case WRAP_MODE.MIRROR:
-                    v00 = GetMirrored(xi, yi);
-                    v10 = GetMirrored(xi + 1, yi);
-                    v01 = GetMirrored(xi, yi + 1);
-                    v11 = GetMirrored(xi + 1, yi + 1);
-                    break;
-
-                case WRAP_MODE.NONE:
-                    v00 = this[xi, yi];
-                    v10 = this[xi + 1, yi];
-                    v01 = this[xi, yi + 1];
-                    v11 = this[xi + 1, yi + 1];
-                    break;
-
-                default:
-                    v00 = this[xi, yi];
-                    v10 = this[xi + 1, yi];
-                    v01 = this[xi, yi + 1];
-                    v11 = this[xi + 1, yi + 1];
-                    break;
-            }
-
-            var col = new ColorRGB();
-            col.r = MathUtil.Blerp(v00.r, v10.r, v01.r, v11.r, x - xi, y - yi);
-            col.g = MathUtil.Blerp(v00.g, v10.g, v01.g, v11.g, x - xi, y - yi);
-            col.b = MathUtil.Blerp(v00.b, v10.b, v01.b, v11.b, x - xi, y - yi);
-            return col;
+            return ColorRGBA.BLerp(v00, v10, v01, v11, x - xi, y - yi);
         }
 
         /// <summary>
@@ -321,31 +242,10 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="pixel">The pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        public override void SetPixel(int x, int y, ColorRGB pixel, WRAP_MODE mode = WRAP_MODE.NONE)
+        public override void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE)
         {
-
-            switch (mode)
-            {
-                case WRAP_MODE.NONE:
-                    this[x, y] = pixel;
-                    break;
-
-                case WRAP_MODE.CLAMP:
-                    SetClamped(x, y, pixel);
-                    break;
-
-                case WRAP_MODE.WRAP:
-                    SetWrapped(x, y, pixel);
-                    break;
-
-                case WRAP_MODE.MIRROR:
-                    SetMirrored(x, y, pixel);
-                    break;
-
-                default:
-                    this[x, y] = pixel;
-                    break;
-            }
+            Indices(ref x, ref y, mode);
+            this[x,y] = pixel;
         }
 
         /// <summary>

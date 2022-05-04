@@ -17,7 +17,7 @@ namespace ImageProcessing.Images
         {
             Modify((v) =>
             {
-                return ColorRGB.Min(v, value);
+                return ColorRGBA.Min(v, value);
             });
         }
 
@@ -29,7 +29,7 @@ namespace ImageProcessing.Images
         {
             Modify((v) =>
             {
-                return ColorRGB.Max(v, value);
+                return ColorRGBA.Max(v, value);
             });
         }
 
@@ -42,7 +42,7 @@ namespace ImageProcessing.Images
         {
             Modify((v) =>
             {
-                return ColorRGB.Clamp(v, min, max);
+                return ColorRGBA.Clamp(v, min, max);
             });
         }
 
@@ -56,7 +56,7 @@ namespace ImageProcessing.Images
             Modify(c =>
             {
                 var hsv = c.hsv;
-                return new ColorRGB(hsv.h, hsv.s, hsv.v);
+                return new ColorRGBA(hsv.h, hsv.s, hsv.v, 1);
             });
         }
 
@@ -68,7 +68,7 @@ namespace ImageProcessing.Images
         {
             Modify(c =>
             {
-                return ColorHSV.ToRGB(c.r, c.g, c.b);
+                return ColorHSV.ToRGB(c.r, c.g, c.b).rgb1;
             });
         }
     }

@@ -74,7 +74,7 @@ namespace ImageProcessing.Images
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    ColorRGB pixel = GetPixel(x, y, WRAP_MODE.CLAMP);
+                    ColorRGBA pixel = GetPixel(x, y, WRAP_MODE.CLAMP);
 
                     for (int c = 0; c < Channels; c++)
                     {
@@ -99,15 +99,15 @@ namespace ImageProcessing.Images
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    ColorRGB pixel = new ColorRGB();
+                    ColorRGBA pixel = new ColorRGBA();
                     for (int c = 0; c < Channels; c++)
                     {
                         int i = (x + y * Width) * Channels + c;
                         pixel[c] = Read(i, bytes, (int)bitDepth, bigEndian);
                     }
 
-                    if (Channels == 1)
-                        pixel = pixel.rrr;
+                    //if (Channels == 1)
+                    //    pixel = pixel.rrra;
 
                     SetPixel(x, y, pixel);
                 }

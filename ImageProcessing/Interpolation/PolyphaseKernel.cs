@@ -85,7 +85,7 @@ namespace ImageProcessing.Interpolation
 
                 int left = (int)Math.Floor(center - Width);
 
-                ColorRGB sum = new ColorRGB();
+                ColorRGBA sum = new ColorRGBA();
                 for (int j = 0; j < WindowSize; ++j)
                 {
                     int x = j + left;
@@ -109,7 +109,7 @@ namespace ImageProcessing.Interpolation
 
                 int left = (int)Math.Floor(center - Width);
 
-                ColorRGB sum = new ColorRGB();
+                ColorRGBA sum = new ColorRGBA();
                 for (int j = 0; j < WindowSize; ++j)
                 {
                     int y = j + left;

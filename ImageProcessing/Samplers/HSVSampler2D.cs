@@ -16,16 +16,16 @@ namespace ImageProcessing.Samplers
 
         public IImageSampler2D Image { get; private set; }
 
-        public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override ColorRGBA GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             var hsv = Image.GetPixel(x, y, mode).hsv;
-            return new ColorRGB(hsv.h, hsv.s, hsv.v);
+            return new ColorRGBA(hsv.h, hsv.s, hsv.v, 1);
         }
 
-        public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override ColorRGBA GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             var hsv = Image.GetPixel(u, v, mode).hsv;
-            return new ColorRGB(hsv.h, hsv.s, hsv.v);
+            return new ColorRGBA(hsv.h, hsv.s, hsv.v, 1);
         }
 
     }

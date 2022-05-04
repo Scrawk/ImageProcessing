@@ -163,23 +163,8 @@ namespace ImageProcessing.Images
         /// <returns>The value at index x,y.</returns>
         public bool GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            switch (mode)
-            {
-                case WRAP_MODE.CLAMP:
-                    return GetClamped(x, y);
-
-                case WRAP_MODE.WRAP:
-                    return GetWrapped(x, y);
-
-                case WRAP_MODE.MIRROR:
-                    return GetMirrored(x, y);
-
-                case WRAP_MODE.NONE:
-                    return this[x, y];
-
-                default:
-                    return this[x, y];
-            }
+            Indices(ref x, ref y, mode);
+            return this[x, y];
         }
 
         /// <summary>
@@ -191,18 +176,23 @@ namespace ImageProcessing.Images
         /// <returns>The value at index x,y.</returns>
         public bool GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            float x = u * (Width-1);
-            float y = v * (Height-1);
+            float x = u * (Width - 1);
+            float y = v * (Height - 1);
 
-            int ix = (int)x;
-            int iy = (int)y;
+            int xi = (int)x;
+            int yi = (int)y;
+            int xi1 = xi + 1;
+            int yi1 = yi + 1;
 
-            var v00 = GetValue(ix, iy, mode) ? 1.0f : 0.0f;
-            var v10 = GetValue(ix + 1, iy, mode) ? 1.0f : 0.0f;
-            var v01 = GetValue(ix, iy + 1, mode) ? 1.0f : 0.0f;
-            var v11 = GetValue(ix + 1, iy + 1, mode) ? 1.0f : 0.0f;
+            Indices(ref xi, ref yi, mode);
+            Indices(ref xi1, ref yi1, mode);
 
-            return MathUtil.Blerp(v00, v10, v01, v11, x - ix, y - iy) > 0;
+            float v00 = this[xi, yi] ? 1.0f : 0.0f;
+            float v10 = this[xi1, yi] ? 1.0f : 0.0f;
+            float v01 = this[xi, yi1] ? 1.0f : 0.0f;
+            float v11 = this[xi1, yi1] ? 1.0f : 0.0f;
+
+            return MathUtil.BLerp(v00, v10, v01, v11, x - xi, y - yi) > 0;
         }
 
         /// <summary>
@@ -214,28 +204,8 @@ namespace ImageProcessing.Images
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         public void SetValue(int x, int y, bool value, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            switch (mode)
-            {
-                case WRAP_MODE.NONE:
-                    this[x, y] = value;
-                    break;
-
-                case WRAP_MODE.CLAMP:
-                    SetClamped(x, y, value);
-                    break;
-
-                case WRAP_MODE.WRAP:
-                    SetWrapped(x, y, value);
-                    break;
-
-                case WRAP_MODE.MIRROR:
-                    SetMirrored(x, y, value);
-                    break;
-
-                default:
-                    this[x, y] = value;
-                    break;
-            }
+            Indices(ref x, ref y, mode);
+            this[x, y] = value;
         }
 
         /// <summary>
@@ -245,10 +215,10 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override ColorRGBA GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             var value = GetValue(x, y, mode) ? 1.0f : 0.0f;
-            return new ColorRGB(value);
+            return new ColorRGBA(value, 1);
         }
 
         /// <summary>
@@ -258,10 +228,10 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override ColorRGBA GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             var value = GetValue(u, v, mode) ? 1.0f : 0.0f;
-            return new ColorRGB(value);
+            return new ColorRGBA(value, 1);
         }
 
         /// <summary>
@@ -297,31 +267,10 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="pixel">The pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        public override void SetPixel(int x, int y, ColorRGB pixel, WRAP_MODE mode = WRAP_MODE.NONE)
+        public override void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE)
         {
- 
-            switch (mode)
-            {
-                case WRAP_MODE.NONE:
-                    this[x, y] = pixel.Intensity > 0;
-                    break;
-
-                case WRAP_MODE.CLAMP:
-                    SetClamped(x, y, pixel.Intensity > 0);
-                    break;
-
-                case WRAP_MODE.WRAP:
-                    SetWrapped(x, y, pixel.Intensity > 0);
-                    break;
-
-                case WRAP_MODE.MIRROR:
-                    SetMirrored(x, y, pixel.Intensity > 0);
-                    break;
-
-                default:
-                    this[x, y] = pixel.Intensity > 0;
-                    break;
-            }
+            Indices(ref x, ref y, mode);
+            this[x, y] = pixel.Intensity  > 0;
         }
 
         /// <summary>

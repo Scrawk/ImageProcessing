@@ -32,14 +32,14 @@ namespace ImageProcessing.Samplers
 
         public bool NonNegative { get; private set; }
 
-        public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override ColorRGBA GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return Colorize(Image.GetPixel(x, y, mode).Intensity);
+            return Colorize(Image.GetPixel(x, y, mode).Intensity).rgb1;
         }
 
-        public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override ColorRGBA GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return Colorize(Image.GetPixel(u, v, mode).Intensity);
+            return Colorize(Image.GetPixel(u, v, mode).Intensity).rgb1;
         }
 
         public ColorRGB Colorize(float v)

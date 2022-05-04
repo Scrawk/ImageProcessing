@@ -62,6 +62,12 @@ namespace ImageProcessing.Images
         public Box2i Bounds => new Box2i(new Point2i(0, 0), Size-1);
 
         /// <summary>
+        /// Tag for algorithms on the image can mark or 
+        /// id the image if needed. May change at any point.
+        /// </summary>
+        public int Tag { get; set; }
+
+        /// <summary>
         /// Access a element at index x,y.
         /// </summary>
         public abstract T this[int x, int y]
@@ -140,7 +146,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public abstract ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
+        public abstract ColorRGBA GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
         /// Get a pixel from the image at normalized index u,v.
@@ -149,7 +155,7 @@ namespace ImageProcessing.Images
         /// <param name="v">The second normalized (0-1) index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public abstract ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
+        public abstract ColorRGBA GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
         /// Get a pixel from the image at index x,y.
@@ -159,7 +165,7 @@ namespace ImageProcessing.Images
         /// <param name="m">The mipmap index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public ColorRGB GetPixelMipmap(int x, int y, int m, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public ColorRGBA GetPixelMipmap(int x, int y, int m, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             return GetMipmapInterface(m).GetPixel(x, y, mode);
         }
@@ -172,7 +178,7 @@ namespace ImageProcessing.Images
         /// <param name="m">The mipmap index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public ColorRGB GetPixelMipmap(float u, float v, int m, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public ColorRGBA GetPixelMipmap(float u, float v, int m, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             return GetMipmapInterface(m).GetPixel(u, v, mode);
         }
@@ -185,7 +191,7 @@ namespace ImageProcessing.Images
         /// <param name="m">The mipmap normalized (0-1) index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public ColorRGB GetPixelMipmap(float u, float v, float m, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public ColorRGBA GetPixelMipmap(float u, float v, float m, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             int levels = MipmapLevels - 1;
  
@@ -196,7 +202,7 @@ namespace ImageProcessing.Images
             var p0 = GetMipmapInterface((int)m0).GetPixel(u, v, mode);
             var p1 = GetMipmapInterface((int)m1).GetPixel(u, v, mode);
 
-            return ColorRGB.Lerp(p0, p1, a);
+            return ColorRGBA.Lerp(p0, p1, a);
         }
 
         /// <summary>
@@ -226,20 +232,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="pixel">The pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        public abstract void SetPixel(int x, int y, ColorRGB pixel, WRAP_MODE mode = WRAP_MODE.NONE);
-
-        /// <summary>
-        /// Set the pixel at index x,y.
-        /// </summary>
-        /// <param name="x">The first index.</param>
-        /// <param name="y">The second index.</param>
-        /// <param name="pixel">The pixel.</param>
-        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        public void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE)
-        {
-            var col = ColorRGB.Lerp(GetPixel(x, y, mode), pixel.rgb, pixel.a);
-            SetPixel(x, y, col, mode);
-        }
+        public abstract void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE);
 
         /// <summary>
         /// Set the pixel at index x,y.
@@ -249,7 +242,7 @@ namespace ImageProcessing.Images
         /// <param name="m">The mipmap index.</param>
         /// <param name="pixel">The pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        public void SetPixelMipmap(int x, int y, int m, ColorRGB pixel, WRAP_MODE mode = WRAP_MODE.NONE)
+        public void SetPixelMipmap(int x, int y, int m, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             GetMipmapInterface(m).SetPixel(x, y, pixel, mode);
         }
@@ -300,9 +293,44 @@ namespace ImageProcessing.Images
         public abstract void Resize(int width, int height);
 
         /// <summary>
+        /// Get the indices values depending on the wrapping mode.
+        /// </summary>
+        /// <param name="x">The index on the x axis.</param>
+        /// <param name="y">The index on the y axis.</param>
+        /// <param name="mode">The wrapping mode.</param>
+        public void Indices(ref int x, ref int y, WRAP_MODE mode)
+        {
+            switch (mode)
+            {
+                case WRAP_MODE.CLAMP:
+                    x = MathUtil.Clamp(x, 0, Width - 1);
+                    y = MathUtil.Clamp(y, 0, Height - 1);
+                    break;
+
+                case WRAP_MODE.WRAP:
+                    x = MathUtil.Wrap(x, Width);
+                    y = MathUtil.Wrap(y, Height);
+                    break;
+
+                case WRAP_MODE.MIRROR:
+                    x = MathUtil.Mirror(x, Width);
+                    y = MathUtil.Mirror(y, Height);
+                    break;
+
+                case WRAP_MODE.NONE:
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        /*
+
+        /// <summary>
         /// Get the element at clamped index x,y.
         /// </summary>
-        public T GetClamped(int x, int y)
+        protected T GetClamped(int x, int y)
         {
             x = MathUtil.Clamp(x, 0, Width - 1);
             y = MathUtil.Clamp(y, 0, Height - 1);
@@ -312,7 +340,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Get the element at wrapped index x,y.
         /// </summary>
-        public T GetWrapped(int x, int y)
+        protected T GetWrapped(int x, int y)
         {
             x = MathUtil.Wrap(x, Width);
             y = MathUtil.Wrap(y, Height);
@@ -322,7 +350,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Get the element at mirrored index x,y.
         /// </summary>
-        public T GetMirrored(int x, int y)
+        protected T GetMirrored(int x, int y)
         {
             x = MathUtil.Mirror(x, Width);
             y = MathUtil.Mirror(y, Height);
@@ -332,7 +360,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Set the element at clamped index x.
         /// </summary>
-        public void SetClamped(int x, int y, T value)
+        protected void SetClamped(int x, int y, T value)
         {
             x = MathUtil.Clamp(x, 0, Width - 1);
             y = MathUtil.Clamp(y, 0, Height - 1);
@@ -342,7 +370,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Set the element at wrapped index x.
         /// </summary>
-        public void SetWrapped(int x, int y, T value)
+        protected void SetWrapped(int x, int y, T value)
         {
             x = MathUtil.Wrap(x, Width);
             y = MathUtil.Wrap(y, Height);
@@ -352,12 +380,13 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Set the element at mirred index x.
         /// </summary>
-        public void SetMirrored(int x, int y, T value)
+        protected void SetMirrored(int x, int y, T value)
         {
             x = MathUtil.Mirror(x, Width);
             y = MathUtil.Mirror(y, Height);
             this[x, y] = value;
         }
+        */
 
         /// <summary>
         /// Recommended blocks for parallel processing.

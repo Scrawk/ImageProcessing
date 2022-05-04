@@ -19,14 +19,14 @@ namespace ImageProcessing.Samplers
 
         public float Scale { get; private set; }
 
-        public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override ColorRGBA GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return new ColorRGB(Image.GetPixel(x, y, mode).Magnitude * Scale);
+            return new ColorRGBA(Image.GetPixel(x, y, mode).Magnitude * Scale, 1);
         }
 
-        public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override ColorRGBA GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return new ColorRGB(Image.GetPixel(u, v, mode).Magnitude * Scale);
+            return new ColorRGBA(Image.GetPixel(u, v, mode).Magnitude * Scale, 1);
         }
 
     }

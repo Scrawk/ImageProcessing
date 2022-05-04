@@ -68,7 +68,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        new ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
+        new ColorRGBA GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
         /// Get a pixel from the image at index x,y.
@@ -78,7 +78,7 @@ namespace ImageProcessing.Images
         /// <param name="m">The mipmap index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        ColorRGB GetPixelMipmap(int x, int y, int m, WRAP_MODE mode = WRAP_MODE.CLAMP);
+        ColorRGBA GetPixelMipmap(int x, int y, int m, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
         /// Get a pixel from the image at normalized index u,v.
@@ -88,7 +88,7 @@ namespace ImageProcessing.Images
         /// <param name="m">The mipmap index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        ColorRGB GetPixelMipmap(float u, float v, int m, WRAP_MODE mode = WRAP_MODE.CLAMP);
+        ColorRGBA GetPixelMipmap(float u, float v, int m, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
         /// Get a pixel from the image at normalized index u,v.
@@ -98,7 +98,7 @@ namespace ImageProcessing.Images
         /// <param name="m">The mipmap normalized (0-1) index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        ColorRGB GetPixelMipmap(float u, float v, float m, WRAP_MODE mode = WRAP_MODE.CLAMP);
+        ColorRGBA GetPixelMipmap(float u, float v, float m, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
         /// Get a pixel from the image at normalized index u,v.
@@ -107,7 +107,7 @@ namespace ImageProcessing.Images
         /// <param name="v">The second normalized (0-1) index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        new ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
+        new ColorRGBA GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
         /// Get a pixels channel value from the image at index x,y.
@@ -136,7 +136,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="pixel">The pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        void SetPixel(int x, int y, ColorRGB pixel, WRAP_MODE mode = WRAP_MODE.NONE);
+        void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE);
 
         /// <summary>
         /// Set the pixel at index x,y.
@@ -146,7 +146,7 @@ namespace ImageProcessing.Images
         /// <param name="m">The mipmap index.</param>
         /// <param name="pixel">The pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        void SetPixelMipmap(int x, int y, int m, ColorRGB pixel, WRAP_MODE mode = WRAP_MODE.NONE);
+        void SetPixelMipmap(int x, int y, int m, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE);
 
         /// <summary>
         /// Set the pixels channel at index x,y.

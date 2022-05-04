@@ -180,48 +180,18 @@ namespace ImageProcessing.Images
 
             int xi = (int)x;
             int yi = (int)y;
+            int xi1 = xi + 1;
+            int yi1 = yi + 1;
 
-            Vector2f v00, v10, v01, v11;
+            Indices(ref xi, ref yi, mode);
+            Indices(ref xi1, ref yi1, mode);
 
-            switch (mode)
-            {
-                case WRAP_MODE.CLAMP:
-                    v00 = GetClamped(xi, yi);
-                    v10 = GetClamped(xi + 1, yi);
-                    v01 = GetClamped(xi, yi + 1);
-                    v11 = GetClamped(xi + 1, yi + 1);
-                    break;
+            float v00 = this[xi, yi][c];
+            float v10 = this[xi1, yi][c];
+            float v01 = this[xi, yi1][c];
+            float v11 = this[xi1, yi1][c];
 
-                case WRAP_MODE.WRAP:
-                    v00 = GetWrapped(xi, yi);
-                    v10 = GetWrapped(xi + 1, yi);
-                    v01 = GetWrapped(xi, yi + 1);
-                    v11 = GetWrapped(xi + 1, yi + 1);
-                    break;
-
-                case WRAP_MODE.MIRROR:
-                    v00 = GetMirrored(xi, yi);
-                    v10 = GetMirrored(xi + 1, yi);
-                    v01 = GetMirrored(xi, yi + 1);
-                    v11 = GetMirrored(xi + 1, yi + 1);
-                    break;
-
-                case WRAP_MODE.NONE:
-                    v00 = this[xi, yi];
-                    v10 = this[xi + 1, yi];
-                    v01 = this[xi, yi + 1];
-                    v11 = this[xi + 1, yi + 1];
-                    break;
-
-                default:
-                    v00 = this[xi, yi];
-                    v10 = this[xi + 1, yi];
-                    v01 = this[xi, yi + 1];
-                    v11 = this[xi + 1, yi + 1];
-                    break;
-            }
-
-            return MathUtil.Blerp(v00[c], v10[c], v01[c], v11[c], x - xi, y - yi);
+            return MathUtil.BLerp(v00, v10, v01, v11, x - xi, y - yi);
         }
 
         /// <summary>
@@ -247,23 +217,8 @@ namespace ImageProcessing.Images
         /// <returns>The vector at index x,y.</returns>
         public Vector2f GetVector(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            switch (mode)
-            {
-                case WRAP_MODE.CLAMP:
-                    return GetClamped(x, y);
-
-                case WRAP_MODE.WRAP:
-                    return GetWrapped(x, y);
-
-                case WRAP_MODE.MIRROR:
-                    return GetMirrored(x, y);
-
-                case WRAP_MODE.NONE:
-                    return this[x, y];
-
-                default:
-                    return this[x, y];
-            }
+            Indices(ref x, ref y, mode);
+            return this[x, y];
         }
 
         /// <summary>
@@ -280,51 +235,18 @@ namespace ImageProcessing.Images
 
             int xi = (int)x;
             int yi = (int)y;
+            int xi1 = xi + 1;
+            int yi1 = yi + 1;
 
-            Vector2f v00, v10, v01, v11;
+            Indices(ref xi, ref yi, mode);
+            Indices(ref xi1, ref yi1, mode);
 
-            switch (mode)
-            {
-                case WRAP_MODE.CLAMP:
-                    v00 = GetClamped(xi, yi);
-                    v10 = GetClamped(xi + 1, yi);
-                    v01 = GetClamped(xi, yi + 1);
-                    v11 = GetClamped(xi + 1, yi + 1);
-                    break;
+            Vector2f v00 = this[xi, yi];
+            Vector2f v10 = this[xi1, yi];
+            Vector2f v01 = this[xi, yi1];
+            Vector2f v11 = this[xi1, yi1];
 
-                case WRAP_MODE.WRAP:
-                    v00 = GetWrapped(xi, yi);
-                    v10 = GetWrapped(xi + 1, yi);
-                    v01 = GetWrapped(xi, yi + 1);
-                    v11 = GetWrapped(xi + 1, yi + 1);
-                    break;
-
-                case WRAP_MODE.MIRROR:
-                    v00 = GetMirrored(xi, yi);
-                    v10 = GetMirrored(xi + 1, yi);
-                    v01 = GetMirrored(xi, yi + 1);
-                    v11 = GetMirrored(xi + 1, yi + 1);
-                    break;
-
-                case WRAP_MODE.NONE:
-                    v00 = this[xi, yi];
-                    v10 = this[xi + 1, yi];
-                    v01 = this[xi, yi + 1];
-                    v11 = this[xi + 1, yi + 1];
-                    break;
-
-                default:
-                    v00 = this[xi, yi];
-                    v10 = this[xi + 1, yi];
-                    v01 = this[xi, yi + 1];
-                    v11 = this[xi + 1, yi + 1];
-                    break;
-            }
-
-            var vec = new Vector2f();
-            vec.x = MathUtil.Blerp(v00.x, v10.x, v01.x, v11.x, x - xi, y - yi);
-            vec.y = MathUtil.Blerp(v00.y, v10.y, v01.y, v11.y, x - xi, y - yi);
-            return vec;
+            return Vector2f.BLerp(v00, v10, v01, v11, x - xi, y - yi);
         }
 
         /// <summary>
@@ -336,28 +258,8 @@ namespace ImageProcessing.Images
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         public void SetVector(int x, int y, Vector2f vector, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            switch (mode)
-            {
-                case WRAP_MODE.NONE:
-                    this[x, y] = vector;
-                    break;
-
-                case WRAP_MODE.CLAMP:
-                    SetClamped(x, y, vector);
-                    break;
-
-                case WRAP_MODE.WRAP:
-                    SetWrapped(x, y, vector);
-                    break;
-
-                case WRAP_MODE.MIRROR:
-                    SetMirrored(x, y, vector);
-                    break;
-
-                default:
-                    this[x, y] = vector;
-                    break;
-            }
+            Indices(ref x, ref y, mode);
+            this[x, y] = vector;
         }
 
         /// <summary>
@@ -367,10 +269,10 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public override ColorRGB GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override ColorRGBA GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             var vec = GetVector(x, y, mode);
-            return new ColorRGB(vec.x, vec.y, 0);
+            return new ColorRGBA(vec.x, vec.y, 0, 1);
         }
 
         /// <summary>
@@ -380,10 +282,10 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The pixel at index x,y.</returns>
-        public override ColorRGB GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override ColorRGBA GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             var vec = GetVector(u, v, mode);
-            return new ColorRGB(vec.x, vec.y, 0);
+            return new ColorRGBA(vec.x, vec.y, 0, 1);
         }
 
         /// <summary>
@@ -393,31 +295,10 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="pixel">The pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        public override void SetPixel(int x, int y, ColorRGB pixel, WRAP_MODE mode = WRAP_MODE.NONE)
+        public override void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE)
         {
- 
-            switch (mode)
-            {
-                case WRAP_MODE.NONE:
-                    this[x, y] = new Vector2f(pixel.r, pixel.g);
-                    break;
-
-                case WRAP_MODE.CLAMP:
-                    SetClamped(x, y, new Vector2f(pixel.r, pixel.g));
-                    break;
-
-                case WRAP_MODE.WRAP:
-                    SetWrapped(x, y, new Vector2f(pixel.r, pixel.g));
-                    break;
-
-                case WRAP_MODE.MIRROR:
-                    SetMirrored(x, y, new Vector2f(pixel.r, pixel.g));
-                    break;
-
-                default:
-                    this[x, y] = new Vector2f(pixel.r, pixel.g);
-                    break;
-            }
+            Indices(ref x, ref y, mode);
+            this[x, y] = new Vector2f(pixel.r, pixel.g);
         }
 
         /// <summary>
