@@ -299,10 +299,19 @@ namespace ImageProcessing.Images
         public BinaryImage2D Copy()
         {
             var copy = new BinaryImage2D(Width, Height);
+            copy.Threshold = Threshold;
+
             copy.Fill((x, y) =>
             {
                 return this[x, y];
             });
+
+            if(HasMipmaps)
+            {
+                copy.Mipmaps = new BinaryImage2D[Mipmaps.Length];
+                for(int i = 0; i < Mipmaps.Length; i++) 
+                    copy.Mipmaps[i] = Mipmaps[i].Copy();
+            }
 
             return copy;
         }

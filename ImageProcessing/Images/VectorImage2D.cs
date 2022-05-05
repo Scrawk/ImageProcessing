@@ -325,7 +325,16 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public VectorImage2D Copy()
         {
-            return new VectorImage2D(Data);
+            var copy = new VectorImage2D(Data);
+
+            if (HasMipmaps)
+            {
+                copy.Mipmaps = new VectorImage2D[Mipmaps.Length];
+                for (int i = 0; i < Mipmaps.Length; i++)
+                    copy.Mipmaps[i] = Mipmaps[i].Copy();
+            }
+
+            return copy;
         }
 
         /// <summary>

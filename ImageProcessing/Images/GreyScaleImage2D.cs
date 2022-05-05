@@ -292,7 +292,16 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public GreyScaleImage2D Copy()
         {
-            return new GreyScaleImage2D(Data);
+            var copy = new GreyScaleImage2D(Data);
+
+            if (HasMipmaps)
+            {
+                copy.Mipmaps = new GreyScaleImage2D[Mipmaps.Length];
+                for (int i = 0; i < Mipmaps.Length; i++)
+                    copy.Mipmaps[i] = Mipmaps[i].Copy();
+            }
+
+            return copy;
         }
 
         /// <summary>

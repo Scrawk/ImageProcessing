@@ -339,69 +339,6 @@ namespace ImageProcessing.Images
             }
         }
 
-        /*
-
-        /// <summary>
-        /// Get the element at clamped index x,y.
-        /// </summary>
-        protected T GetClamped(int x, int y)
-        {
-            x = MathUtil.Clamp(x, 0, Width - 1);
-            y = MathUtil.Clamp(y, 0, Height - 1);
-            return this[x, y];
-        }
-
-        /// <summary>
-        /// Get the element at wrapped index x,y.
-        /// </summary>
-        protected T GetWrapped(int x, int y)
-        {
-            x = MathUtil.Wrap(x, Width);
-            y = MathUtil.Wrap(y, Height);
-            return this[x, y];
-        }
-
-        /// <summary>
-        /// Get the element at mirrored index x,y.
-        /// </summary>
-        protected T GetMirrored(int x, int y)
-        {
-            x = MathUtil.Mirror(x, Width);
-            y = MathUtil.Mirror(y, Height);
-            return this[x, y];
-        }
-
-        /// <summary>
-        /// Set the element at clamped index x.
-        /// </summary>
-        protected void SetClamped(int x, int y, T value)
-        {
-            x = MathUtil.Clamp(x, 0, Width - 1);
-            y = MathUtil.Clamp(y, 0, Height - 1);
-            this[x, y] = value;
-        }
-
-        /// <summary>
-        /// Set the element at wrapped index x.
-        /// </summary>
-        protected void SetWrapped(int x, int y, T value)
-        {
-            x = MathUtil.Wrap(x, Width);
-            y = MathUtil.Wrap(y, Height);
-            this[x, y] = value;
-        }
-
-        /// <summary>
-        /// Set the element at mirred index x.
-        /// </summary>
-        protected void SetMirrored(int x, int y, T value)
-        {
-            x = MathUtil.Mirror(x, Width);
-            y = MathUtil.Mirror(y, Height);
-            this[x, y] = value;
-        }
-        */
-
         /// <summary>
         /// Recommended blocks for parallel processing.
         /// </summary>
@@ -737,10 +674,14 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Convert to a binary image.
         /// </summary>
+        /// <param name="threshold">The threshold that determines 
+        /// if the images values are tru or false.</param>
         /// <returns>The binary image.</returns>
-        public BinaryImage2D ToBinaryImage()
+        public BinaryImage2D ToBinaryImage(float threshold = 0.5f)
         {
             var copy = new BinaryImage2D(Width, Height);
+            copy.Threshold = threshold;
+
             copy.Iterate((x, y) =>
             {
                 var pixel = GetPixel(x, y);

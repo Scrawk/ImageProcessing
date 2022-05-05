@@ -287,7 +287,16 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public ColorImage2D Copy()
         {
-            return new ColorImage2D(Data);
+            var copy = new ColorImage2D(Data);
+
+            if (HasMipmaps)
+            {
+                copy.Mipmaps = new ColorImage2D[Mipmaps.Length];
+                for (int i = 0; i < Mipmaps.Length; i++)
+                    copy.Mipmaps[i] = Mipmaps[i].Copy();
+            }
+
+            return copy;
         }
 
         /// <summary>
