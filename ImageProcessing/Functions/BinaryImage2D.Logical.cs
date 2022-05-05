@@ -23,6 +23,9 @@ namespace ImageProcessing.Images
         /// <param name="image">Another image of the same size.</param>
         public void Or(BinaryImage2D image)
         {
+            if (AreNotSameSize(image))
+                throw new ArgumentException("The images must be the same size to perform the Or operation.");
+
             Fill((x, y) => this[x, y] | image[x, y]);
         }
 
@@ -32,6 +35,9 @@ namespace ImageProcessing.Images
         /// <param name="image">Another image of the same size.</param>
         public void Xor(BinaryImage2D image)
         {
+            if (AreNotSameSize(image))
+                throw new ArgumentException("The images must be the same size to perform the Xor operation.");
+
             Fill((x, y) => this[x, y] ^ image[x, y]);
         }
 
@@ -41,6 +47,9 @@ namespace ImageProcessing.Images
         /// <param name="image">Another image of the same size.</param>
         public void And(BinaryImage2D image)
         {
+            if (AreNotSameSize(image))
+                throw new ArgumentException("The images must be the same size to perform the And operation.");
+
             Fill((x, y) => this[x, y] & image[x, y]);
         }
 

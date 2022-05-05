@@ -17,9 +17,31 @@ namespace ImageProcessing.Images
         /// Create a default of image.
         /// </summary>
         public VectorImage2D()
-             : this(0, 0)
+             : this(1, 1)
         {
 
+        }
+
+        /// <summary>
+        /// Create a image of a given size.
+        /// </summary>
+        /// <param name="size">The size of the image. x is the width and y is the height.</param>
+        public VectorImage2D(Point2i size)
+            : this(size.x, size.y)
+        {
+            
+        }
+
+        /// <summary>
+        /// Create a image of a given width and height and filled with a value.
+        /// </summary>
+        /// <param name="width">The width of the image.</param>
+        /// <param name="height">The height of the image.</param>
+        /// <param name="value">The value to fill the image with.</param>
+        public VectorImage2D(int width, int height, Vector2f value)
+            : this(width, height)
+        {
+            Fill(value);
         }
 
         /// <summary>
@@ -33,33 +55,12 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Create a image of a given size.
-        /// </summary>
-        /// <param name="size">The size of the image. x is the width and y is the height.</param>
-        public VectorImage2D(Point2i size)
-        {
-            Data = new Vector2f[size.x, size.y];
-        }
-
-        /// <summary>
-        /// Create a image of a given width and height and filled with a value.
-        /// </summary>
-        /// <param name="width">The width of the image.</param>
-        /// <param name="height">The height of the image.</param>
-        /// <param name="value">The value to fill the image with.</param>
-        public VectorImage2D(int width, int height, Vector2f value)
-        {
-            Data = new Vector2f[width, height];
-            Fill(value);
-        }
-
-        /// <summary>
         /// Create a image from the given data.
         /// </summary>
         /// <param name="data">The images data.</param>
         public VectorImage2D(Vector2f[,] data)
         {
-            data = data.Copy();
+            Data = data.Copy();
         }
 
         /// <summary>
@@ -295,7 +296,9 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="pixel">The pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        public override void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE)
+        /// <param name="blend">The mode pixels are blended based on there alpha value. 
+        /// Only applies to images with a alpha channel.</param>
+        public override void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA)
         {
             Indices(ref x, ref y, mode);
             this[x, y] = new Vector2f(pixel.r, pixel.g);

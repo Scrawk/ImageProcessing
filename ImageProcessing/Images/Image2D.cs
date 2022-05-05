@@ -231,8 +231,10 @@ namespace ImageProcessing.Images
         /// <param name="x">The first index.</param>
         /// <param name="y">The second index.</param>
         /// <param name="pixel">The pixel.</param>
-        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        public abstract void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE);
+        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
+        /// <param name="blend">The mode pixels are blended based on there alpha value. 
+        /// Only applies to images with a alpha channel.</param>
+        public abstract void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE wrap = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA);
 
         /// <summary>
         /// Set the pixel at index x,y.
@@ -241,10 +243,12 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="m">The mipmap index.</param>
         /// <param name="pixel">The pixel.</param>
-        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        public void SetPixelMipmap(int x, int y, int m, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE)
+        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
+        /// <param name="blend">The mode pixels are blended based on there alpha value. 
+        /// Only applies to images with a alpha channel.</param>
+        public void SetPixelMipmap(int x, int y, int m, ColorRGBA pixel, WRAP_MODE wrap = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA)
         {
-            GetMipmapInterface(m).SetPixel(x, y, pixel, mode);
+            GetMipmapInterface(m).SetPixel(x, y, pixel, wrap, blend);
         }
 
         /// <summary>
@@ -262,11 +266,21 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="image"></param>
         /// <returns></returns>
-        public bool IsSameSize(IImage2D image)
+        public bool AreSameSize(IImage2D image)
         {
             if (Width != image.Width) return false;
             if (Height != image.Height) return false;
             return true;
+        }
+
+        /// <summary>
+        /// Are the images the same size.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <returns>True if the images are not the same size.</returns>
+        public bool AreNotSameSize(IImage2D image)
+        {
+            return !AreSameSize(image);
         }
 
         /// <summary>

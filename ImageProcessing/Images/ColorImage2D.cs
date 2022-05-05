@@ -18,8 +18,31 @@ namespace ImageProcessing.Images
         /// Create a default of image.
         /// </summary>
         public ColorImage2D()
+            : this(1, 1)
         {
 
+        }
+
+        /// <summary>
+        /// Create a image of a given size.
+        /// </summary>
+        /// <param name="size">The size of the image. x is the width and y is the height.</param>
+        public ColorImage2D(Point2i size)
+            : this(size.x, size.y)
+        {
+ 
+        }
+
+        /// <summary>
+        /// Create a image of a given width and height and filled with a value.
+        /// </summary>
+        /// <param name="width">The width of the image.</param>
+        /// <param name="height">The height of the image.</param>
+        /// <param name="value">The value to fill the image with.</param>
+        public ColorImage2D(int width, int height, ColorRGBA value)
+            : this(width, height)
+        {
+            Fill(value);
         }
 
         /// <summary>
@@ -30,27 +53,6 @@ namespace ImageProcessing.Images
         public ColorImage2D(int width, int height)
         {
             Data = new ColorRGBA[width, height];
-        }
-
-        /// <summary>
-        /// Create a image of a given size.
-        /// </summary>
-        /// <param name="size">The size of the image. x is the width and y is the height.</param>
-        public ColorImage2D(Point2i size)
-        {
-            Data = new ColorRGBA[size.x, size.y];
-        }
-
-        /// <summary>
-        /// Create a image of a given width and height and filled with a value.
-        /// </summary>
-        /// <param name="width">The width of the image.</param>
-        /// <param name="height">The height of the image.</param>
-        /// <param name="value">The value to fill the image with.</param>
-        public ColorImage2D(int width, int height, ColorRGBA value)
-        {
-            Data = new ColorRGBA[width, height];
-            Fill(value);
         }
 
         /// <summary>
@@ -216,8 +218,8 @@ namespace ImageProcessing.Images
         /// <returns>The pixel at index x,y.</returns>
         public override ColorRGBA GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            float x = u * (Width-1);
-            float y = v * (Height-1);
+            float x = u * (Width - 1);
+            float y = v * (Height - 1);
 
             int xi = (int)x;
             int yi = (int)y;
@@ -242,10 +244,26 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="pixel">The pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        public override void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE)
+        /// <param name="blend">The mode pixels are blended based on there alpha value. 
+        /// Only applies to images with a alpha channel.</param>
+        public override void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA)
         {
             Indices(ref x, ref y, mode);
-            this[x,y] = pixel;
+
+            switch(blend)
+            {
+                case BLEND_MODE.ALPHA:
+                    this[x, y] = ColorRGBA.AlphaBlend(pixel, this[x, y]);
+                    break;
+
+                case BLEND_MODE.NONE:
+                    this[x, y] = pixel;
+                    break;
+
+                default:
+                    this[x, y] = pixel;
+                    break;
+            }
         }
 
         /// <summary>

@@ -17,6 +17,12 @@ namespace ImageProcessing.Images
     public enum WRAP_MODE {  CLAMP, WRAP, MIRROR, NONE };
 
     /// <summary>
+    /// The mode pixels are blended based on there alpha value.
+    /// Only applies to images with a alpha channel.
+    /// </summary>
+    public enum BLEND_MODE {  ALPHA, NONE };
+
+    /// <summary>
     /// General interface for a 2 dimensional image.
     /// </summary>
     public interface  IImage2D : IImageSampler2D
@@ -135,8 +141,10 @@ namespace ImageProcessing.Images
         /// <param name="x">The first index.</param>
         /// <param name="y">The second index.</param>
         /// <param name="pixel">The pixel.</param>
-        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE);
+        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
+        /// <param name="blend">The mode pixels are blended based on there alpha value. 
+        /// Only applies to images with a alpha channel.</param>
+        void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE wrap = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA);
 
         /// <summary>
         /// Set the pixel at index x,y.
@@ -145,8 +153,10 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="m">The mipmap index.</param>
         /// <param name="pixel">The pixel.</param>
-        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        void SetPixelMipmap(int x, int y, int m, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE);
+        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
+        /// <param name="blend">The mode pixels are blended based on there alpha value. 
+        /// Only applies to images with a alpha channel.</param>
+        void SetPixelMipmap(int x, int y, int m, ColorRGBA pixel, WRAP_MODE wrap = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA);
 
         /// <summary>
         /// Set the pixels channel at index x,y.

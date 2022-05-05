@@ -21,8 +21,31 @@ namespace ImageProcessing.Images
         /// Create a default of image.
         /// </summary>
         public BinaryImage2D()
-            : this(0, 0)
+            : this(1, 1)
         {
+            
+        }
+
+        /// <summary>
+        /// Create a image of a given size.
+        /// </summary>
+        /// <param name="size">The size of the image. x is the width and y is the height.</param>
+        public BinaryImage2D(Point2i size)
+            : this(size.x, size.y)
+        {
+
+        }
+
+        /// <summary>
+        /// Create a image of a given width and height and filled with a value.
+        /// </summary>
+        /// <param name="width">The width of the image.</param>
+        /// <param name="height">The height of the image.</param>
+        /// <param name="value">The value to fill the image with.</param>
+        public BinaryImage2D(int width, int height, bool value)
+            : this(width, height)
+        {
+            Fill(value);
         }
 
         /// <summary>
@@ -35,31 +58,7 @@ namespace ImageProcessing.Images
             m_width = width;
             m_height = height;
             Data = new BitArray(width * height);
-        }
-
-        /// <summary>
-        /// Create a image of a given size.
-        /// </summary>
-        /// <param name="size">The size of the image. x is the width and y is the height.</param>
-        public BinaryImage2D(Point2i size)
-        {
-            m_width = size.x;
-            m_height = size.y;
-            Data = new BitArray(size.x * size.y);
-        }
-
-        /// <summary>
-        /// Create a image of a given width and height and filled with a value.
-        /// </summary>
-        /// <param name="width">The width of the image.</param>
-        /// <param name="height">The height of the image.</param>
-        /// <param name="value">The value to fill the image with.</param>
-        public BinaryImage2D(int width, int height, bool value)
-        {
-            m_width = width;
-            m_height = height;
-            Data = new BitArray(width * height);
-            Fill(value);
+            Threshold = 0.5f;
         }
 
         /// <summary>
@@ -98,6 +97,11 @@ namespace ImageProcessing.Images
         /// CreateMipmaps must be called for the image to have mipmaps.
         /// </summary>
         public override int MipmapLevels => (Mipmaps != null) ? Mipmaps.Length : 0;
+
+        /// <summary>
+        /// The threshold at which a value in the image is true or false.
+        /// </summary>
+        public float Threshold { get; set; }
 
         /// <summary>
         /// Access a element at index x,y.
@@ -267,10 +271,12 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="pixel">The pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        public override void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE)
+        /// <param name="blend">The mode pixels are blended based on there alpha value. 
+        /// Only applies to images with a alpha channel.</param>
+        public override void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA)
         {
             Indices(ref x, ref y, mode);
-            this[x, y] = pixel.Intensity  > 0;
+            this[x, y] = pixel.Intensity  > Threshold;
         }
 
         /// <summary>
@@ -283,7 +289,7 @@ namespace ImageProcessing.Images
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         public override void SetChannel(int x, int y, int c, float value, WRAP_MODE mode = WRAP_MODE.NONE)
         {
-            SetValue(x, y, value > 0);
+            SetValue(x, y, value > Threshold);
         }
 
         /// <summary>

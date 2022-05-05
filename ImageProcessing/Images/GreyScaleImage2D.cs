@@ -17,9 +17,21 @@ namespace ImageProcessing.Images
         /// Create a default of image.
         /// </summary>
         public GreyScaleImage2D()
-             : this(0, 0)
+             : this(1, 1)
         {
 
+        }
+
+        /// <summary>
+        /// Create a image of a given width and height and filled with a value.
+        /// </summary>
+        /// <param name="width">The width of the image.</param>
+        /// <param name="height">The height of the image.</param>
+        /// <param name="value">The value to fill the image with.</param>
+        public GreyScaleImage2D(int width, int height, float value)
+            : this(width, height)
+        {
+            Fill(value);
         }
 
         /// <summary>
@@ -39,18 +51,6 @@ namespace ImageProcessing.Images
         public GreyScaleImage2D(Point2i size)
         {
             Data = new float[size.x, size.y];
-        }
-
-        /// <summary>
-        /// Create a image of a given width and height and filled with a value.
-        /// </summary>
-        /// <param name="width">The width of the image.</param>
-        /// <param name="height">The height of the image.</param>
-        /// <param name="value">The value to fill the image with.</param>
-        public GreyScaleImage2D(int width, int height, float value)
-        {
-            Data = new float[width, height];
-            Fill(value);
         }
 
         /// <summary>
@@ -174,8 +174,8 @@ namespace ImageProcessing.Images
         /// <returns>The value at index x,y.</returns>
         public float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            float x = u * (Width-1);
-            float y = v * (Height-1);
+            float x = u * (Width - 1);
+            float y = v * (Height - 1);
 
             int xi = (int)x;
             int yi = (int)y;
@@ -265,7 +265,9 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="pixel">The pixel.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        public override void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE)
+        /// <param name="blend">The mode pixels are blended based on there alpha value. 
+        /// Only applies to images with a alpha channel.</param>
+        public override void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA)
         {
             Indices(ref x, ref y, mode);
             this[x, y] = pixel.Intensity;
@@ -391,8 +393,8 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public Vector2f GetFirstDerivative(float u, float v, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            float x1 = 1.0f / Width;
-            float y1 = 1.0f / Height;
+            float x1 = Width > 1 ? 1.0f / Width : 0;
+            float y1 = Height > 1 ? 1.0f / Height : 0;
             float z1 = GetValue(u - x1, v + y1, mode);
             float z2 = GetValue(u +  0, v + y1, mode);
             float z3 = GetValue(u + x1, v + y1, mode);
@@ -457,8 +459,9 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public (Vector2f d1, Vector3f d2) GetFirstAndSecondDerivative(float u, float v, Vector2f w, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            float x1 = 1.0f / Width;
-            float y1 = 1.0f / Height;
+            float x1 = Width > 1 ? 1.0f / Width : 0;
+            float y1 = Height > 1 ? 1.0f / Height : 0;
+
             float wx2 = w.x * w.x;
             float wy2 = w.y * w.y;
             float wxy2 = w.SqrMagnitude;

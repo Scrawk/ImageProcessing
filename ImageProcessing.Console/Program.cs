@@ -21,15 +21,6 @@ namespace ImageProcessing.Console
         static void Main(string[] args)
         {
 
-            int w = 32;
-            int h = 32;
-
-            var image = ColorImage2D.Random<ColorImage2D>(w, h, 0);
-
-            
-
-            WriteLine(image);
-
 
         }
 

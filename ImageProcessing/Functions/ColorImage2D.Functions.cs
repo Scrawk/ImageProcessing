@@ -71,5 +71,345 @@ namespace ImageProcessing.Images
                 return ColorHSV.ToRGB(c.r, c.g, c.b).rgb1;
             });
         }
+
+        /// <summary>
+        /// Applies the gamma function to the pixels in the image.
+        /// </summary>
+        /// <param name="lambda">The power to raise each channel to.</param>
+        /// <param name="a">The constant the result is multiplied by. Defaults to 1.</param>
+        public void Gamma(float lambda, float a = 1)
+        {
+            Modify(c =>
+            {
+                c.Gamma(lambda, a);
+                return c;
+            });
+        }
+
+        /// <summary>
+        /// Inverts the pixels in the image.
+        /// </summary>
+        public void Invert()
+        {
+            Modify(c =>
+            {
+                return 1.0f - c;
+            });
+        }
+
+        /// <summary>
+        /// Add the pixels in the image.
+        /// </summary>
+        /// <param name="pixel">The pixel.</param>
+        public void Add(ColorRGBA pixel)
+        {
+            Modify(c =>
+            {
+                return c + pixel;
+            });
+        }
+
+        /// <summary>
+        /// Subtract the pixels in the image.
+        /// </summary>
+        /// <param name="pixel">The pixel.</param>
+        /// <param name="reverse">Reverse the operations order.</param>
+        public void Subtract(ColorRGBA pixel, bool reverse = false)
+        {
+            Modify(c =>
+            {
+                if (reverse)
+                    return pixel - c;
+                else
+                    return c - pixel;
+            });
+        }
+
+        /// <summary>
+        /// Multiply the pixels in the image.
+        /// </summary>
+        /// <param name="pixel">The pixel.</param>
+        public void Multiply(ColorRGBA pixel)
+        {
+            Modify(c =>
+            {
+                return c * pixel;
+            });
+        }
+
+        /// <summary>
+        /// Add the pixels in the image.
+        /// </summary>
+        /// <param name="pixel">The pixel.</param>
+        /// <param name="reverse">Reverse the operations order.</param>
+        public void Divide(ColorRGBA pixel, bool reverse = false)
+        {
+            Modify(c =>
+            {
+                if (reverse)
+                {
+                    c.r = c.r > 0 ? pixel.r / c.r : 0;
+                    c.g = c.g > 0 ? pixel.g / c.g : 0;
+                    c.b = c.b > 0 ? pixel.b / c.b : 0;
+                    c.a = c.a > 0 ? pixel.a / c.a : 0;
+                }
+                else
+                {
+                    c.r = pixel.r > 0 ? c.r / pixel.r : 0;
+                    c.g = pixel.g > 0 ? c.g / pixel.g : 0;
+                    c.b = pixel.b > 0 ? c.b / pixel.b : 0;
+                    c.a = pixel.a > 0 ? c.a / pixel.a : 0;
+                }
+
+                return c;
+            });
+        }
+
+        /// <summary>
+        /// Adds the two images together.
+        /// The resulting image will be the same size as the first image.
+        /// If the second image is a different size then bilinear filtering will be used sample the image.
+        /// </summary>
+        /// <param name="image1">The first image.</param>
+        /// <param name="image2">The second image.</param>
+        /// <returns>A image the same size as the first.</returns>
+        public static ColorImage2D operator +(ColorImage2D image1, ColorImage2D image2)
+        {
+            int width = image1.Width;
+            int height = image1.Height;
+            var image = new ColorImage2D(width, height);
+
+            if (image1.AreSameSize(image2))
+            {
+                image.Fill((x, y) =>
+                {
+                    return image1[x, y] + image2[x, y];
+                });
+            }
+            else
+            {
+                image.Fill((x, y) =>
+                {
+                    float u = width > 1 ? x / (width - 1.0f) : 0;
+                    float v = height > 1 ? y / (height - 1.0f) : 0;
+
+                    return image1[x, y] + image2.GetPixel(u, v);
+                });
+            }
+
+            return image;
+        }
+
+        /// <summary>
+        /// Subtracts the two images.
+        /// The resulting image will be the same size as the first image.
+        /// If the second image is a different size then bilinear filtering will be used sample the image.
+        /// </summary>
+        /// <param name="image1">The first image.</param>
+        /// <param name="image2">The second image.</param>
+        /// <returns>A image the same size as the first.</returns>
+        public static ColorImage2D operator -(ColorImage2D image1, ColorImage2D image2)
+        {
+            int width = image1.Width;
+            int height = image1.Height;
+            var image = new ColorImage2D(width, height);
+
+            if (image1.AreSameSize(image2))
+            {
+                image.Fill((x, y) =>
+                {
+                    return image1[x, y] - image2[x, y];
+                });
+            }
+            else
+            {
+                image.Fill((x, y) =>
+                {
+                    float u = width > 1 ? x / (width - 1.0f) : 0;
+                    float v = height > 1 ? y / (height - 1.0f) : 0;
+
+                    return image1[x, y] - image2.GetPixel(u, v);
+                });
+            }
+
+            return image;
+        }
+
+        /// <summary>
+        /// Multiply the two images.
+        /// The resulting image will be the same size as the first image.
+        /// If the second image is a different size then bilinear filtering will be used sample the image.
+        /// </summary>
+        /// <param name="image1">The first image.</param>
+        /// <param name="image2">The second image.</param>
+        /// <returns>A image the same size as the first.</returns>
+        public static ColorImage2D operator *(ColorImage2D image1, ColorImage2D image2)
+        {
+            int width = image1.Width;
+            int height = image1.Height;
+            var image = new ColorImage2D(width, height);
+
+            if (image1.AreSameSize(image2))
+            {
+                image.Fill((x, y) =>
+                {
+                    return image1[x, y] * image2[x, y];
+                });
+            }
+            else
+            {
+                image.Fill((x, y) =>
+                {
+                    float u = width > 1 ? x / (width - 1.0f) : 0;
+                    float v = height > 1 ? y / (height - 1.0f) : 0;
+
+                    return image1[x, y] * image2.GetPixel(u, v);
+                });
+            }
+
+            return image;
+        }
+
+        /// <summary>
+        /// Divide the two images.
+        /// The resulting image will be the same size as the first image.
+        /// If the second image is a different size then bilinear filtering will be used sample the image.
+        /// </summary>
+        /// <param name="image1">The first image.</param>
+        /// <param name="image2">The second image.</param>
+        /// <returns>A image the same size as the first.</returns>
+        public static ColorImage2D operator /(ColorImage2D image1, ColorImage2D image2)
+        {
+            int width = image1.Width;
+            int height = image1.Height;
+            var image = new ColorImage2D(width, height);
+
+            if (image1.AreSameSize(image2))
+            {
+                image.Fill((x, y) =>
+                {
+                    var c1 = image1[x, y];
+                    var c2 = image2[x, y];
+                    var c = new ColorRGBA();
+
+                    c.r = c2.r > 0 ? c1.r / c2.r : 0;
+                    c.g = c2.g > 0 ? c1.g / c2.g : 0;
+                    c.b = c2.b > 0 ? c1.b / c2.b : 0;
+                    c.a = c2.a > 0 ? c1.a / c2.a : 0;
+
+                    return c;
+                });
+            }
+            else
+            {
+                image.Fill((x, y) =>
+                {
+                    float u = width > 1 ? x / (width - 1.0f) : 0;
+                    float v = height > 1 ? y / (height - 1.0f) : 0;
+
+                    var c1 = image1[x, y];
+                    var c2 = image2.GetPixel(u, v);
+                    var c = new ColorRGBA();
+
+                    c.r = c2.r > 0 ? c1.r / c2.r : 0;
+                    c.g = c2.g > 0 ? c1.g / c2.g : 0;
+                    c.b = c2.b > 0 ? c1.b / c2.b : 0;
+                    c.a = c2.a > 0 ? c1.a / c2.a : 0;
+
+                    return c;
+                });
+            }
+
+            return image;
+        }
+
+        /// <summary>
+        /// Add each pixel in the image with pixel.
+        /// </summary>
+        /// <param name="image1">The first image.</param>
+        /// <param name="pixel">The pixel.</param>
+        /// <returns></returns>
+        public static ColorImage2D operator +(ColorImage2D image1, ColorRGBA pixel)
+        {
+            int width = image1.Width;
+            int height = image1.Height;
+            var image = new ColorImage2D(width, height);
+
+            image.Fill((x, y) =>
+            {
+                return image1[x, y] + pixel;
+            });
+
+            return image;
+        }
+
+        /// <summary>
+        /// Subtract each pixel in the image with pixel.
+        /// </summary>
+        /// <param name="image1">The first image.</param>
+        /// <param name="pixel">The pixel.</param>
+        /// <returns></returns>
+        public static ColorImage2D operator -(ColorImage2D image1, ColorRGBA pixel)
+        {
+            int width = image1.Width;
+            int height = image1.Height;
+            var image = new ColorImage2D(width, height);
+
+            image.Fill((x, y) =>
+            {
+                return image1[x, y] - pixel;
+            });
+
+            return image;
+        }
+
+        /// <summary>
+        /// Multiply each pixel in the image with pixel.
+        /// </summary>
+        /// <param name="image1">The first image.</param>
+        /// <param name="pixel">The pixel.</param>
+        /// <returns></returns>
+        public static ColorImage2D operator *(ColorImage2D image1, ColorRGBA pixel)
+        {
+            int width = image1.Width;
+            int height = image1.Height;
+            var image = new ColorImage2D(width, height);
+
+            image.Fill((x, y) =>
+            {
+                return image1[x, y] * pixel;
+            });
+
+            return image;
+        }
+
+        /// <summary>
+        /// Divide each pixel in the image with pixel.
+        /// </summary>
+        /// <param name="image1">The first image.</param>
+        /// <param name="pixel">The pixel.</param>
+        /// <returns></returns>
+        public static ColorImage2D operator /(ColorImage2D image1, ColorRGBA pixel)
+        {
+            int width = image1.Width;
+            int height = image1.Height;
+            var image = new ColorImage2D(width, height);
+
+            image.Fill((x, y) =>
+            {
+                var c1 = image1[x, y];
+                var c = new ColorRGBA();
+
+                c.r = pixel.r > 0 ? c1.r / pixel.r : 0;
+                c.g = pixel.g > 0 ? c1.g / pixel.g : 0;
+                c.b = pixel.b > 0 ? c1.b / pixel.b : 0;
+                c.a = pixel.a > 0 ? c1.a / pixel.a : 0;
+
+                return c;
+            });
+
+            return image;
+        }
+
     }
 }
