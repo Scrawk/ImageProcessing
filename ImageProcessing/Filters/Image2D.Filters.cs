@@ -97,17 +97,24 @@ namespace ImageProcessing.Images
 			{
 				if (mask == null)
 				{
-					var pixel = Filter(p.x, p.y, image, k, mode) * k.Scale;
+					var pixel1 = image.GetPixel(p.x, p.y);
+					var pixel2 = Filter(p.x, p.y, image, k, mode) * k.Scale;
 
-					image2.SetPixel(p.x, p.y, pixel, mode, BLEND_MODE.ALPHA);
+					//pixel has filtered rgb but original alpha.
+					var pixel = new ColorRGBA(pixel2, pixel1.a);
+
+					image2.SetPixel(p.x, p.y, pixel, mode, BLEND_MODE.NONE);
 				}
 				else
 				{
 					var pixel1 = image.GetPixel(p.x, p.y);
 					var pixel2 = Filter(p.x, p.y, image, k, mode) * k.Scale;
 
-					var a = MathUtil.Clamp01(mask[p]);
-					var pixel = ColorRGBA.Lerp(pixel1, pixel2, a);
+					//Blend filtered and unfiltered based on mask.
+					var pixel3 = ColorRGB.Lerp(pixel1.rgb, pixel2, mask[p]);
+
+					//pixel has filtered rgb but original alpha.
+					var pixel = new ColorRGBA(pixel3, pixel1.a);
 
 					image2.SetPixel(p.x, p.y, pixel, mode, BLEND_MODE.NONE);
 				}
@@ -125,12 +132,12 @@ namespace ImageProcessing.Images
 		/// <param name="k">The filter to apply.</param>
 		/// <param name="mode">The wrap mode to use.</param>
 		/// <returns>The filter result.</returns>
-		private static ColorRGBA Filter<IMAGE>(int i, int j, IMAGE image, FilterKernel2D k, WRAP_MODE mode)
+		private static ColorRGB Filter<IMAGE>(int i, int j, IMAGE image, FilterKernel2D k, WRAP_MODE mode)
 			where IMAGE : IImage2D, new()
 		{
 			int half = k.Size / 2;
 
-			ColorRGBA sum = new ColorRGBA(); ;
+			ColorRGB sum = new ColorRGB();
 			for (int y = 0; y < k.Size; y++)
 			{
 				for (int x = 0; x < k.Size; x++)
@@ -138,7 +145,7 @@ namespace ImageProcessing.Images
 					int xi = x + i - half;
 					int yj = y + j - half;
 
-					sum += image.GetPixel(xi, yj, mode) * k[x, y];
+					sum += image.GetPixel(xi, yj, mode).rgb * k[x, y];
 				}
 			}
 
