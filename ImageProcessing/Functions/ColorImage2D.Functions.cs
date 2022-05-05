@@ -10,11 +10,11 @@ namespace ImageProcessing.Images
     public partial class ColorImage2D
     {
         /// <summary>
-        /// Make each value in image the smaller of the two values.
+        /// Set the channel at index c of each pixel to the value.
         /// </summary>
         /// <param name="c">The channels index (0-3).</param>
-        /// <param name="value">The another value.</param>
-        public void SetChanel(int c, float value)
+        /// <param name="value">The value.</param>
+        public void SetChannel(int c, float value)
         {
             Modify((v) =>
             {
