@@ -10,6 +10,7 @@ namespace ImageProcessing.Images
 
     public partial class Image2D<T>
     {
+
         /// <summary>
         /// Create a image filled with randow values.
         /// </summary>
@@ -111,5 +112,6 @@ namespace ImageProcessing.Images
 
             return image;
         }
+
     }
 }

@@ -784,5 +784,6 @@ namespace ImageProcessing.Images
         /// <param name="method">The interpolation method to use.</param>
         public abstract void CreateMipmaps(int maxLevel, WRAP_MODE mode = WRAP_MODE.CLAMP, RESCALE method = RESCALE.BICUBIC);
 
+
     }
 }

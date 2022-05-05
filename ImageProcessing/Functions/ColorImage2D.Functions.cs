@@ -12,12 +12,26 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Make each value in image the smaller of the two values.
         /// </summary>
+        /// <param name="c">The channels index (0-3).</param>
         /// <param name="value">The another value.</param>
-        public void Min(float value)
+        public void SetChanel(int c, float value)
         {
             Modify((v) =>
             {
-                return ColorRGBA.Min(v, value);
+                v[c] = value;
+                return v;
+            });
+        }
+
+        /// <summary>
+        /// Make each value in image the smaller of the two values.
+        /// </summary>
+        /// <param name="value">The another value.</param>
+        public void Min(float value)
+        {
+            Modify((c) =>
+            {
+                return ColorRGBA.Min(c, value);
             });
         }
 
@@ -27,9 +41,9 @@ namespace ImageProcessing.Images
         /// <param name="value">The another value.</param>
         public void Max(float value)
         {
-            Modify((v) =>
+            Modify((c) =>
             {
-                return ColorRGBA.Max(v, value);
+                return ColorRGBA.Max(c, value);
             });
         }
 
@@ -40,9 +54,9 @@ namespace ImageProcessing.Images
         /// <param name="max">The maximum value.</param>
         public void Clamp(float min, float max)
         {
-            Modify((v) =>
+            Modify((c) =>
             {
-                return ColorRGBA.Clamp(v, min, max);
+                return ColorRGBA.Clamp(c, min, max);
             });
         }
 
