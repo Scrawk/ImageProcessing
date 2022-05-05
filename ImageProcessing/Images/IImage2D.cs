@@ -172,9 +172,10 @@ namespace ImageProcessing.Images
         /// Get the images data as bytes.
         /// </summary>
         /// <param name="bitDepth">The bitdepth of the bytes.</param>
+        /// <param name="includeAlpha">Should the alpha channel be included.</param>
         /// <param name="bigEndian">The endianness if 16 bits.</param>
         /// <returns></returns>
-        byte[] ToBytes(BIT_DEPTH bitDepth, bool bigEndian = false);
+        byte[] ToBytes(BIT_DEPTH bitDepth, bool includeAlpha, bool bigEndian = false);
 
     }
 }

@@ -20,9 +20,8 @@ namespace ImageProcessing.Images
         public static IMAGE Offset<IMAGE>(IMAGE image, int offsetX, int offsetY)
             where IMAGE : IImage2D, new()
         {
-            var image2 = new IMAGE();
-            image2.Resize(image.Height, image.Width);
-
+            var image2 = NewImage<IMAGE>(image.Height, image.Width);
+   
             for(int y = 0; y < image.Height; y++)
             {
                 for(int x = 0; x < image.Width; x++)
@@ -44,8 +43,7 @@ namespace ImageProcessing.Images
         public static IMAGE FlipHorizontal<IMAGE>(IMAGE image)
             where IMAGE : IImage2D, new()
         {
-            var image2 = new IMAGE();
-            image2.Resize(image.Height, image.Width);
+            var image2 = NewImage<IMAGE>(image.Height, image.Width);
 
             for (int y = 0; y < image.Height; y++)
             {
@@ -68,9 +66,8 @@ namespace ImageProcessing.Images
         public static IMAGE FlipVertical<IMAGE>(IMAGE image)
             where IMAGE : IImage2D, new()
         {
-            var image2 = new IMAGE();
-            image2.Resize(image.Height, image.Width);
-
+            var image2 = NewImage<IMAGE>(image.Height, image.Width);
+        
             for (int y = 0; y < image.Height; y++)
             {
                 for (int x = 0; x < image.Width; x++)
@@ -91,9 +88,8 @@ namespace ImageProcessing.Images
         public static IMAGE Rotate90<IMAGE>(IMAGE image)
             where IMAGE : IImage2D, new()
         {
-            var image2 = new IMAGE();
-            image2.Resize(image.Height, image.Width);
-
+            var image2 = NewImage<IMAGE>(image.Height, image.Width);
+     
             for (int y = 0; y < image.Height; y++)
             {
                 for (int x = 0; x < image.Width; x++)
@@ -114,9 +110,8 @@ namespace ImageProcessing.Images
         public static IMAGE Rotate180<IMAGE>(IMAGE image)
             where IMAGE : IImage2D, new()
         {
-            var image2 = new IMAGE();
-            image2.Resize(image.Width, image.Height);
-
+            var image2 = NewImage<IMAGE>(image.Width, image.Height);
+   
             for (int y = 0; y < image.Height; y++)
             {
                 for (int x = 0; x < image.Width; x++)
@@ -137,9 +132,8 @@ namespace ImageProcessing.Images
         public static IMAGE Rotate270<IMAGE>(IMAGE image)
             where IMAGE : IImage2D, new()
         {
-            var image2 = new IMAGE();
-            image2.Resize(image.Height, image.Width);
-
+            var image2 = NewImage<IMAGE>(image.Height, image.Width);
+ 
             for (int y = 0; y < image.Height; y++)
             {
                 for (int x = 0; x < image.Width; x++)
@@ -162,9 +156,8 @@ namespace ImageProcessing.Images
         public static IMAGE Crop<IMAGE>(IMAGE image, Box2i bounds, WRAP_MODE mode = WRAP_MODE.CLAMP)
             where IMAGE : IImage2D, new()
         {
-            var image2 = new IMAGE();
-            image2.Resize(bounds.Width, bounds.Height);
-
+            var image2 = NewImage<IMAGE>(bounds.Width, bounds.Height);
+      
             for(int y = bounds.Min.y, j = 0; y < bounds.Max.y; y++, j++)
             {
                 for (int x = bounds.Min.x, i = 0; x < bounds.Max.x; x++, i++)

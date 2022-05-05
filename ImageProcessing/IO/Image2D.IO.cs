@@ -21,14 +21,15 @@ namespace ImageProcessing.Images
         /// Save the image as raw bytes.
         /// </summary>
         /// <param name="filename">The filename.</param>
+        /// <param name="includeAlpha">Should the alpha channel be included.</param>
         /// <param name="bitDepth">The bitdepth of the file.</param>
         /// <param name="bigEndian">The endianness if 16 bits.</param>
-        public void SaveAsRaw(string filename, BIT_DEPTH bitDepth = BIT_DEPTH.B8, bool bigEndian = false)
+        public void SaveAsRaw(string filename, bool includeAlpha = false, BIT_DEPTH bitDepth = BIT_DEPTH.B8, bool bigEndian = false)
         {
             if (!filename.EndsWith(".raw"))
                 filename += ".raw";
 
-            var bytes = ToBytes(bitDepth);
+            var bytes = ToBytes(bitDepth, includeAlpha, bigEndian);
             System.IO.File.WriteAllBytes(filename, bytes);
         }
 
@@ -36,13 +37,14 @@ namespace ImageProcessing.Images
         /// Save the images mipmaps as raw bytes.
         /// </summary>
         /// <param name="filename">The filename.</param>
+        /// <param name="includeAlpha">Should the alpha channel be included.</param>
         /// <param name="bitDepth">The bitdepth of the file.</param>
         /// <param name="bigEndian">The endianness if 16 bits.</param>
-        public void SaveMipmapsAsRaw(string filename, BIT_DEPTH bitDepth = BIT_DEPTH.B8, bool bigEndian = false)
+        public void SaveMipmapsAsRaw(string filename, bool includeAlpha = false, BIT_DEPTH bitDepth = BIT_DEPTH.B8, bool bigEndian = false)
         {
             if(!HasMipmaps)
             {
-                SaveAsRaw(filename, bitDepth, bigEndian);
+                SaveAsRaw(filename, includeAlpha, bitDepth, bigEndian);
             }
             else
             {
@@ -52,7 +54,7 @@ namespace ImageProcessing.Images
                 for (int i = 0; i < MipmapLevels; i++)
                 {
                     string name = filename + i + ".raw";
-                    var bytes = GetMipmapInterface(i).ToBytes(bitDepth);
+                    var bytes = GetMipmapInterface(i).ToBytes(bitDepth, includeAlpha, bigEndian);
                     System.IO.File.WriteAllBytes(name, bytes);
                 }
 
@@ -63,9 +65,10 @@ namespace ImageProcessing.Images
         /// Get the images data as bytes.
         /// </summary>
         /// <param name="bitDepth">The bitdepth of the bytes.</param>
+        /// <param name="includeAlpha">Should the alpha channel be included.</param>
         /// <param name="bigEndian">The endianness if 16 bits.</param>
         /// <returns></returns>
-        public byte[] ToBytes(BIT_DEPTH bitDepth, bool bigEndian = false)
+        public byte[] ToBytes(BIT_DEPTH bitDepth, bool includeAlpha = false, bool bigEndian = false)
         {
             int numBytes = (int)bitDepth / 8;
             var bytes = new byte[Width * Height * Channels * numBytes];
@@ -74,9 +77,13 @@ namespace ImageProcessing.Images
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    ColorRGBA pixel = GetPixel(x, y, WRAP_MODE.CLAMP);
+                    ColorRGBA pixel = GetPixel(x, y);
 
-                    for (int c = 0; c < Channels; c++)
+                    int channels = Channels;
+                    if(includeAlpha)
+                        channels = Math.Min(channels, 3);
+
+                    for (int c = 0; c < channels; c++)
                     {
                         int i = (x + y * Width) * Channels + c;
                         Write(pixel[c], i, bytes, (int)bitDepth, bigEndian);
@@ -91,23 +98,28 @@ namespace ImageProcessing.Images
         /// 
         /// </summary>
         /// <param name="bytes"></param>
+        /// <param name="includeAlpha">Should the alpha channel be included.</param>
         /// <param name="bitDepth"></param>
         /// <param name="bigEndian"></param>
-        public void FromBytes(byte[] bytes, BIT_DEPTH bitDepth, bool bigEndian = false)
+        public void FromBytes(byte[] bytes, BIT_DEPTH bitDepth, bool includeAlpha, bool bigEndian = false)
         {
             for (int y = 0; y < Height; y++)
             {
                 for (int x = 0; x < Width; x++)
                 {
+                    int channels = Channels;
+                    if (includeAlpha)
+                        channels = Math.Min(channels, 3);
+
                     ColorRGBA pixel = new ColorRGBA();
-                    for (int c = 0; c < Channels; c++)
+                    for (int c = 0; c < channels; c++)
                     {
                         int i = (x + y * Width) * Channels + c;
                         pixel[c] = Read(i, bytes, (int)bitDepth, bigEndian);
                     }
 
-                    //if (Channels == 1)
-                    //    pixel = pixel.rrra;
+                    if (Channels == 1)
+                        pixel = pixel.rrra;
 
                     SetPixel(x, y, pixel);
                 }

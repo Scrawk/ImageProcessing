@@ -153,6 +153,7 @@ namespace ImageProcessing.Images
         public override void Resize(int width, int height)
         {
             Data = new ColorRGBA[width, height];
+            Data.Fill(ColorRGBA.Black);
         }
 
         /// <summary>
