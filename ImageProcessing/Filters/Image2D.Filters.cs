@@ -95,11 +95,11 @@ namespace ImageProcessing.Images
 
 			foreach (var p in bounds.Value.EnumerateBounds())
 			{
-				ColorRGBA pixel;
-
 				if (mask == null)
 				{
-					pixel = Filter(p.x, p.y, image, k, mode) * k.Scale;
+					var pixel = Filter(p.x, p.y, image, k, mode) * k.Scale;
+
+					image2.SetPixel(p.x, p.y, pixel, mode, BLEND_MODE.ALPHA);
 				}
 				else
 				{
@@ -107,11 +107,10 @@ namespace ImageProcessing.Images
 					var pixel2 = Filter(p.x, p.y, image, k, mode) * k.Scale;
 
 					var a = MathUtil.Clamp01(mask[p]);
-					pixel = ColorRGBA.Lerp(pixel1, pixel2, a);
-				}
+					var pixel = ColorRGBA.Lerp(pixel1, pixel2, a);
 
-				pixel.a = 1;
-				image2.SetPixel(p.x, p.y, pixel, mode);
+					image2.SetPixel(p.x, p.y, pixel, mode, BLEND_MODE.NONE);
+				}
 			}
 
 			return image2;

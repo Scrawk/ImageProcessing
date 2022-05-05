@@ -18,7 +18,7 @@ namespace ImageProcessing.Images
         /// Create a default of image.
         /// </summary>
         public ColorImage2D()
-            : this(1, 1)
+            : this(1, 1, ColorRGBA.Black)
         {
 
         }
@@ -28,9 +28,20 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="size">The size of the image. x is the width and y is the height.</param>
         public ColorImage2D(Point2i size)
-            : this(size.x, size.y)
+            : this(size.x, size.y, ColorRGBA.Black)
         {
  
+        }
+
+        /// <summary>
+        /// Create a image of a given width and height.
+        /// </summary>
+        /// <param name="width">The width of the image.</param>
+        /// <param name="height">The height of the image.</param>
+        public ColorImage2D(int width, int height)
+             : this(width, height, ColorRGBA.Black)
+        {
+
         }
 
         /// <summary>
@@ -40,19 +51,9 @@ namespace ImageProcessing.Images
         /// <param name="height">The height of the image.</param>
         /// <param name="value">The value to fill the image with.</param>
         public ColorImage2D(int width, int height, ColorRGBA value)
-            : this(width, height)
-        {
-            Fill(value);
-        }
-
-        /// <summary>
-        /// Create a image of a given width and height.
-        /// </summary>
-        /// <param name="width">The width of the image.</param>
-        /// <param name="height">The height of the image.</param>
-        public ColorImage2D(int width, int height)
         {
             Data = new ColorRGBA[width, height];
+            Fill(value);
         }
 
         /// <summary>
