@@ -42,7 +42,7 @@ namespace ImageProcessing.Pixels
         /// The mean value of the pixels in the set.
         /// </summary>
         /// <returns>The mean value of the pixels in the set.</returns>
-        public ColorRGBA CalulateMean()
+        public ColorRGBA CalculateMean()
         {
             ColorRGBA mean = new ColorRGBA();
             if (Count == 0) return mean;

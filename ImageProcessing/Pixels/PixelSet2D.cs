@@ -73,7 +73,7 @@ namespace ImageProcessing.Pixels
         /// Calculate the bounding box of the set.
         /// </summary>
         /// <returns></returns>
-        public Box2i CalulateBounds()
+        public Box2i CalculateBounds()
         {
             Point2i min = Point2i.MaxValue;
             Point2i max = Point2i.MinValue;
@@ -97,7 +97,7 @@ namespace ImageProcessing.Pixels
         /// </summary>
         /// <param name="perimeter"></param>
         /// <returns></returns>
-        public float CalulateRoundness(float perimeter)
+        public float CalculateRoundness(float perimeter)
         {
             float area = Count;
             float p2 = perimeter * perimeter;
@@ -110,7 +110,7 @@ namespace ImageProcessing.Pixels
         /// Calcuate the centriod of the set.
         /// </summary>
         /// <returns></returns>
-        public Point2f CalulateCentroid()
+        public Point2f CalculateCentroid()
         {
             Point2f centroid = new Point2f();
 

@@ -9,14 +9,26 @@ using ImageProcessing.Pixels;
 
 namespace ImageProcessing.Statistics
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class KMeansCluster
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
         public KMeansCluster(int index)
         {
             Index = index;
             Set = new ColorPixelSet2D();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="mean"></param>
         public KMeansCluster(int index, ColorRGBA mean)
         {
             Index = index;
@@ -24,28 +36,57 @@ namespace ImageProcessing.Statistics
             Set = new ColorPixelSet2D();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public int Index { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ColorRGBA Mean { get; internal set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ColorPixelSet2D Set { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return string.Format("[KMeansCluster: Mean={0}, Count={1}]", Mean, Set.Count);
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class KMeans
     {
-
+        /// <summary>
+        /// 
+        /// </summary>
         public KMeans()
         {
             Clusters = new List<KMeansCluster>();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public List<KMeansCluster> Clusters { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="k"></param>
+        /// <param name="seed"></param>
+        /// <param name="weighted"></param>
+        /// <exception cref="Exception"></exception>
         public void Run(ColorImage2D image, int k, int seed, bool weighted = true)
         {
             if (k > image.Size.Product)
@@ -63,6 +104,12 @@ namespace ImageProcessing.Statistics
                 UpdateClusterMeans();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="k"></param>
+        /// <param name="seed"></param>
         private void InitializeClustersRandom(ColorImage2D image, int k, int seed)
         {
             var rnd = new Random(seed);
@@ -79,6 +126,12 @@ namespace ImageProcessing.Statistics
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="k"></param>
+        /// <param name="seed"></param>
         private void InitializeClustersWeighted(ColorImage2D image, int k, int seed)
         {
             var rnd = new Random(seed);
@@ -101,6 +154,11 @@ namespace ImageProcessing.Statistics
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="weights"></param>
         private void UpdateWeights(ColorImage2D image, GreyScaleImage2D weights)
         {
             float sum = 0;
@@ -117,6 +175,13 @@ namespace ImageProcessing.Statistics
             weights.Modify( x => x / sum);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="weights"></param>
+        /// <param name="t"></param>
+        /// <returns></returns>
         private ColorRGBA ChoosePixel(ColorImage2D image, GreyScaleImage2D weights, double t)
         {
             double sum = 0;
@@ -138,6 +203,11 @@ namespace ImageProcessing.Statistics
             return image[size - 1];
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <exception cref="NullReferenceException"></exception>
         private void InitialAssignment(ColorImage2D image)
         {
             image.Iterate((x, y) =>
@@ -154,6 +224,10 @@ namespace ImageProcessing.Statistics
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private bool UpdateAssignment()
         {
             var clusters = new List<KMeansCluster>();
@@ -184,12 +258,20 @@ namespace ImageProcessing.Statistics
             return changed;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void UpdateClusterMeans()
         {
             foreach(var cluster in Clusters)
-                cluster.Mean = cluster.Set.Mean();
+                cluster.Mean = cluster.Set.CalculateMean();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="col"></param>
+        /// <returns></returns>
         private KMeansCluster Closest(ColorRGBA col)
         {
             KMeansCluster closest = null;
