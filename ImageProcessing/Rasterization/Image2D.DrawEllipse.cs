@@ -9,30 +9,97 @@ namespace ImageProcessing.Images
 {
     public partial class Image2D<T>
     {
-        public void DrawCircle(Circle2f circle, ColorRGBA color, bool filled)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="circle"></param>
+        /// <param name="color"></param>
+        /// <param name="filled"></param>
+        /// <param name="wrap">The wrap mode for out of bounds indices. Defaults to clamp.</param>
+        /// <param name="blend">The blend mode for the pixels. Defalus to alpha.</param>
+        public void DrawCircle(Circle2f circle, ColorRGBA color, bool filled, 
+            WRAP_MODE wrap = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA)
         {
-            DrawEllipse(circle.Center, circle.Radius, circle.Radius, color, filled);
+            var c = circle.Center;
+            DrawEllipse(c.x, c.y, circle.Radius, circle.Radius, color, filled, wrap, blend);
         }
 
-        public void DrawCircle(Point2f center, float radius, ColorRGBA color, bool filled)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
+        /// <param name="filled"></param>
+        /// <param name="wrap">The wrap mode for out of bounds indices. Defaults to clamp.</param>
+        /// <param name="blend">The blend mode for the pixels. Defalus to alpha.</param>
+        public void DrawCircle(Point2f center, float radius, ColorRGBA color, bool filled, 
+            WRAP_MODE wrap = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA)
         {
-            DrawEllipse(center, radius, radius, color, filled);
+            DrawEllipse(center.x, center.y, radius, radius, color, filled, wrap, blend);
         }
 
-        public void DrawEllipse(Point2f center, float radiusX, float radiusY, ColorRGBA color, bool filled)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
+        /// <param name="filled"></param>
+        /// <param name="wrap">The wrap mode for out of bounds indices. Defaults to clamp.</param>
+        /// <param name="blend">The blend mode for the pixels. Defalus to alpha.</param>
+        public void DrawCircle(float x, float y, float radius, ColorRGBA color, bool filled, 
+            WRAP_MODE wrap = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA)
         {
-            int xc = (int)Math.Round(center.x);
-            int yc = (int)Math.Round(center.y);
+            DrawEllipse(x, y, radius, radius, color, filled, wrap, blend);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="radiusX"></param>
+        /// <param name="radiusY"></param>
+        /// <param name="color"></param>
+        /// <param name="filled"></param>
+        /// <param name="wrap">The wrap mode for out of bounds indices. Defaults to clamp.</param>
+        /// <param name="blend">The blend mode for the pixels. Defalus to alpha.</param>
+        public void DrawEllipse(Point2f center, float radiusX, float radiusY, ColorRGBA color, bool filled, 
+            WRAP_MODE wrap = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA)
+        {
+            DrawEllipse(center.x, center.y, radiusX, radiusY, color, filled, wrap, blend);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="radiusX"></param>
+        /// <param name="radiusY"></param>
+        /// <param name="color"></param>
+        /// <param name="filled"></param>
+        /// <param name="wrap">The wrap mode for out of bounds indices. Defaults to clamp.</param>
+        /// <param name="blend">The blend mode for the pixels. Defalus to alpha.</param>
+        public void DrawEllipse(float x, float y, float radiusX, float radiusY, ColorRGBA color, bool filled, 
+            WRAP_MODE wrap = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA)
+        {
+            int xc = (int)Math.Round(x);
+            int yc = (int)Math.Round(y);
             int rx = (int)Math.Round(radiusX);
             int ry = (int)Math.Round(radiusY);
 
             if (filled)
-                DrawEllipseFilled(xc, yc, rx, ry, color);
+                DrawEllipseFilled(xc, yc, rx, ry, color, wrap, blend);
             else
-                DrawEllipseOutline(xc, yc, rx, ry, color);
+                DrawEllipseOutline(xc, yc, rx, ry, color, wrap, blend);
         }
 
         /// <summary>
+        /// 
+        /// TODO - Draws as filled?
+        /// 
         /// A Fast Bresenham Type Algorithm For Drawing Ellipses http://homepage.smc.edu/kennedy_john/belipse.pdf 
         /// Uses a different parameter representation than DrawEllipse().
         /// </summary>
@@ -41,7 +108,9 @@ namespace ImageProcessing.Images
         /// <param name="xr">The radius of the ellipse in x-direction.</param>
         /// <param name="yr">The radius of the ellipse in y-direction.</param>
         /// <param name="color">The color for the line.</param>
-        private void DrawEllipseOutline(int xc, int yc, int xr, int yr, ColorRGBA color)
+        /// <param name="wrap">The wrap mode for out of bounds indices. Defaults to clamp.</param>
+        /// <param name="blend">The blend mode for the pixels. Defalus to alpha.</param>
+        private void DrawEllipseOutline(int xc, int yc, int xr, int yr, ColorRGBA color, WRAP_MODE wrap, BLEND_MODE blend)
         {
             var w = Width;
             var h = Height;
@@ -82,10 +151,10 @@ namespace ImageProcessing.Images
                 if (lx < 0) lx = 0;
                 if (lx >= w) lx = w - 1;
 
-                SetPixel(rx, uy, color);      // Quadrant I (Actually an octant)
-                SetPixel(lx, uy, color);      // Quadrant II
-                SetPixel(lx, ly, color);      // Quadrant III
-                SetPixel(rx, ly, color);      // Quadrant IV
+                SetPixel(rx, uy, color, wrap, blend);      // Quadrant I (Actually an octant)
+                SetPixel(lx, uy, color, wrap, blend);      // Quadrant II
+                SetPixel(lx, ly, color, wrap, blend);      // Quadrant III
+                SetPixel(rx, ly, color, wrap, blend);      // Quadrant IV
 
                 y++;
                 yStopping += xrSqTwo;
@@ -128,10 +197,10 @@ namespace ImageProcessing.Images
                 if (lx < 0) lx = 0;
                 if (lx >= w) lx = w - 1;
 
-                SetPixel(rx, uy, color);      // Quadrant I (Actually an octant)
-                SetPixel(lx, uy, color);      // Quadrant II
-                SetPixel(lx, ly, color);      // Quadrant III
-                SetPixel(rx, ly, color);      // Quadrant IV
+                SetPixel(rx, uy, color, wrap, blend);      // Quadrant I (Actually an octant)
+                SetPixel(lx, uy, color, wrap, blend);      // Quadrant II
+                SetPixel(lx, ly, color, wrap, blend);      // Quadrant III
+                SetPixel(rx, ly, color, wrap, blend);      // Quadrant IV
 
                 x++;
                 xStopping += yrSqTwo;
@@ -164,7 +233,9 @@ namespace ImageProcessing.Images
         /// <param name="xr">The radius of the ellipse in x-direction.</param>
         /// <param name="yr">The radius of the ellipse in y-direction.</param>
         /// <param name="color">The color for the line.</param>
-        private void DrawEllipseFilled(int xc, int yc, int xr, int yr, ColorRGBA color)
+        /// <param name="wrap">The wrap mode for out of bounds indices. Defaults to clamp.</param>
+        /// <param name="blend">The blend mode for the pixels. Defalus to alpha.</param>
+        private void DrawEllipseFilled(int xc, int yc, int xr, int yr, ColorRGBA color, WRAP_MODE wrap, BLEND_MODE blend)
         {
             int w = Width;
             int h = Height;
@@ -216,8 +287,8 @@ namespace ImageProcessing.Images
                 for (int i = lx; i <= rx; i++)
                 {
   
-                    SetPixel(i, uy, color);      // Quadrant II to I (Actually two octants)
-                    SetPixel(i, ly, color);      // Quadrant IV
+                    SetPixel(i, uy, color, wrap, blend);      // Quadrant II to I (Actually two octants)
+                    SetPixel(i, ly, color, wrap, blend);      // Quadrant IV
                 }
 
                 y++;
@@ -270,8 +341,8 @@ namespace ImageProcessing.Images
                 // Draw line
                 for (int i = lx; i <= rx; i++)
                 {
-                    SetPixel(i, uy, color); // Quadrant II to I (Actually two octants)
-                    SetPixel(i, ly, color);  // Quadrant III to IV
+                    SetPixel(i, uy, color, wrap, blend); // Quadrant II to I (Actually two octants)
+                    SetPixel(i, ly, color, wrap, blend);  // Quadrant III to IV
                 }
 
                 x++;

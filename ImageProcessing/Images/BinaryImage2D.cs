@@ -276,7 +276,21 @@ namespace ImageProcessing.Images
         public override void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA)
         {
             Indices(ref x, ref y, mode);
-            this[x, y] = pixel.Intensity  > Threshold;
+
+            switch (blend)
+            {
+                case BLEND_MODE.ALPHA:
+                    this[x, y] = (pixel.Intensity * pixel.a) > Threshold;
+                    break;
+
+                case BLEND_MODE.NONE:
+                    this[x, y] = pixel.Intensity > Threshold;
+                    break;
+
+                default:
+                    this[x, y] = pixel.Intensity > Threshold;
+                    break;
+            }
         }
 
         /// <summary>

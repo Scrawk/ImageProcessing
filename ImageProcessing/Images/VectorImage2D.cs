@@ -301,7 +301,21 @@ namespace ImageProcessing.Images
         public override void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE mode = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA)
         {
             Indices(ref x, ref y, mode);
-            this[x, y] = new Vector2f(pixel.r, pixel.g);
+
+            switch (blend)
+            {
+                case BLEND_MODE.ALPHA:
+                    this[x, y] = new Vector2f(pixel.r, pixel.g) * pixel.a;
+                    break;
+
+                case BLEND_MODE.NONE:
+                    this[x, y] = new Vector2f(pixel.r, pixel.g);
+                    break;
+
+                default:
+                    this[x, y] = new Vector2f(pixel.r, pixel.g);
+                    break;
+            }
         }
 
         /// <summary>

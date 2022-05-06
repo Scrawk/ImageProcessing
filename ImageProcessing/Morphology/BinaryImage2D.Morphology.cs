@@ -19,11 +19,12 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="a"></param>
 		/// <param name="size"></param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		public static BinaryImage2D Open(BinaryImage2D a, int size)
+		public static BinaryImage2D Open(BinaryImage2D a, int size, WRAP_MODE wrap = WRAP_MODE.CLAMP)
 		{
-			a = Erode(a, size);
-			return Dilate(a, size);
+			a = Erode(a, size, wrap);
+			return Dilate(a, size, wrap);
 		}
 
 		/// <summary>
@@ -31,11 +32,12 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="a">The image.</param>
 		/// <param name="b">The structure element.</param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		public static BinaryImage2D Open(BinaryImage2D a, StructureElement2D b)
+		public static BinaryImage2D Open(BinaryImage2D a, StructureElement2D b, WRAP_MODE wrap = WRAP_MODE.CLAMP)
 		{
-			a = Erode(a, b);
-			return Dilate(a, b);
+			a = Erode(a, b, wrap);
+			return Dilate(a, b, wrap);
 		}
 
 		/// <summary>
@@ -43,11 +45,12 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="a"></param>
 		/// <param name="size"></param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		public static BinaryImage2D Close(BinaryImage2D a, int size)
+		public static BinaryImage2D Close(BinaryImage2D a, int size, WRAP_MODE wrap = WRAP_MODE.CLAMP)
 		{
-			a = Dilate(a, size);
-			return Erode(a, size);
+			a = Dilate(a, size, wrap);
+			return Erode(a, size, wrap);
 		}
 
 		/// <summary>
@@ -55,20 +58,22 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="a">The image.</param>
 		/// <param name="b">The structure element.</param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		public static BinaryImage2D Close(BinaryImage2D a, StructureElement2D b)
+		public static BinaryImage2D Close(BinaryImage2D a, StructureElement2D b, WRAP_MODE wrap = WRAP_MODE.CLAMP)
 		{
-			a = Dilate(a, b);
-			return Erode(a, b);
+			a = Dilate(a, b, wrap);
+			return Erode(a, b, wrap);
 		}
 
 		/// <summary>
 		/// Find the border of all connected blocks of true values in the image.
 		/// </summary>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		public static BinaryImage2D Border(BinaryImage2D a)
+		public static BinaryImage2D Border(BinaryImage2D a, WRAP_MODE wrap = WRAP_MODE.CLAMP)
 		{
-			var image = Erode(a, StructureElement2D.BoxElement(3));
+			var image = Erode(a, StructureElement2D.BoxElement(3), wrap);
 			image.Xor(a);
 			return image;
 		}
@@ -78,11 +83,12 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="a"></param>
 		/// <param name="size"></param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		public static BinaryImage2D Dilate(BinaryImage2D a, int size)
+		public static BinaryImage2D Dilate(BinaryImage2D a, int size, WRAP_MODE wrap = WRAP_MODE.CLAMP)
 		{
 			var b = StructureElement2D.BoxElement(size);
-			return Dilate(a, b);
+			return Dilate(a, b, wrap);
 		}
 
 		/// <summary>
@@ -90,15 +96,16 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="a">The image.</param>
 		/// <param name="b">The structure element.</param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		public static BinaryImage2D Dilate(BinaryImage2D a, StructureElement2D b)
+		public static BinaryImage2D Dilate(BinaryImage2D a, StructureElement2D b, WRAP_MODE wrap = WRAP_MODE.CLAMP)
 		{
 			var image = a.Copy();
 
 			a.Iterate((x, y) =>
 			{
 				if (!a[x, y])
-					image[x, y] = Dilate(x, y, a, b);
+					image[x, y] = Dilate(x, y, a, b, wrap);
 			});
 
 			return image;
@@ -114,8 +121,9 @@ namespace ImageProcessing.Images
 		/// <param name="j">y index in source image.</param>
 		/// <param name="a">The source image.</param>
 		/// <param name="b">The structure element.</param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		private static bool Dilate(int i, int j, BinaryImage2D a, StructureElement2D b)
+		private static bool Dilate(int i, int j, BinaryImage2D a, StructureElement2D b, WRAP_MODE wrap)
 		{
 			int half = b.Size / 2;
 
@@ -129,7 +137,7 @@ namespace ImageProcessing.Images
 					if (xi < 0 || xi >= a.Width) continue;
 					if (yj < 0 || yj >= a.Height) continue;
 
-					if (a[xi, yj] && b[x, y] == 1)
+					if (a.GetValue(xi, yj, wrap) && b[x, y] == 1)
 						return true;
 				}
 			}
@@ -142,11 +150,12 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="a"></param>
 		/// <param name="size"></param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		public static BinaryImage2D Erode(BinaryImage2D a, int size)
+		public static BinaryImage2D Erode(BinaryImage2D a, int size, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
 			var b = StructureElement2D.BoxElement(size);
-			return Erode(a, b);
+			return Erode(a, b, wrap);
 		}
 
 		/// <summary>
@@ -154,15 +163,16 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="a">The image.</param>
 		/// <param name="b">The structure element.</param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		public static BinaryImage2D Erode(BinaryImage2D a, StructureElement2D b)
+		public static BinaryImage2D Erode(BinaryImage2D a, StructureElement2D b, WRAP_MODE wrap = WRAP_MODE.CLAMP)
 		{
 			var image = a.Copy();
 
 			a.Iterate((x, y) =>
 			{
 				if (a[x, y])
-					image[x, y] = Erode(x, y, a, b);
+					image[x, y] = Erode(x, y, a, b, wrap);
 			});
 
 			return image;
@@ -178,8 +188,9 @@ namespace ImageProcessing.Images
 		/// <param name="j">y index in source image.</param>
 		/// <param name="a">The source image.</param>
 		/// <param name="b">The structure element.</param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		private static bool Erode(int i, int j, BinaryImage2D a, StructureElement2D b)
+		private static bool Erode(int i, int j, BinaryImage2D a, StructureElement2D b, WRAP_MODE wrap)
 		{
 			int half = b.Size / 2;
 
@@ -190,10 +201,10 @@ namespace ImageProcessing.Images
 					int xi = x + i - half;
 					int yj = y + j - half;
 
-					if (xi < 0 || xi >= a.Width) continue;
-					if (yj < 0 || yj >= a.Height) continue;
+					//if (xi < 0 || xi >= a.Width) continue;
+					//if (yj < 0 || yj >= a.Height) continue;
 
-					if (!a[xi, yj] && b[x, y] == 1)
+					if (!a.GetValue(xi, yj, wrap) && b[x, y] == 1)
 						return false;
 				}
 			}
@@ -208,8 +219,9 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="a">The image.</param>
 		/// <param name="iterations">The number of times to thin the image.</param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		public static BinaryImage2D Thinning(BinaryImage2D a, int iterations = int.MaxValue)
+		public static BinaryImage2D Thinning(BinaryImage2D a, WRAP_MODE wrap = WRAP_MODE.CLAMP, int iterations = int.MaxValue)
 		{
 			var tuple = StructureElement2D.ThinningElements();
 			var b = tuple.Item1;
@@ -226,10 +238,10 @@ namespace ImageProcessing.Images
 			{
 				//Thin the image for each rotation of the element.
 				bool done = true;
-				points = Thinning(points, image, b, c, 0, ref done);
-				points = Thinning(points, image, b, c, 1, ref done);
-				points = Thinning(points, image, b, c, 2, ref done);
-				points = Thinning(points, image, b, c, 3, ref done);
+				points = Thinning(points, image, b, c, 0, wrap, ref done);
+				points = Thinning(points, image, b, c, 1, wrap, ref done);
+				points = Thinning(points, image, b, c, 2, wrap, ref done);
+				points = Thinning(points, image, b, c, 3, wrap, ref done);
 
 				//If the image did not change then it can not be 
 				//thinned anymore so return.
@@ -249,9 +261,10 @@ namespace ImageProcessing.Images
 		/// <param name="c">The structure element c.</param>
 		/// <param name="i">The rotation index for the elements.</param>
 		/// <param name="done">If the image has not changed this iteration.</param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
 		private static List<PixelIndex2D<bool>> Thinning(List<PixelIndex2D<bool>> points, BinaryImage2D a,
-			StructureElement2D b, StructureElement2D c, int i, ref bool done)
+			StructureElement2D b, StructureElement2D c, int i, WRAP_MODE wrap, ref bool done)
 		{
 
 			//For each point in the list determine its value depending
@@ -259,7 +272,7 @@ namespace ImageProcessing.Images
 			for(int x = 0; x < points.Count; x++)
 			{
 				var p = points[x];
-				p.Value = true ^ HitAndMiss(p.x, p.y, a, b, i);
+				p.Value = true ^ HitAndMiss(p.x, p.y, a, b, i, wrap);
 				points[x] = p;
 			}
 
@@ -285,7 +298,7 @@ namespace ImageProcessing.Images
 			for (int x = 0; x < points1.Count; x++)
 			{
 				var p = points1[x];
-				p.Value = true ^ HitAndMiss(p.x, p.y, a, c, i);
+				p.Value = true ^ HitAndMiss(p.x, p.y, a, c, i, wrap);
 				points1[x] = p;
 			}
 
@@ -313,15 +326,16 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="a">The image.</param>
 		/// <param name="b">The structure element.</param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		public static BinaryImage2D HitAndMiss(BinaryImage2D a, StructureElement2D b)
+		public static BinaryImage2D HitAndMiss(BinaryImage2D a, StructureElement2D b, WRAP_MODE wrap = WRAP_MODE.CLAMP)
 		{
 			var image = a.Copy();
 
 			a.Iterate((x, y) =>
 			{
 				if (a[x, y])
-					image[x, y] = HitAndMiss(x, y, a, b);
+					image[x, y] = HitAndMiss(x, y, a, b, 0, wrap);
 			});
 
 			return image;
@@ -333,15 +347,16 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="a">The image.</param>
 		/// <param name="b">The structure element.</param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		public static BinaryImage2D HitAndMiss4(BinaryImage2D a, StructureElement2D b)
+		public static BinaryImage2D HitAndMiss4(BinaryImage2D a, StructureElement2D b, WRAP_MODE wrap = WRAP_MODE.CLAMP)
 		{
 			var image = a.Copy();
 
 			a.Iterate((x, y) =>
 			{
 				if (a[x, y])
-					image[x, y] = HitAndMiss4(x, y, a, b);
+					image[x, y] = HitAndMiss4(x, y, a, b, wrap);
 			});
 
 			return image;
@@ -354,15 +369,16 @@ namespace ImageProcessing.Images
 		/// <param name="a">The image.</param>
 		/// <param name="b">The structure element b.</param>
 		/// <param name="c">The structure element c.</param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		public static BinaryImage2D HitAndMiss4(BinaryImage2D a, StructureElement2D b, StructureElement2D c)
+		public static BinaryImage2D HitAndMiss4(BinaryImage2D a, StructureElement2D b, StructureElement2D c, WRAP_MODE wrap = WRAP_MODE.CLAMP)
 		{
 			var image = a.Copy();
 
 			a.Iterate((x, y) =>
 			{
 				if (a[x, y])
-					image[x, y] = HitAndMiss4(x, y, a, b, c);
+					image[x, y] = HitAndMiss4(x, y, a, b, c, wrap);
 			});
 
 			return image;
@@ -376,14 +392,15 @@ namespace ImageProcessing.Images
 		/// <param name="y">The y index in the source image.</param>
 		/// <param name="a">The source image.</param>
 		/// <param name="b">The structure element.</param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		private static bool HitAndMiss4(int x, int y, BinaryImage2D a, StructureElement2D b)
+		private static bool HitAndMiss4(int x, int y, BinaryImage2D a, StructureElement2D b, WRAP_MODE wrap)
 		{
 
-			return (HitAndMiss(x, y, a, b, 0) ||
-			   HitAndMiss(x, y, a, b, 1) ||
-			   HitAndMiss(x, y, a, b, 2) ||
-			   HitAndMiss(x, y, a, b, 3));
+			return (HitAndMiss(x, y, a, b, 0, wrap) ||
+			   HitAndMiss(x, y, a, b, 1, wrap) ||
+			   HitAndMiss(x, y, a, b, 2, wrap) ||
+			   HitAndMiss(x, y, a, b, 3, wrap));
 		}
 
 		/// <summary>
@@ -395,18 +412,19 @@ namespace ImageProcessing.Images
 		/// <param name="a">The source image.</param>
 		/// <param name="b">The structure element b.</param>
 		/// <param name="c">The structure element c.</param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		private static bool HitAndMiss4(int x, int y, BinaryImage2D a, StructureElement2D b, StructureElement2D c)
+		private static bool HitAndMiss4(int x, int y, BinaryImage2D a, StructureElement2D b, StructureElement2D c, WRAP_MODE wrap)
 		{
 
-			return (HitAndMiss(x, y, a, b, 0) ||
-			   HitAndMiss(x, y, a, b, 1) ||
-			   HitAndMiss(x, y, a, b, 2) ||
-			   HitAndMiss(x, y, a, b, 3) ||
-			   HitAndMiss(x, y, a, c, 0) ||
-			   HitAndMiss(x, y, a, c, 1) ||
-			   HitAndMiss(x, y, a, c, 2) ||
-			   HitAndMiss(x, y, a, c, 3));
+			return (HitAndMiss(x, y, a, b, 0, wrap) ||
+			   HitAndMiss(x, y, a, b, 1, wrap) ||
+			   HitAndMiss(x, y, a, b, 2, wrap) ||
+			   HitAndMiss(x, y, a, b, 3, wrap) ||
+			   HitAndMiss(x, y, a, c, 0, wrap) ||
+			   HitAndMiss(x, y, a, c, 1, wrap) ||
+			   HitAndMiss(x, y, a, c, 2, wrap) ||
+			   HitAndMiss(x, y, a, c, 3, wrap));
 		}
 
 		/// <summary>
@@ -418,8 +436,10 @@ namespace ImageProcessing.Images
 		/// <param name="a">The source image.</param>
 		/// <param name="b">The structure element.</param>
 		/// <param name="rotate">The element rotation.</param>
+		/// <param name="wrap">The wrap mode.</param>
+		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
-		private static bool HitAndMiss(int i, int j, BinaryImage2D a, StructureElement2D b, int rotate = 0)
+		private static bool HitAndMiss(int i, int j, BinaryImage2D a, StructureElement2D b, int rotate, WRAP_MODE wrap)
 		{
 			int half = b.Size / 2;
 
@@ -430,13 +450,13 @@ namespace ImageProcessing.Images
 					int xi = x + i - half;
 					int yj = y + j - half;
 
-					if (xi < 0 || xi >= a.Width) continue;
-					if (yj < 0 || yj >= a.Height) continue;
+					//if (xi < 0 || xi >= a.Width) continue;
+					//if (yj < 0 || yj >= a.Height) continue;
 
 					int v = b.GetRotated(x, y, rotate);
 					if (v == -1) continue;
 
-					if (a[xi, yj] != (v == 1))
+					if (a.GetValue(xi, yj, wrap) != (v == 1))
 						return false;
 				}
 			}

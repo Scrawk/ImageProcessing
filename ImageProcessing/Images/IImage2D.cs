@@ -14,13 +14,13 @@ namespace ImageProcessing.Images
     /// <summary>
     /// Wrap mode options for when sampling a image.
     /// </summary>
-    public enum WRAP_MODE {  CLAMP, WRAP, MIRROR, NONE };
+    public enum WRAP_MODE { CLAMP, WRAP, MIRROR, NONE };
 
     /// <summary>
     /// The mode pixels are blended based on there alpha value.
     /// Only applies to images with a alpha channel.
     /// </summary>
-    public enum BLEND_MODE {  ALPHA, NONE };
+    public enum BLEND_MODE { ALPHA, NONE };
 
     /// <summary>
     /// General interface for a 2 dimensional image.

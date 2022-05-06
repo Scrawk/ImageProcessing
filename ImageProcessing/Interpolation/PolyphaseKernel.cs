@@ -7,9 +7,17 @@ using ImageProcessing.Images;
 
 namespace ImageProcessing.Interpolation
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class PolyphaseKernel
     {
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="srcLength"></param>
+        /// <param name="dstLength"></param>
         public PolyphaseKernel(InterpolationFunction func, int srcLength, int dstLength)
         {
 
@@ -57,21 +65,50 @@ namespace ImageProcessing.Interpolation
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public int WindowSize { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public int Length { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public int Samples { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public float Width { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public float[] Weights { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="x"></param>
+        /// <returns></returns>
         public float GetWeight(int column, int x)
         {
             return Weights[column * WindowSize + x];
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="IMAGE"></typeparam>
+        /// <param name="y"></param>
+        /// <param name="src"></param>
+        /// <param name="dst"></param>
+        /// <param name="mode"></param>
         public void ApplyHorizontal<IMAGE>(int y, IMAGE src, IMAGE dst, WRAP_MODE mode)
             where IMAGE : IImage2D, new()
         {
@@ -96,6 +133,14 @@ namespace ImageProcessing.Interpolation
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="IMAGE"></typeparam>
+        /// <param name="x"></param>
+        /// <param name="src"></param>
+        /// <param name="dst"></param>
+        /// <param name="mode"></param>
         public void ApplyVertical<IMAGE>(int x, IMAGE src, IMAGE dst, WRAP_MODE mode)
             where IMAGE : IImage2D, new()
         {
@@ -120,6 +165,14 @@ namespace ImageProcessing.Interpolation
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="x"></param>
+        /// <param name="scale"></param>
+        /// <param name="samples"></param>
+        /// <returns></returns>
         private float SampleWindow(InterpolationFunction func, float x, float scale, int samples)
         {
             float sum = 0;

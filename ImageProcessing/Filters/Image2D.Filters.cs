@@ -10,16 +10,16 @@ namespace ImageProcessing.Images
 
 	public partial class Image2D<T>
 	{
-		/// <summary>
-		/// Apply a box blur and return as a new image.
-		/// </summary>
-		/// <param name="image">The input image.</param>
-		/// <param name="size">The size in pixels of the kernel.</param>
-		/// <param name="bounds">The area to apply the filter to.</param>
-		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
-		/// <param name="mode">The wrap mode to use.</param>
-		/// <returns>The new image.</returns>
-		public static IMAGE BoxBlur<IMAGE>(IMAGE image, int size, Box2i? bounds = null, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        /// <summary>
+        /// Apply a box blur and return as a new image.
+        /// </summary>
+        /// <param name="image">The input image.</param>
+        /// <param name="size">The size in pixels of the kernel.</param>
+        /// <param name="bounds">The area to apply the filter to.</param>
+        /// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
+        /// <param name="mode">The wrap mode to use.</param>
+        /// <returns>The new image.</returns>
+        public static IMAGE BoxBlur<IMAGE>(IMAGE image, int size, Box2i? bounds = null, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.CLAMP)
 			where IMAGE : IImage2D, new()
 		{
 			var k = FilterKernel2D.BoxKernel(size);
@@ -305,5 +305,5 @@ namespace ImageProcessing.Images
 				}
 			}
 		}
-	}
+    }
 }

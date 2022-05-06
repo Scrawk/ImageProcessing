@@ -7,6 +7,7 @@ using Common.Core.Extensions;
 
 namespace ImageProcessing.Images
 {
+
 	/// <summary>
 	/// 
 	/// </summary>
@@ -89,7 +90,7 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="shape"></param>
 		/// <param name="center"></param>
-		public void Fill(Circle2f shape, bool center = true)
+		public void Fill(IShape2f shape, bool center = true)
 		{
 			for (int y = 0; y < Size; y++)
 			{
