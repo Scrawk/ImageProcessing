@@ -124,8 +124,8 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[VectorImage2D: Width={0}, Height={1}, Channels={2}, Mipmaps={3}]",
-                Width, Height, Channels, MipmapLevels);
+            return string.Format("[VectorImage2D: Name={0}, Width={1}, Height={2}, Channels={3}, Mipmaps={4}]",
+                Name, Width, Height, Channels, MipmapLevels);
         }
 
         /// <summary>
@@ -340,6 +340,7 @@ namespace ImageProcessing.Images
         public VectorImage2D Copy()
         {
             var copy = new VectorImage2D(Data);
+            copy.Name = Name;
 
             if (HasMipmaps)
             {

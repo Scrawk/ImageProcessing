@@ -12,10 +12,10 @@ namespace ImageProcessing.Images
         /// The minimum and maximum values in the image.
         /// </summary>
         /// <returns></returns>
-        public (float min, float max) MinMax()
+        public void MinMax(out float min, out float max)
         {
-            float min = float.PositiveInfinity;
-            float max = float.NegativeInfinity;
+            min = float.PositiveInfinity;
+            max = float.NegativeInfinity;
 
             for (int y = 0; y < Height; y++)
             {
@@ -26,8 +26,6 @@ namespace ImageProcessing.Images
                     if (v > max) max = v;
                 }
             }
-
-            return (min, max);
         }
 
         /// <summary>

@@ -123,8 +123,8 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[GreyScaleImage2D: Width={0}, Height={1}, Channels={2}, Mipmaps={3}]",
-                Width, Height, Channels, MipmapLevels);
+            return string.Format("[GreyScaleImage2D: Name={0}, Width={1}, Height={2}, Channels={3}, Mipmaps={4}]",
+                Name, Width, Height, Channels, MipmapLevels);
         }
 
         /// <summary>
@@ -307,6 +307,7 @@ namespace ImageProcessing.Images
         public GreyScaleImage2D Copy()
         {
             var copy = new GreyScaleImage2D(Data);
+            copy.Name = Name;
 
             if (HasMipmaps)
             {

@@ -127,8 +127,8 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[BinaryImage2D: Width={0}, Height={1}, Channels={2}, Mipmaps={3}]",
-                Width, Height, Channels, MipmapLevels);
+            return string.Format("[BinaryImage2D: Name={0}, Width={1}, Height={2}, Channels={3}, Mipmaps={4}]",
+                Name, Width, Height, Channels, MipmapLevels);
         }
 
         /// <summary>
@@ -313,6 +313,7 @@ namespace ImageProcessing.Images
         public BinaryImage2D Copy()
         {
             var copy = new BinaryImage2D(Width, Height);
+            copy.Name = Name;
             copy.Threshold = Threshold;
 
             copy.Fill((x, y) =>

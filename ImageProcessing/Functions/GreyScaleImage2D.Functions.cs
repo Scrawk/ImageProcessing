@@ -51,11 +51,12 @@ namespace ImageProcessing.Images
         /// </summary>
         public void Normalize()
         {
-            var minMax = MinMax();
+            float min, max;
+            MinMax(out min, out max);
 
             Modify((v) =>
             {
-                v = MathUtil.Normalize(v, minMax.min, minMax.max);
+                v = MathUtil.Normalize(v, min, max);
                 return MathUtil.Clamp01(v);
             });
         }

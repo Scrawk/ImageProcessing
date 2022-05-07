@@ -36,6 +36,52 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// Normalize each pixels rgba values in the image to be between (inclusive) 0 and 1.
+        /// </summary>
+        /// <param name="includeAlpha">Should the alpha channel be normalized.</param>
+        public void NormalizeRGBA(bool includeAlpha)
+        {
+            ColorRGBA min, max;
+            MinMaxRGBA(out min, out max);
+
+            Modify((c) =>
+            {
+                //Normalize the rgb channels.
+                for(int i = 0; i < 3; i++)
+                    c[i] = MathUtil.Normalize(c[i], min[i], max[i]);
+
+                //Normalize the alpha channel if required.
+                if(includeAlpha)
+                    c.a = MathUtil.Normalize(c.a, min.a, max.a);
+
+                return ColorRGBA.Clamp(c, 0, 1);
+            });
+        }
+
+        /// <summary>
+        /// Normalize each pixels rgba values by intensity in the image to be between (inclusive) 0 and 1.
+        /// </summary>
+        /// <param name="includeAlpha">Should the alpha channel be normalized.</param>
+        public void NormalizeIntensity(bool includeAlpha)
+        {
+            float min, max;
+            MinMaxIntensity(out min, out max);
+
+            Modify((c) =>
+            {
+                //Normalize the rgb channels.
+                for (int i = 0; i < 3; i++)
+                    c[i] = MathUtil.Normalize(c[i], min, max);
+
+                //Normalize the alpha channel if required.
+                if (includeAlpha)
+                    c.a = MathUtil.Normalize(c.a, min, max);
+
+                return ColorRGBA.Clamp(c, 0, 1);
+            });
+        }
+
+        /// <summary>
         /// Make each value in image the larger of the two values.
         /// </summary>
         /// <param name="value">The another value.</param>

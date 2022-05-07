@@ -68,6 +68,11 @@ namespace ImageProcessing.Images
         public int Tag { get; set; }
 
         /// <summary>
+        /// The images optional name.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
         /// Access a element at index x,y.
         /// </summary>
         public abstract T this[int x, int y]
@@ -91,8 +96,8 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[Image2D: Width={0}, Height={1}, Channels={2}, Mipmaps={3}]", 
-                Width, Height, Channels, MipmapLevels);
+            return string.Format("[Image2D: Name={0}, Width={1}, Height={2}, Channels={3}, Mipmaps={4}]", 
+                Name, Width, Height, Channels, MipmapLevels);
         }
 
         /// <summary>
