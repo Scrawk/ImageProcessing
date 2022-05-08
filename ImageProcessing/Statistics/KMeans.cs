@@ -200,7 +200,8 @@ namespace ImageProcessing.Statistics
                 }
             }
 
-            return image[size - 1];
+            var i = size - 1;
+            return image[i.x, i.y];
         }
 
         /// <summary>

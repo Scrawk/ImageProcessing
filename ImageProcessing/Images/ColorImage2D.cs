@@ -112,12 +112,12 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Access a element at index x,y.
+        /// Access a element at index x,y and mipmap m.
         /// </summary>
-        public override ColorRGBA this[Point2i i]
+        public ColorRGBA this[int x, int y, int m]
         {
-            get { return Data[i.x, i.y]; }
-            set { Data[i.x, i.y] = value; }
+            get { return GetMipmap(m).Data[x, y]; }
+            set { GetMipmap(m).Data[x, y] = value; }
         }
 
         /// <summary>
@@ -199,6 +199,57 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// Get a value from the image at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The pixel at index x,y.</returns>
+        public override ColorRGBA GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        {
+            return GetPixel(x, y, mode);
+        }
+
+        /// <summary>
+        /// Get a value from the image at normalized index u,v.
+        /// </summary>
+        /// <param name="u">The first index.</param>
+        /// <param name="v">The second index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The pixel at index x,y.</returns>
+        public override ColorRGBA GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        {
+            return GetPixel(u, v, mode);
+        }
+
+        /// <summary>
+        /// Set the channel value at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="c">The channel index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <param name="value">The value.</param>
+        public override void SetChannel(int x, int y, int c, float value, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        {
+            var pixel = GetPixel(x, y, mode);
+            pixel[c] = value;
+            SetPixel(x, y, pixel, mode);
+        }
+
+        /// <summary>
+        /// Set the value at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <param name="value">The value.</param>
+        public override void SetValue(int x, int y, ColorRGBA value, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        {
+            SetPixel(x, y, value, mode);
+        }
+
+        /// <summary>
         /// Get a pixel from the image at index x,y.
         /// </summary>
         /// <param name="x">The first index.</param>
@@ -252,7 +303,7 @@ namespace ImageProcessing.Images
         {
             Indices(ref x, ref y, mode);
 
-            switch(blend)
+            switch (blend)
             {
                 case BLEND_MODE.ALPHA:
                     this[x, y] = ColorRGBA.AlphaBlend(pixel, this[x, y]);
@@ -266,21 +317,6 @@ namespace ImageProcessing.Images
                     this[x, y] = pixel;
                     break;
             }
-        }
-
-        /// <summary>
-        /// Set the channel value at index x,y.
-        /// </summary>
-        /// <param name="x">The first index.</param>
-        /// <param name="y">The second index.</param>
-        /// <param name="c">The channel index.</param>
-        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        /// <param name="value">The value.</param>
-        public override void SetChannel(int x, int y, int c, float value, WRAP_MODE mode = WRAP_MODE.CLAMP)
-        {
-            var pixel = GetPixel(x, y, mode);
-            pixel[c] = value;
-            SetPixel(x, y, pixel, mode);
         }
 
         /// <summary>

@@ -110,12 +110,12 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Access a element at index x,y.
+        /// Access a element at index x,y and mipmap m.
         /// </summary>
-        public override Vector2f this[Point2i i]
+        public Vector2f this[int x, int y, int m]
         {
-            get { return Data[i.x, i.y]; }
-            set { Data[i.x, i.y] = value; }
+            get { return GetMipmap(m).Data[x, y]; }
+            set { GetMipmap(m).Data[x, y] = value; }
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace ImageProcessing.Images
         /// <returns>The value at index x,y.</returns>
         public override float GetChannel(int x, int y, int c, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            return GetVector(x, y, mode)[c];
+            return GetValue(x, y, mode)[c];
         }
 
         /// <summary>
@@ -216,7 +216,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The vector at index x,y.</returns>
-        public Vector2f GetVector(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override Vector2f GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             Indices(ref x, ref y, mode);
             return this[x, y];
@@ -229,7 +229,7 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The vector at index x,y.</returns>
-        public Vector2f GetVector(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override Vector2f GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float x = u * (Width - 1);
             float y = v * (Height - 1);
@@ -257,7 +257,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="vector">The vector.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        public void SetVector(int x, int y, Vector2f vector, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override void SetValue(int x, int y, Vector2f vector, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             Indices(ref x, ref y, mode);
             this[x, y] = vector;
@@ -272,7 +272,7 @@ namespace ImageProcessing.Images
         /// <returns>The pixel at index x,y.</returns>
         public override ColorRGBA GetPixel(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            var vec = GetVector(x, y, mode);
+            var vec = GetValue(x, y, mode);
             return new ColorRGBA(vec.x, vec.y, 0, 1);
         }
 
@@ -285,7 +285,7 @@ namespace ImageProcessing.Images
         /// <returns>The pixel at index x,y.</returns>
         public override ColorRGBA GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
-            var vec = GetVector(u, v, mode);
+            var vec = GetValue(u, v, mode);
             return new ColorRGBA(vec.x, vec.y, 0, 1);
         }
 

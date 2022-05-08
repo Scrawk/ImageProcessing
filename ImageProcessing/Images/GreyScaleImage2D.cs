@@ -109,12 +109,12 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Access a element at index x,y.
+        /// Access a element at index x,y and mipmap m.
         /// </summary>
-        public override float this[Point2i i]
+        public float this[int x, int y, int m]
         {
-            get { return Data[i.x, i.y]; }
-            set { Data[i.x, i.y] = value; }
+            get { return GetMipmap(m).Data[x, y]; }
+            set { GetMipmap(m).Data[x, y] = value; }
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override float GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             Indices(ref x, ref y, mode);
             return this[x, y];
@@ -172,7 +172,7 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override float GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float x = u * (Width - 1);
             float y = v * (Height - 1);
@@ -200,7 +200,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="value">The value.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        public void SetValue(int x, int y, float value, WRAP_MODE mode = WRAP_MODE.NONE)
+        public override void SetValue(int x, int y, float value, WRAP_MODE mode = WRAP_MODE.NONE)
         {
             Indices(ref x, ref y, mode);
             this[x, y] = value;

@@ -82,15 +82,6 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Access a element at index x,y.
-        /// </summary>
-        public abstract T this[Point2i i]
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// The images description.
         /// </summary>
         /// <returns></returns>
@@ -215,7 +206,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="x">The first index.</param>
         /// <param name="y">The second index.</param>
-        /// <param name="c">The pixels channel index (0-2).</param>
+        /// <param name="c">The pixels channel index (0-3).</param>
         /// <param name="mode">The wrap mode for indices outside image bounds</param>
         /// <returns>The pixels channel at index x,y,c.</returns>
         public abstract float GetChannel(int x, int y, int c, WRAP_MODE mode = WRAP_MODE.CLAMP);
@@ -225,10 +216,28 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="u">The first normalized (0-1) index.</param>
         /// <param name="v">The second normalized (0-1) index.</param>
-        /// <param name="c">The pixels channel index (0-2).</param>
+        /// <param name="c">The pixels channel index (0-3).</param>
         /// <param name="mode">The wrap mode for indices outside image bounds</param>
         /// <returns>The pixels channel at index x,y,c.</returns>
         public abstract float GetChannel(float u, float v, int c, WRAP_MODE mode = WRAP_MODE.CLAMP);
+
+        /// <summary>
+        /// Get a value from the image at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds</param>
+        /// <returns>The pixels channel at index x,y,c.</returns>
+        public abstract T GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP);
+
+        /// <summary>
+        /// Get a value from the image at normalized index u,v.
+        /// </summary>
+        /// <param name="u">The first normalized (0-1) index.</param>
+        /// <param name="v">The second normalized (0-1) index.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds</param>
+        /// <returns>The pixels channel at index x,y,c.</returns>
+        public abstract T GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
         /// Set the pixel at index x,y.
@@ -265,6 +274,15 @@ namespace ImageProcessing.Images
         /// <param name="value">The pixels channel value.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         public abstract void SetChannel(int x, int y, int c, float value, WRAP_MODE mode = WRAP_MODE.NONE);
+
+        /// <summary>
+        /// Set the value at index x,y.
+        /// </summary>
+        /// <param name="x">The first index.</param>
+        /// <param name="y">The second index.</param>
+        /// <param name="value">The pixels channel value.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        public abstract void SetValue(int x, int y, T value, WRAP_MODE mode = WRAP_MODE.NONE);
 
         /// <summary>
         /// Is this array the same size as the other array.
@@ -414,13 +432,14 @@ namespace ImageProcessing.Images
         /// <param name="source"></param>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        public void Fill(T[,] source, int x = 0, int y = 0)
+        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
+        public void Fill(T[,] source, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             for (int j = 0; j < source.GetLength(0); j++)
             {
                 for (int i = 0; i < source.GetLength(1); i++)
                 {
-                    this[x + i, y + j] = source[i, j];
+                    SetValue(x + i, y + j,  source[i, j], wrap);
                 }
             }
         }
@@ -446,13 +465,14 @@ namespace ImageProcessing.Images
         /// <param name="source"></param>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        public void Fill(IImage2D source, int x = 0, int y = 0)
+        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
+        public void Fill(Image2D<T> source, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             for (int j = 0; j < source.Height; j++)
             {
                 for (int i = 0; i < source.Width; i++)
                 {
-                    SetPixel(x + i, y + j, source.GetPixel(i, j));
+                    SetPixel(x + i, y + j, source.GetPixel(i, j), wrap);
                 }
             }
         }
@@ -462,13 +482,14 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="source"></param>
         /// <param name="bounds"></param>
-        public void Fill(IImage2D source, Box2i bounds)
+        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
+        public void Fill(Image2D<T> source, Box2i bounds, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             for (int y = bounds.Min.y; y < bounds.Max.y; y++)
             {
                 for (int x = bounds.Min.x; x < bounds.Max.x; x++)
                 {
-                    SetPixel(x, y, source.GetPixel(x, y));
+                    SetPixel(x, y, source.GetPixel(x, y), wrap);
                 }
             }
         }
@@ -491,12 +512,13 @@ namespace ImageProcessing.Images
         /// Fill the image with the values at the provided indices.
         /// </summary>
         /// <param name="indices">The indices and value to fill.</param>
-        public void Fill(IList<PixelIndex2D<T>> indices)
+        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
+        public void Fill(IList<PixelIndex2D<T>> indices, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             for (int i = 0; i < indices.Count; i++)
             {
                 var p = indices[i];
-                this[p.x, p.y] = p.Value;
+                SetValue(p.x, p.y, p.Value, wrap);
             }
         }
 
@@ -505,19 +527,23 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="indices">The indices to fill.</param>
         /// <param name="value">The value to fill.</param>
-        public void Fill(IList<Point2i> indices, T value)
+        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
+        public void Fill(IList<Point2i> indices, T value, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             for (int i = 0; i < indices.Count; i++)
             {
                 var j = indices[i];
-                this[j] = value;
+                SetValue(j.x, j.y, value, wrap);
             }
         }
 
         /// <summary>
         /// Fill the array with the value from the function in parallel.
         /// </summary>
-        public void ParallelFill(Func<int, int, T> func)
+        /// <param name="func"></param>
+        /// <param name="wrap"></param>
+        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
+        public void ParallelFill(Func<int, int, T> func, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             ParallelFill(BlockSize(), func);
         }
@@ -525,7 +551,10 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Fill the array with the value from the function in parallel.
         /// </summary>
-        public void ParallelFill(int blockSize, Func<int, int, T> func)
+        /// <param name="blockSize"></param>
+        /// <param name="func"></param>
+        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
+        public void ParallelFill(int blockSize, Func<int, int, T> func, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             var blocks = ThreadingBlock2D.CreateBlocks(Width, Height, blockSize);
             Parallel.ForEach(blocks, (block) =>
@@ -534,7 +563,7 @@ namespace ImageProcessing.Images
                 {
                     for (int x = block.Start.x; x <= block.End.x; x++)
                     {
-                        this[x, y] = func(x, y);
+                        SetValue(x, y, func(x,y), wrap);
                     }
                 }
             });

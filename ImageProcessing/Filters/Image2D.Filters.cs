@@ -111,7 +111,7 @@ namespace ImageProcessing.Images
 					var pixel2 = Filter(p.x, p.y, image, k, mode) * k.Scale;
 
 					//Blend filtered and unfiltered based on mask.
-					var pixel3 = ColorRGB.Lerp(pixel1.rgb, pixel2, mask[p]);
+					var pixel3 = ColorRGB.Lerp(pixel1.rgb, pixel2, mask[p.x, p.y]);
 
 					//pixel has filtered rgb but original alpha.
 					var pixel = new ColorRGBA(pixel3, pixel1.a);

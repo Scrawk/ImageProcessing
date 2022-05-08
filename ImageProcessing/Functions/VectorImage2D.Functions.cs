@@ -160,7 +160,7 @@ namespace ImageProcessing.Images
                     float u = width > 1 ? x / (width - 1.0f) : 0;
                     float v = height > 1 ? y / (height - 1.0f) : 0;
 
-                    return image1[x, y] + image2.GetVector(u, v);
+                    return image1[x, y] + image2.GetValue(u, v);
                 });
             }
 
@@ -195,7 +195,7 @@ namespace ImageProcessing.Images
                     float u = width > 1 ? x / (width - 1.0f) : 0;
                     float v = height > 1 ? y / (height - 1.0f) : 0;
 
-                    return image1[x, y] - image2.GetVector(u, v);
+                    return image1[x, y] - image2.GetValue(u, v);
                 });
             }
 
@@ -230,7 +230,7 @@ namespace ImageProcessing.Images
                     float u = width > 1 ? x / (width - 1.0f) : 0;
                     float v = height > 1 ? y / (height - 1.0f) : 0;
 
-                    return image1[x, y] * image2.GetVector(u, v);
+                    return image1[x, y] * image2.GetValue(u, v);
                 });
             }
 
@@ -273,7 +273,7 @@ namespace ImageProcessing.Images
                     float v = height > 1 ? y / (height - 1.0f) : 0;
 
                     var v1 = image1[x, y];
-                    var v2 = image2.GetVector(u, v);
+                    var v2 = image2.GetValue(u, v);
                     var v3 = new Vector2f();
 
                     v3.x = v2.x > 0 ? v1.x / v2.x : 0;

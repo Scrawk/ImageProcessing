@@ -120,7 +120,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="x">The first index.</param>
         /// <param name="y">The second index.</param>
-        /// <param name="c">The pixels channel index (0-2).</param>
+        /// <param name="c">The pixels channel index (0-3).</param>
         /// <param name="mode">The wrap mode for indices outside image bounds</param>
         /// <returns>The pixels channel at index x,y,c.</returns>
         float GetChannel(int x, int y, int c, WRAP_MODE mode = WRAP_MODE.CLAMP);
@@ -130,7 +130,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="u">The first normalized (0-1) index.</param>
         /// <param name="v">The second normalized (0-1) index.</param>
-        /// <param name="c">The pixels channel index (0-2).</param>
+        /// <param name="c">The pixels channel index (0-3).</param>
         /// <param name="mode">The wrap mode for indices outside image bounds</param>
         /// <returns>The pixels channel at index x,y,c.</returns>
         float GetChannel(float u, float v, int c, WRAP_MODE mode = WRAP_MODE.CLAMP);
@@ -163,7 +163,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="x">The first index.</param>
         /// <param name="y">The second index.</param>
-        /// <param name="c">The pixels channel index (0-2).</param>
+        /// <param name="c">The pixels channel index (0-3).</param>
         /// <param name="value">The pixels channel value.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         void SetChannel(int x, int y, int c, float value, WRAP_MODE mode = WRAP_MODE.NONE);

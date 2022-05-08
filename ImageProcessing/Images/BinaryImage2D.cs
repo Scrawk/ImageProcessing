@@ -113,15 +113,6 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Access a element at index x,y.
-        /// </summary>
-        public override bool this[Point2i i]
-        {
-            get { return Data[i.x + i.y * m_width]; }
-            set { Data[i.x + i.y * m_width] = value; }
-        }
-
-        /// <summary>
         /// Return the image description.
         /// </summary>
         /// <returns></returns>
@@ -165,7 +156,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public bool GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override bool GetValue(int x, int y, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             Indices(ref x, ref y, mode);
             return this[x, y];
@@ -178,7 +169,7 @@ namespace ImageProcessing.Images
         /// <param name="v">The second index.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         /// <returns>The value at index x,y.</returns>
-        public bool GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override bool GetValue(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             float x = u * (Width - 1);
             float y = v * (Height - 1);
@@ -206,7 +197,7 @@ namespace ImageProcessing.Images
         /// <param name="y">The second index.</param>
         /// <param name="value">The value.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        public void SetValue(int x, int y, bool value, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public override void SetValue(int x, int y, bool value, WRAP_MODE mode = WRAP_MODE.CLAMP)
         {
             Indices(ref x, ref y, mode);
             this[x, y] = value;
