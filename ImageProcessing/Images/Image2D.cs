@@ -549,8 +549,13 @@ namespace ImageProcessing.Images
         /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
         public void Fill(Box2i bounds, T value, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
-            foreach(var p in bounds.EnumerateBounds())
-                SetValue(p.x + x, p.y + y, value, wrap);
+            for (int j = bounds.Min.y; j < bounds.Max.y; j++)
+            {
+                for (int i = bounds.Min.x; i < bounds.Max.x; i++)
+                {
+                    SetValue(i + x, j + y, value, wrap);
+                }
+            }
         }
 
         /// <summary>
