@@ -336,6 +336,36 @@ namespace ImageProcessing.Images
             return Mipmaps[i];
         }
 
+
+        /// <summary>
+        /// Get the first mipmap.
+        /// </summary>
+        public BinaryImage2D FirstMipmap
+        {
+            get
+            {
+                if (Mipmaps == null)
+                    throw new InvalidOperationException("Mipmaps have not been created.");
+
+                return Mipmaps[0];
+            }
+        }
+
+        /// <summary>
+        /// Get the last mipmap.
+        /// </summary>
+        public BinaryImage2D LastMipmap
+        {
+            get
+            {
+                if (Mipmaps == null)
+                    throw new InvalidOperationException("Mipmaps have not been created.");
+
+                int m = Mipmaps.Length - 1;
+                return Mipmaps[m];
+            }
+        }
+
         /// <summary>
         /// Get the mipmap at index i.
         /// </summary>

@@ -465,14 +465,15 @@ namespace ImageProcessing.Images
         /// <param name="source"></param>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
-        public void Fill(Image2D<T> source, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        /// <param name="image_wrap">The wrap mode for indices outside image bounds.</param>
+        /// <param name="source_wrap">The wrap mode for indices outside source bounds.</param>
+        public void Fill(Image2D<T> source, int x = 0, int y = 0, WRAP_MODE image_wrap = WRAP_MODE.CLAMP, WRAP_MODE source_wrap = WRAP_MODE.CLAMP)
         {
             for (int j = 0; j < source.Height; j++)
             {
                 for (int i = 0; i < source.Width; i++)
                 {
-                    SetPixel(x + i, y + j, source.GetPixel(i, j), wrap);
+                    SetPixel(x + i, y + j, source.GetPixel(i, j, source_wrap), image_wrap);
                 }
             }
         }
@@ -482,14 +483,15 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="source"></param>
         /// <param name="bounds"></param>
-        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
-        public void Fill(Image2D<T> source, Box2i bounds, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        /// <param name="image_wrap">The wrap mode for indices outside image bounds.</param>
+        /// <param name="source_wrap">The wrap mode for indices outside source bounds.</param>
+        public void Fill(Image2D<T> source, Box2i bounds, WRAP_MODE image_wrap = WRAP_MODE.CLAMP, WRAP_MODE source_wrap = WRAP_MODE.CLAMP)
         {
-            for (int y = bounds.Min.y; y < bounds.Max.y; y++)
+            for (int y = bounds.Min.y, yy = 0; y < bounds.Max.y; yy++, y++)
             {
-                for (int x = bounds.Min.x; x < bounds.Max.x; x++)
+                for (int x = bounds.Min.x, xx = 0; x < bounds.Max.x; xx++, x++)
                 {
-                    SetPixel(x, y, source.GetPixel(x, y), wrap);
+                    SetPixel(x, y, source.GetPixel(xx, yy, source_wrap), image_wrap);
                 }
             }
         }
@@ -538,10 +540,23 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// Fill the image with the value at the provided indices.
+        /// </summary>
+        /// <param name="bounds">The area to fill.</param>
+        /// <param name="value">The value to fill.</param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
+        public void Fill(Box2i bounds, T value, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        {
+            foreach(var p in bounds.EnumerateBounds())
+                SetValue(p.x + x, p.y + y, value, wrap);
+        }
+
+        /// <summary>
         /// Fill the array with the value from the function in parallel.
         /// </summary>
         /// <param name="func"></param>
-        /// <param name="wrap"></param>
         /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
         public void ParallelFill(Func<int, int, T> func, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
