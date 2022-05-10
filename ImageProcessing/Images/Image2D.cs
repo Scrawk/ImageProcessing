@@ -713,7 +713,7 @@ namespace ImageProcessing.Images
         /// Convert to a greyscale image.
         /// </summary>
         /// <returns>The greayscale image.</returns>
-        public GreyScaleImage2D ToGreyScaleImage()
+        public virtual GreyScaleImage2D ToGreyScaleImage()
         {
             var copy = new GreyScaleImage2D(Width, Height);
             copy.Iterate((x, y) =>
@@ -731,7 +731,7 @@ namespace ImageProcessing.Images
         /// <param name="threshold">The threshold that determines 
         /// if the images values are tru or false.</param>
         /// <returns>The binary image.</returns>
-        public BinaryImage2D ToBinaryImage(float threshold = 0.5f)
+        public virtual BinaryImage2D ToBinaryImage(float threshold = 0.5f)
         {
             var copy = new BinaryImage2D(Width, Height);
             copy.Threshold = threshold;
@@ -749,9 +749,25 @@ namespace ImageProcessing.Images
         /// Convert to a color image.
         /// </summary>
         /// <returns>The color image.</returns>
-        public ColorImage2D ToColorImage()
+        public virtual ColorImage2D ToColorImage()
         {
             var copy = new ColorImage2D(Width, Height);
+            copy.Iterate((x, y) =>
+            {
+                var pixel = GetPixel(x, y);
+                copy.SetPixel(x, y, pixel);
+            });
+
+            return copy;
+        }
+
+        /// <summary>
+        /// Convert to a vector image.
+        /// </summary>
+        /// <returns>The color image.</returns>
+        public virtual VectorImage2D ToVectorImage()
+        {
+            var copy = new VectorImage2D(Width, Height);
             copy.Iterate((x, y) =>
             {
                 var pixel = GetPixel(x, y);

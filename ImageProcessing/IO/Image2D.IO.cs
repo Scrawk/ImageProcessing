@@ -62,6 +62,23 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// Load from a byte array.
+        /// </summary>
+        /// <param name="filename">The file name.</param>
+        /// <param name="includeAlpha">Is the alpha channel included.</param>
+        /// <param name="bitDepth">The bytes bit depth.</param>
+        /// <param name="bigEndian">The endianness if 16 bits.</param>
+        public void LoadFromRaw(string filename, bool includeAlpha = false, BIT_DEPTH bitDepth = BIT_DEPTH.B8, bool bigEndian = false)
+        {
+            if (!filename.EndsWith(".raw"))
+                filename += ".raw";
+
+            var bytes = System.IO.File.ReadAllBytes(filename);
+
+            FromBytes(bytes, bitDepth, includeAlpha, bigEndian);
+        }
+
+        /// <summary>
         /// Get the images data as bytes.
         /// </summary>
         /// <param name="bitDepth">The bitdepth of the bytes.</param>
@@ -111,7 +128,7 @@ namespace ImageProcessing.Images
                     if (includeAlpha)
                         channels = Math.Min(channels, 3);
 
-                    ColorRGBA pixel = new ColorRGBA();
+                    ColorRGBA pixel = new ColorRGBA(0,0,0,1);
                     for (int c = 0; c < channels; c++)
                     {
                         int i = (x + y * Width) * Channels + c;

@@ -73,6 +73,49 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// Take the sqrt of each value in the image
+        /// with the option of taking the abs value first.
+        /// </summary>
+        /// <param name="abs">Should the value be made abs first.</param>
+        public void Sqrt(bool abs = false)
+        {
+            Modify(v =>
+            {
+                if (abs)
+                    v = Math.Abs(v);
+
+                return MathUtil.SafeSqrt(v);
+            });
+        }
+
+        /// <summary>
+        /// Take the log of each value in the image
+        /// with the option of taking the abs value first.
+        /// </summary>
+        /// <param name="abs">Should the value be made abs first.</param>
+        public void Log(bool abs = false)
+        {
+            Modify(v =>
+            {
+                if (abs)
+                    v = Math.Abs(v);
+
+                return MathUtil.SafeLog(v);
+            });
+        }
+
+        /// <summary>
+        /// Apply th abs fuction to each value in the image.
+        /// </summary>
+        public void Abs()
+        {
+            Modify(v =>
+            {
+                return Math.Abs(v);
+            });
+        }
+
+        /// <summary>
         /// Add the values in the image.
         /// </summary>
         /// <param name="value">The value.</param>

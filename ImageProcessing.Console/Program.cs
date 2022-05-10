@@ -10,6 +10,7 @@ using Common.Core.Colors;
 using Common.GraphTheory.GridGraphs;
 
 using ImageProcessing.Images;
+using ImageProcessing.Statistics;
 
 using CONSOLE = System.Console;
 
@@ -22,14 +23,38 @@ namespace ImageProcessing.Console
 
         static void Main(string[] args)
         {
-            var circle = new Circle2f(32, 32, 16);
-            var box = new Box2f(-8, -8, 8, 8);
+            var color = new ColorImage2D(256, 256);
+            color.LoadFromRaw(FOLDER + "Tile0_Image0.raw", false, BIT_DEPTH.B8);
 
-            var greyscale = new GreyScaleImage2D(64, 64);
 
-            greyscale.DrawBox(box, ColorRGBA.White, true, WRAP_MODE.WRAP, BLEND_MODE.ALPHA);
+            var histogram = new ColorHistogram(256);
+            histogram.Load(color);
 
-            greyscale.SaveAsRaw(FOLDER + "greyscale");
+
+            var image = histogram.HistogramToImage(0, ColorRGBA.White, ColorRGBA.Black, 256);
+
+            image.SaveAsRaw(FOLDER + "himage_" + image.Width + "_" + image.Height);
+
+            WriteLine(histogram);
+
+            /*
+            var image = color.ToGreyScaleImage();
+
+            var histogram = new Histogram(256);
+            histogram.Load(image);
+            WriteLine(histogram);
+
+            var himage = histogram.HistogramToImage(ColorRGBA.White, ColorRGBA.Black, 256);
+            var chimage = histogram.CumulativeHistogramToImage(ColorRGBA.White, ColorRGBA.Black, 256);
+
+            WriteLine(himage);
+            WriteLine(chimage);
+
+            himage.SaveAsRaw(FOLDER + "himage_" + himage.Width + "_" + himage.Height);
+            chimage.SaveAsRaw(FOLDER + "chimage_" + chimage.Width + "_" + chimage.Height);
+            */
+
+            WriteLine("Done");
             
         }
 

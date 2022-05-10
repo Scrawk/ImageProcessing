@@ -43,7 +43,7 @@ namespace ImageProcessing.Images
         public static IMAGE FlipHorizontal<IMAGE>(IMAGE image)
             where IMAGE : IImage2D, new()
         {
-            var image2 = NewImage<IMAGE>(image.Height, image.Width);
+            var image2 = NewImage<IMAGE>(image.Width, image.Height);
 
             for (int y = 0; y < image.Height; y++)
             {
@@ -66,7 +66,7 @@ namespace ImageProcessing.Images
         public static IMAGE FlipVertical<IMAGE>(IMAGE image)
             where IMAGE : IImage2D, new()
         {
-            var image2 = NewImage<IMAGE>(image.Height, image.Width);
+            var image2 = NewImage<IMAGE>(image.Width, image.Height);
         
             for (int y = 0; y < image.Height; y++)
             {

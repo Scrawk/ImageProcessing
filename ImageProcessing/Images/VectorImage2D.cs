@@ -353,6 +353,21 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// Convert to a greyscale image.
+        /// </summary>
+        /// <returns>The greayscale image.</returns>
+        public override GreyScaleImage2D ToGreyScaleImage()
+        {
+            var copy = new GreyScaleImage2D(Width, Height);
+            copy.Iterate((x, y) =>
+            {
+                copy[x, y] = this[x, y].Magnitude;
+            });
+
+            return copy;
+        }
+
+        /// <summary>
         /// Get the mipmap at index i.
         /// </summary>
         /// <param name="i">The mipmap level.</param>
