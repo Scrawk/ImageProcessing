@@ -543,17 +543,19 @@ namespace ImageProcessing.Images
         /// Fill the image with the value at the provided indices.
         /// </summary>
         /// <param name="bounds">The area to fill.</param>
+        /// <param name="mask">A area in the bounds to not fill if true. Optional and can be null.</param>
         /// <param name="value">The value to fill.</param>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
         /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
-        public void Fill(Box2i bounds, T value, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        public void Fill(Box2i bounds, BinaryImage2D mask, T value, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
-            for (int j = bounds.Min.y; j < bounds.Max.y; j++)
+            for (int j = bounds.Min.y, y = 0; j < bounds.Max.y; y++, j++)
             {
-                for (int i = bounds.Min.x; i < bounds.Max.x; i++)
+                for (int i = bounds.Min.x, x = 0; i < bounds.Max.x; x++, i++)
                 {
-                    SetValue(i + x, j + y, value, wrap);
+                    if (mask != null && mask[x, y]) 
+                        continue;
+
+                    SetValue(i, j, value, wrap);
                 }
             }
         }
