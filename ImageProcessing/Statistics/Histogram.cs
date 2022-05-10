@@ -6,32 +6,57 @@ using ImageProcessing.Images;
 using ImageProcessing.Pixels;
 
 using Common.Core.Colors;
+using Common.Core.RandomNum;
 
 namespace ImageProcessing.Statistics
 {
-
+    /// <summary>
+    /// 
+    /// </summary>
     public class Histogram
     {
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bins"></param>
         public Histogram(int bins)
         {
             CreateBins(bins);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public int BinSize => Bins.Length;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public bool HasCulumativeHistogram => CumulativeBins != null;
 
+        /// <summary>
+        /// 
+        /// </summary>
         private HistogramBin[] Bins { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private int[] CumulativeBins { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return string.Format("[Histogram: BinSize={0}, HasCumulativeBins={1}]", 
                 BinSize, HasCulumativeHistogram);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Clear()
         {
             for (int i = 0; i < Bins.Length; i++)
@@ -40,11 +65,20 @@ namespace ImageProcessing.Statistics
             CumulativeBins = null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public int GetBinCount(int index)
         {
             return Bins[index].Count;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public int MaxBinCount()
         {
             int max = -1;
@@ -58,6 +92,23 @@ namespace ImageProcessing.Statistics
             return max;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public int BinLength()
+        {
+            int length = 0;
+            for (int i = 0; i < Bins.Length; i++)
+                length += Bins[i].Count;
+
+            return length;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
         public void Load(GreyScaleImage2D image)
         {
             Clear();
@@ -78,6 +129,11 @@ namespace ImageProcessing.Statistics
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="channel"></param>
         public void Load(ColorImage2D image, int channel)
         {
             Clear();
@@ -98,6 +154,13 @@ namespace ImageProcessing.Statistics
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="color"></param>
+        /// <param name="background"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
         public ColorImage2D HistogramToImage(ColorRGBA color, ColorRGBA background, int height)
         {
             int width = BinSize;
@@ -120,6 +183,13 @@ namespace ImageProcessing.Statistics
             return image;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="color"></param>
+        /// <param name="background"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
         public ColorImage2D CumulativeHistogramToImage(ColorRGBA color, ColorRGBA background, int height)
         {
             CreateCumulativeHistogram();
@@ -144,6 +214,9 @@ namespace ImageProcessing.Statistics
             return image;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void CreateCumulativeHistogram()
         {
             CumulativeBins = new int[BinSize];
@@ -159,6 +232,10 @@ namespace ImageProcessing.Statistics
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bins"></param>
         private void CreateBins(int bins)
         {
             Bins = new HistogramBin[bins];
