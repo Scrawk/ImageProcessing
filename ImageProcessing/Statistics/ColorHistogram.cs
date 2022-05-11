@@ -107,6 +107,15 @@ namespace ImageProcessing.Statistics
             return Histograms[channel].CreateHistogramBarGraph(color, background, height);
         }
 
+        /// <summary>
+        /// Creates a image with the line graph of the histogram.
+        /// Used for debugging.
+        /// </summary>
+        /// <param name="colors">The color array for each channel.</param>
+        /// <param name="background">The background color.</param>
+        /// <param name="height">The images height. The width will be the bin size.</param>
+        /// <returns>The line graph image.</returns>
+        /// <exception cref="NullReferenceException">If no data has been loaded into the histogram.</exception>
         public ColorImage2D CreateHistogramLineGraph(ColorRGBA[] colors, ColorRGBA background, int height)
         {
             if (Histograms == null)
@@ -116,8 +125,8 @@ namespace ImageProcessing.Statistics
 
             for(int i = 1; i < Histograms.Length; i++)
             {
-                var image = Histograms[i].CreateHistogramLineGraph(colors[0], background, height);
-
+                var image = Histograms[i].CreateHistogramLineGraph(colors[i], ColorRGBA.Clear, height);
+                image0.Add(image);
             }
 
             return image0;  
@@ -128,7 +137,7 @@ namespace ImageProcessing.Statistics
         /// Used for debugging.
         /// </summary>
         /// <param name="channel">The channel to create the graph from.</param>
-        /// <param name="color">The bars color.</param>
+        /// <param name="color">The lines color.</param>
         /// <param name="background">The background color.</param>
         /// <param name="height">The images height. The width will be the bin size.</param>
         /// <returns>The line graph image.</returns>
@@ -139,6 +148,31 @@ namespace ImageProcessing.Statistics
                 throw new NullReferenceException("Histograms have not been created.");
 
             return Histograms[channel].CreateHistogramLineGraph(color, background, height);
+        }
+
+        /// <summary>
+        /// Creates a image with the line graph of the histogram CFD.
+        /// Used for debugging.
+        /// </summary>
+        /// <param name="colors">The color array for each channel.</param>
+        /// <param name="background">The background color.</param>
+        /// <param name="height">The images height. The width will be the bin size.</param>
+        /// <returns>The line graph image.</returns>
+        /// <exception cref="NullReferenceException">If no data has been loaded into the histogram.</exception>
+        public ColorImage2D CreateHistogramLineGraphCFD(ColorRGBA[] colors, ColorRGBA background, int height)
+        {
+            if (Histograms == null)
+                throw new NullReferenceException("Histograms have not been created.");
+
+            var image0 = Histograms[0].CreateHistogramLineGraphCFD(colors[0], background, height);
+
+            for (int i = 1; i < Histograms.Length; i++)
+            {
+                var image = Histograms[i].CreateHistogramLineGraphCFD(colors[i], ColorRGBA.Clear, height);
+                image0.Add(image);
+            }
+
+            return image0;
         }
 
         /// <summary>

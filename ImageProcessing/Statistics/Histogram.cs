@@ -264,6 +264,44 @@ namespace ImageProcessing.Statistics
         }
 
         /// <summary>
+        /// Creates a image with the line graph of the histograms CFD.
+        /// Used for debugging.
+        /// </summary>
+        /// <param name="color">The bars color.</param>
+        /// <param name="background">The background color.</param>
+        /// <param name="height">The images height. The width will be the bin size.</param>
+        /// <returns>The line graph image.</returns>
+        public ColorImage2D CreateHistogramLineGraphCFD(ColorRGBA color, ColorRGBA background, int height)
+        {
+            CreateCumulativeHistogram();
+
+            int width = BinSize;
+            int max = CumulativeBins.Last();
+
+            var image = new ColorImage2D(width, height);
+            image.Fill(background);
+
+            float count01 = CumulativeBins[0] / (float)max;
+            int y = (int)(count01 * (height - 1));
+
+            var previosPoint = new Point2i(0, height - y - 1);
+
+            for (int x = 1; x < width; x++)
+            {
+                count01 = CumulativeBins[x] / (float)max;
+                y = (int)(count01 * (height - 1));
+
+                var point = new Point2i(x, height - y - 1);
+
+                image.DrawLine(previosPoint, point, color);
+
+                previosPoint = point;
+            }
+
+            return image;
+        }
+
+        /// <summary>
         /// Create the cumulative function distribution (CFD).
         /// </summary>
         public void CreateCumulativeHistogram()
