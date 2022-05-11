@@ -24,22 +24,31 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Make each value in image the smaller of the two values.
+        /// Returns the normalized square distance between the two images.
         /// </summary>
-        /// <param name="value">The another value.</param>
-        public void Min(float value)
+        /// <param name="image">The other image to compare.</param>
+        /// <param name="includeAlpha">Should the alpha channel the included.</param>
+        /// <returns>The normalized square distance.</returns>
+        public float SqrDistance(ColorImage2D image, bool includeAlpha = false)
         {
-            Modify((c) =>
+            float sqdist = 0;
+
+            Iterate((x,y) =>
             {
-                return ColorRGBA.Min(c, value);
+                if(includeAlpha)
+                    sqdist += ColorRGBA.SqrDistance(this[x, y], image[x, y]);
+                else
+                    sqdist += ColorRGB.SqrDistance(this[x, y].rgb, image[x, y].rgb);
             });
+
+            return sqdist / (Width * Height);
         }
 
         /// <summary>
         /// Normalize each pixels rgba values in the image to be between (inclusive) 0 and 1.
         /// </summary>
         /// <param name="includeAlpha">Should the alpha channel be normalized.</param>
-        public void NormalizeRGBA(bool includeAlpha)
+        public void NormalizeRGBA(bool includeAlpha = false)
         {
             ColorRGBA min, max;
             MinMaxRGBA(out min, out max);
@@ -62,7 +71,7 @@ namespace ImageProcessing.Images
         /// Normalize each pixels rgba values by intensity in the image to be between (inclusive) 0 and 1.
         /// </summary>
         /// <param name="includeAlpha">Should the alpha channel be normalized.</param>
-        public void NormalizeIntensity(bool includeAlpha)
+        public void NormalizeIntensity(bool includeAlpha = false)
         {
             float min, max;
             MinMaxIntensity(out min, out max);
@@ -82,14 +91,34 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Make each value in image the larger of the two values.
+        /// Make each value in image the smaller of the two values.
         /// </summary>
         /// <param name="value">The another value.</param>
-        public void Max(float value)
+        /// <param name="includeAlpha">Should the alpha channel the included.</param>
+        public void Min(float value, bool includeAlpha = false)
         {
             Modify((c) =>
             {
-                return ColorRGBA.Max(c, value);
+                if(includeAlpha)
+                    return ColorRGBA.Min(c, value);
+                else
+                    return ColorRGB.Min(c.rgb, value).RGBA(c.a);
+            });
+        }
+
+        /// <summary>
+        /// Make each value in image the larger of the two values.
+        /// </summary>
+        /// <param name="value">The another value.</param>
+        /// <param name="includeAlpha">Should the alpha channel the included.</param>
+        public void Max(float value, bool includeAlpha = false)
+        {
+            Modify((c) =>
+            {
+                if (includeAlpha)
+                    return ColorRGBA.Max(c, value);
+                else
+                    return ColorRGB.Max(c.rgb, value).RGBA(c.a);
             });
         }
 
@@ -98,11 +127,15 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="min">The minimum value.</param>
         /// <param name="max">The maximum value.</param>
-        public void Clamp(float min, float max)
+        /// <param name="includeAlpha">Should the alpha channel the included.</param>
+        public void Clamp(float min, float max, bool includeAlpha = false)
         {
             Modify((c) =>
             {
-                return ColorRGBA.Clamp(c, min, max);
+                if (includeAlpha)
+                    return ColorRGBA.Clamp(c, min, max);
+                else
+                    return ColorRGB.Clamp(c.rgb, min, max).RGBA(c.a);
             });
         }
 
@@ -149,11 +182,15 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Inverts the pixels in the image.
         /// </summary>
-        public void Invert()
+        /// <param name="includeAlpha">Should the alpha channel the included.</param>
+        public void Invert(bool includeAlpha = false)
         {
             Modify(c =>
             {
-                return 1.0f - c;
+                if (includeAlpha)
+                    return 1.0f - c;
+                else
+                    return (1.0f - c.rgb).RGBA(c.a);
             });
         }
 
@@ -161,11 +198,15 @@ namespace ImageProcessing.Images
         /// Add the pixels in the image.
         /// </summary>
         /// <param name="pixel">The pixel.</param>
-        public void Add(ColorRGBA pixel)
+        /// <param name="includeAlpha">Should the alpha channel the included.</param>
+        public void Add(ColorRGBA pixel, bool includeAlpha = false)
         {
             Modify(c =>
             {
-                return c + pixel;
+                if(includeAlpha)
+                    return c + pixel;
+                else
+                    return (c.rgb + pixel.rgb).RGBA(c.a);
             });
         }
 
@@ -173,52 +214,87 @@ namespace ImageProcessing.Images
         /// Subtract the pixels in the image.
         /// </summary>
         /// <param name="pixel">The pixel.</param>
+        /// <param name="includeAlpha">Should the alpha channel the included.</param>
         /// <param name="reverse">Reverse the operations order.</param>
-        public void Subtract(ColorRGBA pixel, bool reverse = false)
+        public void Subtract(ColorRGBA pixel, bool includeAlpha = false, bool reverse = false)
         {
             Modify(c =>
             {
-                if (reverse)
-                    return pixel - c;
+                if (includeAlpha)
+                {
+                    if (reverse)
+                        return pixel - c;
+                    else
+                        return c - pixel;
+                }
                 else
-                    return c - pixel;
+                {
+                    if (reverse)
+                        return (pixel.rgb - c.rgb).RGBA(c.a);
+                    else
+                        return (c.rgb - pixel.rgb).RGBA(c.a);
+                }
+
             });
         }
 
         /// <summary>
         /// Multiply the pixels in the image.
         /// </summary>
+        /// <param name="includeAlpha">Should the alpha channel the included.</param>
         /// <param name="pixel">The pixel.</param>
-        public void Multiply(ColorRGBA pixel)
+        public void Multiply(ColorRGBA pixel, bool includeAlpha = false)
         {
             Modify(c =>
             {
-                return c * pixel;
+                if (includeAlpha)
+                    return c * pixel;
+                else
+                    return (c.rgb * pixel.rgb).RGBA(c.a);
             });
         }
 
         /// <summary>
         /// Add the pixels in the image.
         /// </summary>
+        /// <param name="includeAlpha">Should the alpha channel the included.</param>
         /// <param name="pixel">The pixel.</param>
         /// <param name="reverse">Reverse the operations order.</param>
-        public void Divide(ColorRGBA pixel, bool reverse = false)
+        public void Divide(ColorRGBA pixel, bool includeAlpha = false, bool reverse = false)
         {
             Modify(c =>
             {
-                if (reverse)
+                if (includeAlpha)
                 {
-                    c.r = c.r > 0 ? pixel.r / c.r : 0;
-                    c.g = c.g > 0 ? pixel.g / c.g : 0;
-                    c.b = c.b > 0 ? pixel.b / c.b : 0;
-                    c.a = c.a > 0 ? pixel.a / c.a : 0;
+                    if (reverse)
+                    {
+                        c.r = c.r > 0 ? pixel.r / c.r : 0;
+                        c.g = c.g > 0 ? pixel.g / c.g : 0;
+                        c.b = c.b > 0 ? pixel.b / c.b : 0;
+                        c.a = c.a > 0 ? pixel.a / c.a : 0;
+                    }
+                    else
+                    {
+                        c.r = pixel.r > 0 ? c.r / pixel.r : 0;
+                        c.g = pixel.g > 0 ? c.g / pixel.g : 0;
+                        c.b = pixel.b > 0 ? c.b / pixel.b : 0;
+                        c.a = pixel.a > 0 ? c.a / pixel.a : 0;
+                    }
                 }
                 else
                 {
-                    c.r = pixel.r > 0 ? c.r / pixel.r : 0;
-                    c.g = pixel.g > 0 ? c.g / pixel.g : 0;
-                    c.b = pixel.b > 0 ? c.b / pixel.b : 0;
-                    c.a = pixel.a > 0 ? c.a / pixel.a : 0;
+                    if (reverse)
+                    {
+                        c.r = c.r > 0 ? pixel.r / c.r : 0;
+                        c.g = c.g > 0 ? pixel.g / c.g : 0;
+                        c.b = c.b > 0 ? pixel.b / c.b : 0;
+                    }
+                    else
+                    {
+                        c.r = pixel.r > 0 ? c.r / pixel.r : 0;
+                        c.g = pixel.g > 0 ? c.g / pixel.g : 0;
+                        c.b = pixel.b > 0 ? c.b / pixel.b : 0;
+                    }
                 }
 
                 return c;

@@ -10,6 +10,24 @@ namespace ImageProcessing.Images
     {
 
         /// <summary>
+        /// Returns the normalized square distance between the two images.
+        /// </summary>
+        /// <param name="image">The other image to compare.</param>
+        /// <returns>The normalized square distance.</returns>
+        public float SqrDistance(GreyScaleImage2D image)
+        {
+            float sqdist = 0;
+
+            Iterate((x, y) =>
+            {
+                float v = this[x, y] - image[x, y];
+                sqdist += v * v;
+            });
+
+            return sqdist / (Width * Height);
+        }
+
+        /// <summary>
         /// Make each value in image the smaller of the two values.
         /// </summary>
         /// <param name="value">The another value.</param>

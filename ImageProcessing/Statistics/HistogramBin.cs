@@ -58,6 +58,42 @@ namespace ImageProcessing.Statistics
             Pixels.Add(pixel);
         }
 
+        /// <summary>
+        /// Calculate the mean of all pixels in the bin.
+        /// </summary>
+        /// <returns>The mean of all pixels in the bin.</returns>
+        public float CalculateMean()
+        {
+            if(Count == 0)
+                return 0;
+
+            float mean = 0;
+            for (int i = 0; i < Count; i++)
+                mean += Pixels[i].Value;
+
+            return mean / Count;
+        }
+
+        /// <summary>
+        /// Calculate the variance of all pixels in the bin.
+        /// </summary>
+        /// <param name="mean">The mean of all the pixels in the bin.</param>
+        /// <returns>The variance of all pixels in the bin.</returns>
+        public float CalculateVariance(float mean)
+        {
+            if (Count == 0)
+                return 0;
+
+            float v = 0;
+            for (int i = 0; i < Count; i++)
+            {
+                float diff = Pixels[i].Value - mean;
+                v += diff * diff;
+            }
+
+            return v / Count;
+        }
+
     }
 }
 
