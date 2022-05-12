@@ -38,6 +38,11 @@ namespace ImageProcessing.Images
         int Height { get; }
 
         /// <summary>
+        /// The size of the image.
+        /// </summary>
+        Point2i Size { get; }   
+
+        /// <summary>
         /// The number of channels in the images pixel.
         /// </summary>
         int Channels { get; }

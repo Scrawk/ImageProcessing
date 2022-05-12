@@ -432,9 +432,13 @@ namespace ImageProcessing.Images
         /// <param name="source"></param>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
+        /// <param name="wrap"></param>
+        /// <exception cref="ArgumentException"></exception>
         public void Fill(T[,] source, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
+            if (Width != source.GetLength(0) || Height != source.GetLength(1))
+                throw new ArgumentException("The image and the source array must be the same size.");
+
             for (int j = 0; j < source.GetLength(0); j++)
             {
                 for (int i = 0; i < source.GetLength(1); i++)
@@ -448,8 +452,12 @@ namespace ImageProcessing.Images
         /// 
         /// </summary>
         /// <param name="source"></param>
+        /// <exception cref="ArgumentException"></exception>
         public void Fill(T[] source)
         {
+            if (Width * Height != source.Length)
+                throw new ArgumentException("The image and the source array must be the same size.");
+
             for (int y = 0; y < Height; y++)
             {
                 for (int x = 0; x < Width; x++)
@@ -543,11 +551,17 @@ namespace ImageProcessing.Images
         /// Fill the image with the value at the provided indices.
         /// </summary>
         /// <param name="bounds">The area to fill.</param>
-        /// <param name="mask">A area in the bounds to not fill if true. Optional and can be null.</param>
+        /// <param name="mask">A area in the bounds to not fill if true. 
+        /// Optional and can be null. 
+        /// Should match the dimensions of the bounds.</param>
         /// <param name="value">The value to fill.</param>
         /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
+        /// <exception cref="ArgumentException">Throw if the bounds and mask are not the same size.</exception>
         public void Fill(Box2i bounds, BinaryImage2D mask, T value, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
+            if (mask != null && bounds.Size != mask.Size)
+                throw new ArgumentException("The bounds and mask must be the same size.");
+
             for (int j = bounds.Min.y, y = 0; j < bounds.Max.y; y++, j++)
             {
                 for (int i = bounds.Min.x, x = 0; i < bounds.Max.x; x++, i++)
@@ -567,7 +581,7 @@ namespace ImageProcessing.Images
         /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
         public void ParallelFill(Func<int, int, T> func, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
-            ParallelFill(BlockSize(), func);
+            ParallelFill(BlockSize(), func, wrap);
         }
 
         /// <summary>

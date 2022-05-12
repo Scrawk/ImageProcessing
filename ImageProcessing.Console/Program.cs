@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Collections.Generic;
 
 using Common.Core.Numerics;
-using Common.Core.Time;
+using Common.Core.RandomNum;
 using Common.Core.Shapes;
 using Common.Core.Colors;
 using Common.GraphTheory.GridGraphs;
@@ -25,6 +25,46 @@ namespace ImageProcessing.Console
         static void Main(string[] args)
         {
 
+            int width = 128;
+            int height = 128;
+
+
+            var random = new GreyScaleImage2D(width, height);
+            var gaussion = new GreyScaleImage2D(width, height);
+            var possion = new GreyScaleImage2D(width, height);
+
+            var rnd = new SystemRandom(0);
+
+            random.Iterate((x, y) =>
+            {
+                var u = rnd.NextFloat();
+                var g = (float)Math.Abs(rnd.NextGaussian(0, 1));
+                var p = (float)rnd.NextPoisson(1000);
+
+                random[x, y] = u;
+                gaussion[x, y] = g;
+                possion[x, y] = p;
+
+            });
+
+            possion.MinMax(out float min, out float max);
+
+            WriteLine(min + " "  + max);
+
+            possion.Normalize();
+
+            var random_dft = GreyScaleImage2D.HalfOffset(random.DFT().ToGreyScaleImage());
+            var gaussion_dft = GreyScaleImage2D.HalfOffset(gaussion.DFT().ToGreyScaleImage());
+            var possion_dft = GreyScaleImage2D.HalfOffset(possion.DFT().ToGreyScaleImage());
+
+            //possion_dft.Normalize();
+            //gaussion.Normalize();
+
+            random_dft.SaveAsRaw(FOLDER + "random_dft");
+            gaussion_dft.SaveAsRaw(FOLDER + "gaussion_dft");
+            possion_dft.SaveAsRaw(FOLDER + "possion_dft");
+
+            /*
             var bmp1 = new Bitmap(FOLDER + "test.jpg");
             var bmp2 = new Bitmap(FOLDER + "Grass2.bmp");
 
@@ -37,36 +77,8 @@ namespace ImageProcessing.Console
 
             var idft = dft.iDFT();
 
-            //dft.MinMax(out Vector2f min, out Vector2f max);
-            //WriteLine(min);
-           // WriteLine(max);
-
-            //greyscale = dft.ToGreyScaleImage();
-            //greyscale = GreyScaleImage2D.HalfOffset(greyscale);
-            //greyscale.Abs();
-
+            dft.ToGreyScaleImage().SaveAsRaw(FOLDER + "dft");
             idft.SaveAsRaw(FOLDER + "idft");
-
-            /*
-            var histo1 = new ColorHistogram(image1, 256);
-            var histo2 = new ColorHistogram(image2, 256);
-
-            histo1.Normalize();
-
-            var colors = new ColorRGBA[]
-            {
-                ColorRGBA.Red,
-                ColorRGBA.Green,
-                ColorRGBA.Blue,
-                ColorRGBA.White
-            };
-
-            var lineGraph = histo1.CreateHistogramLineGraph(colors, ColorRGBA.Black, 256);
-
-            lineGraph.SaveAsRaw(FOLDER + "LineGraph");
-
-            //image1.SaveAsRaw(FOLDER + "image1");
-            //image2.SaveAsRaw(FOLDER + "image2");
             */
 
             WriteLine("Done");

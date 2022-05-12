@@ -301,6 +301,74 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// Get the values of a row in the image. 
+        /// </summary>
+        /// <param name="row">The array to hold the values.</param>
+        /// <param name="y">The column index.</param>
+        /// <exception cref="ArgumentException">Thrown if the row length does not match the images width.</exception>
+        public void GetRow(float[] row, int y)
+        {
+            if (row.Length != Width)
+                throw new ArgumentException("The row length must be equal to the images width.");
+
+            for(int x = 0; x < Width; x++)
+            {
+                row[x] = this[x, y];
+            }
+        }
+
+        /// <summary>
+        /// Set the values of a row in the image. 
+        /// </summary>
+        /// <param name="row">The array to holding the values.</param>
+        /// <param name="y">The column index.</param>
+        /// <exception cref="ArgumentException">Thrown if the row length does not match the images width.</exception>
+        public void SetRow(float[] row, int y)
+        {
+            if (row.Length != Width)
+                throw new ArgumentException("The row length must be equal to the images width.");
+
+            for (int x = 0; x < Width; x++)
+            {
+                this[x, y] = row[x];
+            }
+        }
+
+        /// <summary>
+        /// Get the values of a column in the image. 
+        /// </summary>
+        /// <param name="column">The array to hold the values.</param>
+        /// <param name="x">The column index.</param>
+        /// <exception cref="ArgumentException">Thrown if the column length does not match the images height.</exception>
+        public void GetColumn(float[] column, int x)
+        {
+            if (column.Length != Height)
+                throw new ArgumentException("The column length must be equal to the images height.");
+
+            for (int y = 0; y < Height; y++)
+            {
+                column[y] = this[x, y];
+            }
+        }
+
+        /// <summary>
+        /// Set the values of a column in the image. 
+        /// </summary>
+        /// <param name="column">The array to holding the values.</param>
+        /// <param name="x">The column index.</param>
+        /// <exception cref="ArgumentException">Thrown if the column length does not match the images height.</exception>
+        public void SetColumn(float[] column, int x)
+        {
+            if (column.Length != Height)
+                throw new ArgumentException("The column length must be equal to the images height.");
+
+            for (int y = 0; y < Height; y++)
+            {
+                this[x, y] = column[y];
+            }
+        }
+
+        /// <summary>
         /// Return a copy of the image.
         /// </summary>
         /// <returns></returns>

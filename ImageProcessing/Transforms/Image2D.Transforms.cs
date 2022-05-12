@@ -168,17 +168,16 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="image">The image to crop.</param>
         /// <param name="bounds">The bounds to crop.</param>
-        /// <param name="overlap">The amount to overlap with the previous images.</param>
         /// <param name="mode">The wrap mode to use for pixels outside the bounds.</param>
         /// <returns>The cropped image.</returns>
-        public static IMAGE Crop<IMAGE>(IMAGE image, Box2i bounds, int overlap, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        public static IMAGE Crop<IMAGE>(IMAGE image, Box2i bounds, WRAP_MODE mode = WRAP_MODE.CLAMP)
             where IMAGE : IImage2D, new()
         {
-            var image2 = NewImage<IMAGE>(bounds.Width + overlap * 2, bounds.Height + overlap * 2);
+            var image2 = NewImage<IMAGE>(bounds.Width, bounds.Height);
       
-            for(int y = bounds.Min.y - overlap, j = 0; y < bounds.Max.y + overlap; y++, j++)
+            for(int y = bounds.Min.y, j = 0; y < bounds.Max.y; y++, j++)
             {
-                for (int x = bounds.Min.x - overlap, i = 0; x < bounds.Max.x + overlap; x++, i++)
+                for (int x = bounds.Min.x, i = 0; x < bounds.Max.x; x++, i++)
                 {
                     image2.SetPixel(i, j, image.GetPixel(x, y, mode));
                 }

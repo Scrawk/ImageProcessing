@@ -10,18 +10,21 @@ namespace ImageProcessing.Images
 
 	public partial class Image2D<T>
 	{
-        /// <summary>
-        /// Apply a box blur and return as a new image.
-        /// </summary>
-        /// <param name="image">The input image.</param>
-        /// <param name="size">The size in pixels of the kernel.</param>
-        /// <param name="bounds">The area to apply the filter to.</param>
-        /// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
-        /// <param name="mode">The wrap mode to use.</param>
-        /// <returns>The new image.</returns>
-        public static IMAGE BoxBlur<IMAGE>(IMAGE image, int size, Box2i? bounds = null, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.CLAMP)
+		/// <summary>
+		/// Apply a box blur and return as a new image.
+		/// </summary>
+		/// <param name="image">The input image.</param>
+		/// <param name="size">The size in pixels of the kernel.</param>
+		/// <param name="bounds">The area to apply the filter to.</param>
+		/// <param name="mask">If not null only areas where mask has a value will have the filter applied. Must be the same size as the image.</param> 
+		/// <param name="mode">The wrap mode to use.</param>
+		/// <returns>The new image.</returns>
+		public static IMAGE BoxBlur<IMAGE>(IMAGE image, int size, Box2i? bounds = null, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.CLAMP)
 			where IMAGE : IImage2D, new()
 		{
+			if (mask != null && image.Size != mask.Size)
+				throw new ArgumentException("The image and the mask must be the same size.");
+
 			var k = FilterKernel2D.BoxKernel(size);
 			return Filter(image, k, bounds, mask, mode);
 		}
@@ -32,12 +35,15 @@ namespace ImageProcessing.Images
 		/// <param name="image">The input image.</param>
 		/// <param name="sigma">The standard deviation of the blur kernel.</param>
 		/// <param name="bounds">The area to apply the filter to.</param>
-		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
+		/// <param name="mask">If not null only areas where mask has a value will have the filter applied. Must be the same size as the image.</param>
 		/// <param name="mode">The wrap mode to use.</param>
 		/// <returns></returns>
 		public static IMAGE GaussianBlur<IMAGE>(IMAGE image, float sigma, Box2i? bounds = null, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.CLAMP)
 			where IMAGE : IImage2D, new()
 		{
+			if (mask != null && image.Size != mask.Size)
+				throw new ArgumentException("The image and the mask must be the same size.");
+
 			var k = FilterKernel2D.GaussianKernel(sigma);
 			return Filter(image, k, bounds, mask, mode);
 		}
@@ -47,7 +53,7 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="image">The input image.</param>
 		/// <param name="bounds">The area to apply the filter to.</param>
-		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
+		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.Must be the same size as the image.</param>
 		/// <param name="mode">The wrap mode to use.</param>
 		/// <returns>The new image.</returns>
 		public static IMAGE SharpenFilter<IMAGE>(IMAGE image, Box2i? bounds = null, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.CLAMP)
@@ -62,12 +68,15 @@ namespace ImageProcessing.Images
 		/// </summary>
 		/// <param name="image">The input image.</param>
 		/// <param name="bounds">The area to apply the filter to.</param>
-		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
+		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.Must be the same size as the image.</param>
 		/// <param name="mode">The wrap mode to use.</param>
 		/// <returns>The new image.</returns>
 		public static IMAGE UnsharpenFilter<IMAGE>(IMAGE image, Box2i? bounds = null, GreyScaleImage2D mask = null, WRAP_MODE mode = WRAP_MODE.CLAMP)
 			where IMAGE : IImage2D, new()
 		{
+			if (mask != null && image.Size != mask.Size)
+				throw new ArgumentException("The image and the mask must be the same size.");
+
 			var k = FilterKernel2D.UnsharpenKernel();
 			return Filter(image, k, bounds, mask, mode);
 		}
@@ -78,7 +87,7 @@ namespace ImageProcessing.Images
 		/// <param name="image">The input image.</param>
 		/// <param name="k">The filter to apply.</param>
 		/// <param name="bounds">The area to apply filter.</param>
-		/// <param name="mask">If not null only areas where mask has a value will have the filter applied.</param>
+		/// <param name="mask">If not null only areas where mask has a value will have the filter applied. Must be the same size as the image.</param>
 		/// <param name="mode">The wrap mode to use.</param>
 		/// <returns></returns>
 		public static IMAGE Filter<IMAGE>(IMAGE image, FilterKernel2D k, Box2i? bounds, GreyScaleImage2D mask, WRAP_MODE mode)

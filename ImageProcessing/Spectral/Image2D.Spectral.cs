@@ -11,7 +11,16 @@ namespace ImageProcessing.Images
 
     public partial class Image2D<T>
     {
-        protected void DFT1D(Complex[] g, Complex[] G, bool forward)
+
+        /// <summary>
+        /// Calculate the 1D DFT on a array of complex numbers.
+        /// Here we are using a vector to store the complex numbers
+        /// where the x component is the real part and the y component is the imaginary part.
+        /// </summary>
+        /// <param name="g">The untransformed complex numbers.</param>
+        /// <param name="G">The transformed complex numbers.</param>
+        /// <param name="forward">Is this a forward or inverse transformation.</param>
+        protected void DFT1D(Vector2f[] g, Vector2f[] G, bool forward)
         {
             int M = g.Length;
             double s = 1 / Math.Sqrt(M);
@@ -24,8 +33,8 @@ namespace ImageProcessing.Images
 
                 for (int u = 0; u < M; u++)
                 {
-                    double gRe = g[u].Real;
-                    double gIm = g[u].Imaginary;
+                    double gRe = g[u].x;
+                    double gIm = g[u].y;
                     double cosw = Math.Cos(phim * u);
                     double sinw = Math.Sin(phim * u);
 
@@ -36,7 +45,7 @@ namespace ImageProcessing.Images
                     sumIm += gIm * cosw - gRe * sinw;
                 }
 
-                G[m] = new Complex(s * sumRe, s * sumIm);
+                G[m] = new Vector2f(s * sumRe, s * sumIm);
             }
         }
     }
