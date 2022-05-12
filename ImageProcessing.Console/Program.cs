@@ -37,6 +37,10 @@ namespace ImageProcessing.Console
 
             var idft = dft.iDFT();
 
+            //dft.MinMax(out Vector2f min, out Vector2f max);
+            //WriteLine(min);
+           // WriteLine(max);
+
             //greyscale = dft.ToGreyScaleImage();
             //greyscale = GreyScaleImage2D.HalfOffset(greyscale);
             //greyscale.Abs();
