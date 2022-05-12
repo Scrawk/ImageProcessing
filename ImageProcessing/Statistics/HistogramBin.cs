@@ -50,6 +50,16 @@ namespace ImageProcessing.Statistics
         }
 
         /// <summary>
+        /// Get a pixel from the bin.
+        /// </summary>
+        /// <param name="i">The pixels index.</param>
+        /// <returns>The pixel.</returns>
+        public PixelIndex2D<float> GetPixel(int i)
+        {
+            return Pixels[i];
+        }
+
+        /// <summary>
         /// Add a pixel index to the bin.
         /// </summary>
         /// <param name="pixel"></param>

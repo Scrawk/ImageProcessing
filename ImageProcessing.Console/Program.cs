@@ -34,6 +34,8 @@ namespace ImageProcessing.Console
             var histo1 = new ColorHistogram(image1, 256);
             var histo2 = new ColorHistogram(image2, 256);
 
+            histo1.Normalize();
+
             var colors = new ColorRGBA[]
             {
                 ColorRGBA.Red,
@@ -42,7 +44,7 @@ namespace ImageProcessing.Console
                 ColorRGBA.White
             };
 
-            var lineGraph = histo1.CreateHistogramLineGraphCFD(colors, ColorRGBA.Black, 256);
+            var lineGraph = histo1.CreateHistogramLineGraph(colors, ColorRGBA.Black, 256);
 
             lineGraph.SaveAsRaw(FOLDER + "LineGraph");
 

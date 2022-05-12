@@ -104,6 +104,40 @@ namespace ImageProcessing.Statistics
         }
 
         /// <summary>
+        /// Find the minimum value in the histogram.
+        /// </summary>
+        /// <returns>The minimum value in the histogram.</returns>
+        public float MinValue()
+        {
+            for (int i = 0; i < Bins.Length; i++)
+            {
+                int count = Bins[i].Count;
+
+                if (count != 0)
+                    return i;
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// Find the maximum value in the histogram.
+        /// </summary>
+        /// <returns>The maximum value in the histogram.</returns>
+        public float MaxValue()
+        {
+            for (int i = Bins.Length-1; i >= 0; i--)
+            {
+                int count = Bins[i].Count;
+
+                if (count != 0)
+                    return i;
+            }
+
+            return 0;
+        }
+
+        /// <summary>
         /// The sum of all the bin sizes.
         /// </summary>
         /// <returns>The sum of all the bin sizes.</returns>
@@ -114,6 +148,51 @@ namespace ImageProcessing.Statistics
                 length += Bins[i].Count;
 
             return length;
+        }
+
+        /// <summary>
+        /// The normalized sqr distance between the histograms.
+        /// </summary>
+        /// <param name="histo"></param>
+        /// <returns>The normalized sqr distance between the histograms.</returns>
+        /// <exception cref="ArgumentException">If the histograms dont have the same bin size.</exception>
+        public float SqrDistance(Histogram histo)
+        {
+            if (BinSize != histo.BinSize)
+                throw new ArgumentException("Histograms need to havethe same bin size.");
+
+            float sqdist = 0;
+
+            for(int i = 0;i < Bins.Length;i++)
+            {
+                float diff = GetBinCount(i) - histo.GetBinCount(i);
+                sqdist += diff * diff;
+            }
+
+            return sqdist / BinSize;
+        }
+
+        /// <summary>
+        /// Sample the histogram for a random value.
+        /// Will create the histograms CFD if not already created.
+        /// </summary>
+        /// <param name="rng">The random generator.</param>
+        /// <returns>A random value that matchs the distribution of the histogram.</returns>
+        public float Sample(Random rng)
+        {
+            CreateCumulativeHistogram();
+            float max = CumulativeBins.Last();
+            float t = (float)rng.NextDouble();
+ 
+            for (int i = 0; i < BinSize; i++)
+            {
+                float cfd = CumulativeBins[i] / max;
+
+                if (t < cfd)
+                    return i / (BinSize - 1.0f);
+            }
+
+            return 1;
         }
 
         /// <summary>
@@ -153,7 +232,7 @@ namespace ImageProcessing.Statistics
             {
                 var v = image.GetChannel(x, y, channel);
 
-                int index = (int)(v * BinSize - 1);
+                int index = (int)(v * (BinSize - 1));
 
                 if (index >= 0 && index < BinSize)
                 {
@@ -163,6 +242,104 @@ namespace ImageProcessing.Statistics
                 }
 
             });
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pixels"></param>
+        private void Load(IList<PixelIndex2D<float>> pixels)
+        {
+            Clear();
+
+            for(int i = 0; i < pixels.Count; i++)   
+            {
+                var p = pixels[i];
+
+                int index = (int)(p.Value * (BinSize - 1));
+
+                if (index >= 0 && index < BinSize)
+                {
+                    var bin = Bins[index];
+
+                    bin.Add(new PixelIndex2D<float>(p.x, p.y, p.Value));
+                }
+
+            };
+        }
+
+        /// <summary>
+        /// Convert the histogram back into a image.
+        /// </summary>
+        /// <param name="width">The images width.</param>
+        /// <param name="height">The images height.</param>
+        /// <returns>The image.</returns>
+        public GreyScaleImage2D ToImage(int width, int height)
+        {
+            var image = new GreyScaleImage2D(width, height);
+
+            for (int i = 0; i < BinSize; i++)
+            {
+                var bin = Bins[i];
+                float v = i / (BinSize-1.0f);
+
+                for (int j = 0; j < bin.Count; j++)
+                {
+                    var p = bin.GetPixel(j);
+                    image[p.x, p.y] = v;
+                }
+            }
+
+            return image;
+        }
+
+        /// <summary>
+        /// Fill the channel of the color image.
+        /// </summary>
+        /// <param name="image">The color image to fill.</param>
+        /// <param name="c">The images channel to fill.</param>
+        public void FillChannel(ColorImage2D image, int c)
+        {
+            for (int i = 0; i < BinSize; i++)
+            {
+                var bin = Bins[i];
+                float v = i / (BinSize - 1.0f);
+
+                for (int j = 0; j < bin.Count; j++)
+                {
+                    var p = bin.GetPixel(j);
+                    image.SetChannel(p.x, p.y, c, v);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Normalize the histogram.
+        /// </summary>
+        public void Normalize()
+        {
+            float min = MinValue() / (BinSize - 1.0f);
+            float max = MaxValue() / (BinSize - 1.0f);
+
+            if (max <= 0) return;
+
+            var pixels = new List<PixelIndex2D<float>>();
+
+            for (int i = 0; i < BinSize; i++)
+            {
+                var bin = Bins[i];
+
+                for (int j = 0; j < bin.Count; j++)
+                {
+                    var p = bin.GetPixel(j);
+                    p.Value = MathUtil.Normalize(p.Value, min, max);
+
+                    pixels.Add(p);  
+                }
+            }
+
+            Load(pixels);
+
         }
 
         /// <summary>

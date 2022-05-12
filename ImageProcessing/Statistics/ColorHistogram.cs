@@ -68,6 +68,60 @@ namespace ImageProcessing.Statistics
         }
 
         /// <summary>
+        /// Get the histogram for a channel.
+        /// </summary>
+        /// <param name="i">The channels index.</param>
+        /// <returns>The histogram for channel i.</returns>
+        /// <exception cref="NullReferenceException">If the channels have not been created.</exception>
+        public Histogram GetChannel(int i)
+        {
+            if (Histograms == null)
+                throw new NullReferenceException("Histograms have not been created.");
+
+            return Histograms[i];
+        }
+
+        /// <summary>
+        /// The normalized sqr distance between the histograms.
+        /// </summary>
+        /// <param name="histo"></param>
+        /// <returns>The normalized sqr distance between the histograms.</returns>
+        /// <exception cref="ArgumentException">If the histograms dont have the same bin size or number of channels.</exception>
+        public float SqrDistance(ColorHistogram histo)
+        {
+            if (BinSize != histo.BinSize)
+                throw new ArgumentException("Histograms need to havethe same bin size.");
+
+            if (Channels != histo.Channels)
+                throw new ArgumentException("Histograms need to havethe same number of channels.");
+
+            float sqdist = 0;
+
+            for (int i = 0; i < Channels; i++)
+                sqdist += Histograms[i].SqrDistance(histo.GetChannel(i));
+            
+            return sqdist / Channels;
+        }
+
+        /// <summary>
+        /// Sample the histogram for a random value.
+        /// Will create the histograms CFD if not already created.
+        /// </summary>
+        /// <param name="rng">The random number generator.</param>
+        /// <returns>A random value that matchs the distribution of the histogram.</returns>
+        public ColorRGBA Sample(Random rng)
+        {
+            ColorRGBA color = new ColorRGBA(0,0,0,1);
+
+            for (int i = 0; i < Channels; i++)
+            {
+                color[i] = Histograms[i].Sample(rng);
+            }
+
+            return color;
+        }
+
+        /// <summary>
         /// Load the color image into the histogram.
         /// </summary>
         /// <param name="image">The color image.</param>
@@ -87,6 +141,41 @@ namespace ImageProcessing.Statistics
                 Histograms[i].Load(image, i);
             }
                 
+        }
+
+        /// <summary>
+        /// Normalize the histogram.
+        /// </summary>
+        public void Normalize()
+        {
+            if (Histograms == null)
+                throw new NullReferenceException("Histograms have not been created.");
+
+            for (int i = 0; i < Histograms.Length; i++)
+            {
+                Histograms[i].Normalize();
+            }
+        }
+
+        /// <summary>
+        /// Convert the histogram back into a image.
+        /// </summary>
+        /// <param name="width">The images width.</param>
+        /// <param name="height">The images height.</param>
+        /// <returns>The image.</returns>
+        public ColorImage2D ToImage(int width, int height)
+        {
+            if (Histograms == null)
+                throw new NullReferenceException("Histograms have not been created.");
+
+            var image = new ColorImage2D(width, height);
+
+            for (int i = 0; i < Histograms.Length; i++)
+            {
+                Histograms[i].FillChannel(image, i);
+            }
+
+            return image;
         }
 
         /// <summary>
