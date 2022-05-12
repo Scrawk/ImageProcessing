@@ -6,11 +6,11 @@ using Common.Core.Numerics;
 
 namespace ImageProcessing.Images
 {
-    public partial class GreyScaleImage2D
+    public partial class VectorImage2D
     {
-        public VectorImage2D DFT()
+        public GreyScaleImage2D iDFT()
         {
-            var image = new VectorImage2D(Width, Height);
+            var image = new GreyScaleImage2D(Width, Height);
 
             var g = new Complex[Width];
             var G = new Complex[Width];
@@ -20,18 +20,18 @@ namespace ImageProcessing.Images
                 for (int x = 0; x < Width; x++)
                 {
                     var v = this[x, y];
-                    g[x] = new Complex(v, 0);
+                    g[x] = new Complex(v.x, v.y);
                 }
 
-                DFT1D(g, G, true);
+                DFT1D(g, G, false);
 
                 for (int x = 0; x < Width; x++)
                 {
-                    image[x, y] = new Vector2f(G[x].Real, G[x].Imaginary);
+                    this[x, y] = new Vector2f(G[x].Real, G[x].Imaginary);
                 }
             }
 
-            if(Width != Height)
+            if (Width != Height)
             {
                 g = new Complex[Height];
                 G = new Complex[Height];
@@ -41,20 +41,19 @@ namespace ImageProcessing.Images
             {
                 for (int y = 0; y < Height; y++)
                 {
-                    var v = image[x, y];
+                    var v = this[x, y];
                     g[y] = new Complex(v.x, v.y);
                 }
 
-                DFT1D(g, G, true);
+                DFT1D(g, G, false);
 
                 for (int y = 0; y < Height; y++)
                 {
-                    image[x, y] = new Vector2f(G[y].Real, G[y].Imaginary);
+                    image[x, y] = (float)G[y].Real;
                 }
             }
 
             return image;
         }
-
     }
 }

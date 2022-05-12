@@ -10,6 +10,23 @@ namespace ImageProcessing.Images
     public partial class Image2D<T>
     {
         /// <summary>
+        /// Offsets the pixels in the image by half the images size.
+        /// </summary>
+        /// <typeparam name="IMAGE"></typeparam>
+        /// <param name="image">The image to offset.</param>
+        /// <param name="forwards">Should the offset by forwards or backwards.</param>
+        /// <returns>The offset image.</returns>
+        public static IMAGE HalfOffset<IMAGE>(IMAGE image, bool forwards = true)
+            where IMAGE : IImage2D, new()
+        {
+            int direction = 1;
+            if (!forwards)
+                direction = -1;
+
+            return Offset(image, image.Width * direction / 2, image.Height * direction / 2);
+        }
+
+        /// <summary>
         /// Offsets the pixels in the image.
         /// </summary>
         /// <typeparam name="IMAGE"></typeparam>

@@ -25,12 +25,25 @@ namespace ImageProcessing.Console
         static void Main(string[] args)
         {
 
-            var bmp1 = new Bitmap(FOLDER + "Grass1.bmp");
+            var bmp1 = new Bitmap(FOLDER + "test.jpg");
             var bmp2 = new Bitmap(FOLDER + "Grass2.bmp");
 
             var image1 = ToImage(bmp1);
             var image2 = ToImage(bmp2);
 
+            var greyscale = image1.ToGreyScaleImage();
+
+            var dft = greyscale.DFT();
+
+            var idft = dft.iDFT();
+
+            //greyscale = dft.ToGreyScaleImage();
+            //greyscale = GreyScaleImage2D.HalfOffset(greyscale);
+            //greyscale.Abs();
+
+            idft.SaveAsRaw(FOLDER + "idft");
+
+            /*
             var histo1 = new ColorHistogram(image1, 256);
             var histo2 = new ColorHistogram(image2, 256);
 
@@ -50,6 +63,7 @@ namespace ImageProcessing.Console
 
             //image1.SaveAsRaw(FOLDER + "image1");
             //image2.SaveAsRaw(FOLDER + "image2");
+            */
 
             WriteLine("Done");
             
