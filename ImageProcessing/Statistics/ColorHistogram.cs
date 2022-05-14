@@ -68,6 +68,24 @@ namespace ImageProcessing.Statistics
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public ColorHistogram Copy()
+        {
+            var copy = new ColorHistogram(BinSize);
+
+            if(Histograms != null)
+            {
+                copy.Histograms = new Histogram[Channels];
+                for (int i = 0; i < Histograms.Length; i++)
+                    copy.Histograms[i] = Histograms[i].Copy();
+            }
+
+            return copy;
+        }
+
+        /// <summary>
         /// Get the histogram for a channel.
         /// </summary>
         /// <param name="i">The channels index.</param>

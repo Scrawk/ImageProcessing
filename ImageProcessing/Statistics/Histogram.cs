@@ -7,6 +7,7 @@ using ImageProcessing.Pixels;
 
 using Common.Core.Colors;
 using Common.Core.Numerics;
+using Common.Core.Extensions;
 
 namespace ImageProcessing.Statistics
 {
@@ -74,6 +75,26 @@ namespace ImageProcessing.Statistics
                 Bins[i].Clear();
 
             CumulativeBins = null;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public Histogram Copy()
+        {
+            var copy = new Histogram(BinSize);
+
+            for(int i = 0;i < BinSize; i++)
+            {
+                if(Bins[i] != null)
+                    copy.Bins[i] = Bins[i].Copy(); 
+            }
+
+            if (CumulativeBins != null)
+                copy.CumulativeBins = CumulativeBins.Copy();
+
+            return copy;
         }
 
         /// <summary>

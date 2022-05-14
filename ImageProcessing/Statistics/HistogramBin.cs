@@ -23,6 +23,14 @@ namespace ImageProcessing.Statistics
         }
 
         /// <summary>
+        /// Create a new bin.
+        /// </summary>
+        public HistogramBin(List<PixelIndex2D<float>> pixels)
+        {
+            Pixels = new List<PixelIndex2D<float>>(pixels);
+        }
+
+        /// <summary>
         /// THe number of pixels in the bin.
         /// </summary>
         public int Count => Pixels.Count;
@@ -47,6 +55,16 @@ namespace ImageProcessing.Statistics
         public void Clear()
         {
             Pixels.Clear();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public HistogramBin Copy()
+        {
+            var copy = new HistogramBin(Pixels);
+            return copy;
         }
 
         /// <summary>
