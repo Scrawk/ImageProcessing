@@ -20,7 +20,7 @@ namespace ImageProcessing.Images
         /// <param name="g">The untransformed complex numbers.</param>
         /// <param name="G">The transformed complex numbers.</param>
         /// <param name="forward">Is this a forward or inverse transformation.</param>
-        protected void DFT1D(Vector2f[] g, Vector2f[] G, bool forward)
+        protected static void DFT1D(Vector2f[] g, Vector2f[] G, bool forward)
         {
             int M = g.Length;
             double s = 1 / Math.Sqrt(M);

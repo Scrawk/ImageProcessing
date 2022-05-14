@@ -16,9 +16,11 @@ namespace ImageProcessing.Images
         /// where the x component is the real part and the y component is the imaginary part.
         /// </summary>
         /// <returns>A vector image containing the spectrum as complex numbers.</returns>
-        public VectorImage2D DFT()
+        public static VectorImage2D DFT(GreyScaleImage2D image)
         {
-            var image = new VectorImage2D(Width, Height);
+            int Width = image.Width;
+            int Height = image.Height;  
+            var dft = new VectorImage2D(Width, Height);
 
             var g = new Vector2f[Width];
             var G = new Vector2f[Width];
@@ -29,13 +31,13 @@ namespace ImageProcessing.Images
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    var v = this[x, y];
+                    var v = image[x, y];
                     g[x] = new Vector2f(v, 0);
                 }
 
                 DFT1D(g, G, true);
 
-                image.SetRow(G, y);
+                dft.SetRow(G, y);
             }
 
             if(Width != Height)
@@ -50,16 +52,16 @@ namespace ImageProcessing.Images
             {
                 for (int y = 0; y < Height; y++)
                 {
-                    var v = image[x, y];
+                    var v = dft[x, y];
                     g[y] = new Vector2f(v.x, v.y);
                 }
 
                 DFT1D(g, G, true);
 
-                image.SetColumn(G, x);
+                dft.SetColumn(G, x);
             }
 
-            return image;
+            return dft;
         }
 
     }

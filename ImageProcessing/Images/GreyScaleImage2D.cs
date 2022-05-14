@@ -375,7 +375,7 @@ namespace ImageProcessing.Images
         public GreyScaleImage2D Copy()
         {
             var copy = new GreyScaleImage2D(Data);
-            copy.Name = Name;
+            base.Copy(copy);
 
             if (HasMipmaps)
             {

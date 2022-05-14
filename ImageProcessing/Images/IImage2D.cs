@@ -182,5 +182,31 @@ namespace ImageProcessing.Images
         /// <returns></returns>
         byte[] ToBytes(BIT_DEPTH bitDepth, bool includeAlpha, bool bigEndian = false);
 
+        /// <summary>
+        /// Add a property to the image. Could be any object.
+        /// </summary>
+        /// <param name="name">The name of the property.</param>
+        /// <param name="value">The properties value.</param>
+        void AddProperty(string name, object value);
+
+        /// <summary>
+        /// Get a property by its name.
+        /// </summary>
+        /// <param name="name">The properties name.</param>
+        /// <returns>The property if found or null if not.</returns>
+        object GetProperty(string name);
+
+        /// <summary>
+        /// Remove a property.
+        /// </summary>
+        /// <param name="name">The properties name.</param>
+        /// <returns>True if tthe property was removed.</returns>
+        bool RemoveProperty(string name);
+
+        /// <summary>
+        /// Clear all properties.
+        /// </summary>
+        void ClearProperties();
+
     }
 }

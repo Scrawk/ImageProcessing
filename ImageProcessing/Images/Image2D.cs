@@ -62,15 +62,15 @@ namespace ImageProcessing.Images
         public Box2i Bounds => new Box2i(new Point2i(0, 0), Size-1);
 
         /// <summary>
-        /// Tag for algorithms on the image can mark or 
-        /// id the image if needed. May change at any point.
-        /// </summary>
-        public int Tag { get; set; }
-
-        /// <summary>
         /// The images optional name.
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// A optional properties.
+        /// Will remain null until a property is added.
+        /// </summary>
+        private Dictionary<string, object> Properties { get; set;}  
 
         /// <summary>
         /// Access a element at index x,y.
@@ -359,6 +359,22 @@ namespace ImageProcessing.Images
 
                 default:
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Can be called from a derived class to
+        /// set any data found in the base class.
+        /// </summary>
+        /// <param name="copy">The copy of this image.</param>
+        protected void Copy(Image2D<T> copy)
+        {
+            copy.Name = Name;
+
+            if(Properties != null)
+            {
+                foreach(var prop in Properties)
+                    copy.AddProperty(prop.Key, prop.Value);
             }
         }
 
@@ -869,6 +885,53 @@ namespace ImageProcessing.Images
         /// <param name="mode">The wrap mode to use.</param>
         /// <param name="method">The interpolation method to use.</param>
         public abstract void CreateMipmaps(int maxLevel, WRAP_MODE mode = WRAP_MODE.CLAMP, RESCALE method = RESCALE.BICUBIC);
+
+        /// <summary>
+        /// Add a property to the image. Could be any object.
+        /// </summary>
+        /// <param name="name">The name of the property.</param>
+        /// <param name="value">The properties value.</param>
+        public void AddProperty(string name, object value)
+        {
+            if(Properties == null)
+                Properties = new Dictionary<string, object>();
+
+            Properties[name] = value;
+        }
+
+        /// <summary>
+        /// Get a property by its name.
+        /// </summary>
+        /// <param name="name">The properties name.</param>
+        /// <returns>The property if found or null if not.</returns>
+        public object GetProperty(string name)
+        {
+            if (Properties == null)
+                return null;
+
+            return Properties[name];    
+        }
+
+        /// <summary>
+        /// Remove a property.
+        /// </summary>
+        /// <param name="name">The properties name.</param>
+        /// <returns>True if tthe property was removed.</returns>
+        public bool RemoveProperty(string name)
+        {
+            if (Properties == null)
+                return false;
+
+            return Properties.Remove(name);
+        }
+
+        /// <summary>
+        /// Clear all properties.
+        /// </summary>
+        public void ClearProperties()
+        {
+            Properties = null;
+        }
 
 
     }

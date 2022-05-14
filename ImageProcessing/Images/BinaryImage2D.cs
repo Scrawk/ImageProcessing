@@ -372,7 +372,7 @@ namespace ImageProcessing.Images
         public BinaryImage2D Copy()
         {
             var copy = new BinaryImage2D(Width, Height);
-            copy.Name = Name;
+            base.Copy(copy);
             copy.Threshold = Threshold;
 
             copy.Fill((x, y) =>
