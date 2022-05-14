@@ -24,62 +24,28 @@ namespace ImageProcessing.Console
 
         static void Main(string[] args)
         {
-
-            int width = 128;
-            int height = 128;
-
-
-            var random = new GreyScaleImage2D(width, height);
-            var gaussion = new GreyScaleImage2D(width, height);
-            var possion = new GreyScaleImage2D(width, height);
-
-            var rnd = new SystemRandom(0);
-
-            random.Iterate((x, y) =>
-            {
-                var u = rnd.NextFloat();
-                var g = (float)Math.Abs(rnd.NextGaussian(0, 1));
-                var p = (float)rnd.NextPoisson(1000);
-
-                random[x, y] = u;
-                gaussion[x, y] = g;
-                possion[x, y] = p;
-
-            });
-
-            possion.MinMax(out float min, out float max);
-
-            WriteLine(min + " "  + max);
-
-            possion.Normalize();
-
-            var random_dft = GreyScaleImage2D.HalfOffset(random.DFT().ToGreyScaleImage());
-            var gaussion_dft = GreyScaleImage2D.HalfOffset(gaussion.DFT().ToGreyScaleImage());
-            var possion_dft = GreyScaleImage2D.HalfOffset(possion.DFT().ToGreyScaleImage());
-
-            //possion_dft.Normalize();
-            //gaussion.Normalize();
-
-            random_dft.SaveAsRaw(FOLDER + "random_dft");
-            gaussion_dft.SaveAsRaw(FOLDER + "gaussion_dft");
-            possion_dft.SaveAsRaw(FOLDER + "possion_dft");
-
-            /*
-            var bmp1 = new Bitmap(FOLDER + "test.jpg");
+            var bmp1 = new Bitmap(FOLDER + "Grass1.bmp");
             var bmp2 = new Bitmap(FOLDER + "Grass2.bmp");
 
             var image1 = ToImage(bmp1);
             var image2 = ToImage(bmp2);
 
-            var greyscale = image1.ToGreyScaleImage();
+            var greyscale1 = image1.ToGreyScaleImage();
+            var greyscale2 = image2.ToGreyScaleImage();
 
-            var dft = greyscale.DFT();
+            var histo1 = new Histogram(greyscale1, 256);
+            var histo2 = new Histogram(greyscale2, 256);
 
-            var idft = dft.iDFT();
+            var lineGraph1 = histo1.CreateHistogramLineGraph(ColorRGBA.White, ColorRGBA.Black, 256);
+            var lineGraph2 = histo2.CreateHistogramLineGraph(ColorRGBA.White, ColorRGBA.Black, 256);
 
-            dft.ToGreyScaleImage().SaveAsRaw(FOLDER + "dft");
-            idft.SaveAsRaw(FOLDER + "idft");
-            */
+            lineGraph1.SaveAsRaw(FOLDER + "lineGraph1");
+            lineGraph2.SaveAsRaw(FOLDER + "lineGraph2_before");
+
+            //histo2.Match(histo1);
+
+            lineGraph2 = histo2.CreateHistogramLineGraph(ColorRGBA.White, ColorRGBA.Black, 256);
+            lineGraph2.SaveAsRaw(FOLDER + "lineGraph2_after");
 
             WriteLine("Done");
             

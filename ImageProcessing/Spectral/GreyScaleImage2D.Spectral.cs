@@ -26,7 +26,6 @@ namespace ImageProcessing.Images
             var G = new Vector2f[Width];
 
             //Transform all the rows of the image.
-
             for (int y = 0; y < Height; y++)
             {
                 for (int x = 0; x < Width; x++)
@@ -36,7 +35,6 @@ namespace ImageProcessing.Images
                 }
 
                 DFT1D(g, G, true);
-
                 dft.SetRow(G, y);
             }
 
@@ -47,7 +45,6 @@ namespace ImageProcessing.Images
             }
 
             //Transform all the columns of the image.
-
             for (int x = 0; x < Width; x++)
             {
                 for (int y = 0; y < Height; y++)
@@ -57,12 +54,109 @@ namespace ImageProcessing.Images
                 }
 
                 DFT1D(g, G, true);
-
                 dft.SetColumn(G, x);
             }
 
             return dft;
         }
+
+        /*
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <returns></returns>
+        public static GreyScaleImage2D DCT(GreyScaleImage2D image)
+        {
+            int Width = image.Width;
+            int Height = image.Height;
+            var dct = new GreyScaleImage2D(Width, Height);
+
+            var g = new float[Width];
+            var G = new float[Width];
+
+            //Transform all the rows of the image.
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    g[x] = image[x, y];
+                }
+
+                DCT1D(g, G);
+                dct.SetRow(G, y);
+            }
+
+            if (Width != Height)
+            {
+                g = new float[Height];
+                G = new float[Height];
+            }
+
+            //Transform all the columns of the image.
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    g[y] = dct[x, y];
+                }
+
+                DCT1D(g, G);
+                dct.SetColumn(G, x);
+            }
+
+            return dct;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <returns></returns>
+        public static GreyScaleImage2D iDCT(GreyScaleImage2D image)
+        {
+            int Width = image.Width;
+            int Height = image.Height;
+            var idct = new GreyScaleImage2D(Width, Height);
+
+            var g = new float[Width];
+            var G = new float[Width];
+
+            //Transform all the rows of the image.
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    g[x] = image[x, y];
+                }
+
+                iDCT1D(g, G);
+                idct.SetRow(G, y);
+            }
+
+            if (Width != Height)
+            {
+                g = new float[Height];
+                G = new float[Height];
+            }
+
+            //Transform all the columns of the image.
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    g[y] = idct[x, y];
+                }
+
+                iDCT1D(g, G);
+                idct.SetColumn(G, x);
+            }
+
+            return idct;
+        }
+
+        */
 
     }
 }

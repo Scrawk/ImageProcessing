@@ -108,10 +108,10 @@ namespace ImageProcessing.Statistics
         public float SqrDistance(ColorHistogram histo)
         {
             if (BinSize != histo.BinSize)
-                throw new ArgumentException("Histograms need to havethe same bin size.");
+                throw new ArgumentException("Histograms need to have the same bin size.");
 
             if (Channels != histo.Channels)
-                throw new ArgumentException("Histograms need to havethe same number of channels.");
+                throw new ArgumentException("Histograms need to have the same number of channels.");
 
             float sqdist = 0;
 
