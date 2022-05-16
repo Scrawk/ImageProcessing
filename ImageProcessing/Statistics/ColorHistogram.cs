@@ -140,6 +140,33 @@ namespace ImageProcessing.Statistics
         }
 
         /// <summary>
+        /// Equalizes the histogram.
+        /// Attempts to make the histograom of a uniform distribution. 
+        /// </summary>
+        public void Equalize()
+        {
+            for (int i = 0; i < Channels; i++)
+            {
+                Histograms[i].Equalize();
+            }
+        }
+
+        /// <summary>
+        /// Attempts to match the hisograom to the other histogram.
+        /// </summary>
+        /// <param name="other">THe histogram to match.</param>
+        public void Match(ColorHistogram other)
+        {
+            if (Channels != other.Channels)
+                throw new ArgumentException("Histograms need to have the same number of channels.");
+
+            for (int i = 0; i < Channels; i++)
+            {
+                Histograms[i].Match(other.Histograms[i]);
+            }
+        }
+
+        /// <summary>
         /// Load the color image into the histogram.
         /// </summary>
         /// <param name="image">The color image.</param>
@@ -178,13 +205,14 @@ namespace ImageProcessing.Statistics
         /// <summary>
         /// Convert the histogram back into a image.
         /// </summary>
-        /// <param name="width">The images width.</param>
-        /// <param name="height">The images height.</param>
         /// <returns>The image.</returns>
-        public ColorImage2D ToImage(int width, int height)
+        public ColorImage2D ToImage()
         {
             if (Histograms == null)
                 throw new NullReferenceException("Histograms have not been created.");
+
+            int width = Histograms[0].ImageWidth;
+            int height = Histograms[0].ImageHeight;
 
             var image = new ColorImage2D(width, height);
 
@@ -311,7 +339,7 @@ namespace ImageProcessing.Statistics
 
             for (int i = 0; i < Histograms.Length; i++)
             {
-                Histograms[i].CreateCumulativeHistogram();
+                Histograms[i].CreateCDF();
             }
         }
 

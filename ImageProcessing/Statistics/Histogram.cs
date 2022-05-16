@@ -42,9 +42,19 @@ namespace ImageProcessing.Statistics
         public int BinSize => Bins.Length;
 
         /// <summary>
+        /// The width of the image the histogram was created from.
+        /// </summary>
+        public int ImageWidth { get; private set; }
+
+        /// <summary>
+        /// The height of the image the histogram was created from.
+        /// </summary>
+        public int ImageHeight { get; private set; }
+
+        /// <summary>
         /// Has the CFD been calculated.
         /// </summary>
-        public bool HasCulumativeHistogram => CumulativeBins != null;
+        public bool HasCDF => CDF != null;
 
         /// <summary>
         /// The histograms bins the pixels are divided up into.
@@ -54,7 +64,7 @@ namespace ImageProcessing.Statistics
         /// <summary>
         /// The CFD bins the pixels are divided up into.
         /// </summary>
-        private int[] CumulativeBins { get; set; }
+        private int[] CDF { get; set; }
 
         /// <summary>
         /// 
@@ -62,8 +72,8 @@ namespace ImageProcessing.Statistics
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[Histogram: BinSize={0}, HasCumulativeBins={1}]", 
-                BinSize, HasCulumativeHistogram);
+            return string.Format("[Histogram: BinSize={0}, HasCumulativeBins={1}, ImageWidth={2}, ImageHeight={3}]", 
+                BinSize, HasCDF, ImageWidth, ImageHeight);
         }
 
         /// <summary>
@@ -74,7 +84,21 @@ namespace ImageProcessing.Statistics
             for (int i = 0; i < Bins.Length; i++)
                 Bins[i].Clear();
 
-            CumulativeBins = null;
+            CDF = null;
+            ImageWidth = 0;
+            ImageHeight = 0;
+        }
+
+        /// <summary>
+        /// Get the cdf value for a bin in the histogram.
+        /// Will create the CDF if not already created.
+        /// </summary>
+        /// <param name="i">The bin index.</param>
+        /// <returns>The bins cdf value</returns>
+        public int GetCDF(int i)
+        {
+            CreateCDF();
+            return CDF[i];
         }
 
         /// <summary>
@@ -91,8 +115,8 @@ namespace ImageProcessing.Statistics
                     copy.Bins[i] = Bins[i].Copy(); 
             }
 
-            if (CumulativeBins != null)
-                copy.CumulativeBins = CumulativeBins.Copy();
+            if (CDF != null)
+                copy.CDF = CDF.Copy();
 
             return copy;
         }
@@ -162,7 +186,7 @@ namespace ImageProcessing.Statistics
         /// The sum of all the bin sizes.
         /// </summary>
         /// <returns>The sum of all the bin sizes.</returns>
-        public int BinLength()
+        public int BinSum()
         {
             int length = 0;
             for (int i = 0; i < Bins.Length; i++)
@@ -201,19 +225,77 @@ namespace ImageProcessing.Statistics
         /// <returns>A random value that matchs the distribution of the histogram.</returns>
         public float Sample(Random rng)
         {
-            CreateCumulativeHistogram();
-            float max = CumulativeBins.Last();
+            CreateCDF();
+            float max = CDF.Last();
             float t = (float)rng.NextDouble();
  
             for (int i = 0; i < BinSize; i++)
             {
-                float cfd = CumulativeBins[i] / max;
+                float cfd = CDF[i] / max;
 
                 if (t < cfd)
                     return i / (BinSize - 1.0f);
             }
 
             return 1;
+        }
+
+        /// <summary>
+        /// Equalizes the histogram.
+        /// Attempts to make the histograom of a uniform distribution. 
+        /// </summary>
+        public void Equalize()
+        {
+            CreateCDF();
+
+            float n = ImageWidth * ImageHeight;
+            int BinSize1 = BinSize - 1;
+
+            var pixels = new List<PixelIndex2D<float>>(BinSize);
+
+            for(int i = 0; i < BinSize; i++)
+            {
+                var bin = Bins[i];
+                float v = CDF[i] * (BinSize1) / n;
+                v /= BinSize1;
+
+                for (int j = 0; j < bin.Count; j++)
+                {
+                    var pixel = bin.GetPixel(j); 
+                    pixel.Value = v;
+                    pixels.Add(pixel);  
+                }
+            }
+
+            Load(pixels, ImageWidth, ImageHeight);
+        }
+
+        /// <summary>
+        /// Attempts to match the hisograom to the other histogram.
+        /// </summary>
+        /// <param name="other">THe histogram to match.</param>
+        public void Match(Histogram other)
+        {
+            float invBinSize1 = 1.0f / (BinSize - 1.0f);
+
+            var func = CreateMappingFunction(other);
+
+            var pixels = new List<PixelIndex2D<float>>(BinSize);
+
+            for (int i = 0; i < BinSize; i++)
+            {
+                var bin = Bins[i];
+                float v = func[i] * invBinSize1;
+
+                for (int j = 0; j < bin.Count; j++)
+                {
+                    var pixel = bin.GetPixel(j);
+                    pixel.Value = v;
+                    pixels.Add(pixel);
+                }
+            }
+
+            Load(pixels, ImageWidth, ImageHeight);
         }
 
         /// <summary>
@@ -224,10 +306,12 @@ namespace ImageProcessing.Statistics
         {
             Clear();
 
+            ImageWidth = image.Width;
+            ImageHeight = image.Height;
+
             image.Iterate((x, y) =>
             {
                 var v = image[x, y];
-
                 int index = (int)(v * BinSize - 1);
 
                 if(index >= 0 && index < BinSize)
@@ -249,6 +333,9 @@ namespace ImageProcessing.Statistics
         {
             Clear();
 
+            ImageWidth = image.Width;
+            ImageHeight = image.Height;
+
             image.Iterate((x, y) =>
             {
                 var v = image.GetChannel(x, y, channel);
@@ -269,9 +356,14 @@ namespace ImageProcessing.Statistics
         /// 
         /// </summary>
         /// <param name="pixels"></param>
-        private void Load(IList<PixelIndex2D<float>> pixels)
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        private void Load(IList<PixelIndex2D<float>> pixels, int width, int height)
         {
             Clear();
+
+            ImageWidth = width;
+            ImageHeight = height;
 
             for(int i = 0; i < pixels.Count; i++)   
             {
@@ -282,22 +374,18 @@ namespace ImageProcessing.Statistics
                 if (index >= 0 && index < BinSize)
                 {
                     var bin = Bins[index];
-
                     bin.Add(new PixelIndex2D<float>(p.x, p.y, p.Value));
                 }
-
             };
         }
 
         /// <summary>
         /// Convert the histogram back into a image.
         /// </summary>
-        /// <param name="width">The images width.</param>
-        /// <param name="height">The images height.</param>
         /// <returns>The image.</returns>
-        public GreyScaleImage2D ToImage(int width, int height)
+        public GreyScaleImage2D ToImage()
         {
-            var image = new GreyScaleImage2D(width, height);
+            var image = new GreyScaleImage2D(ImageWidth, ImageHeight);
 
             for (int i = 0; i < BinSize; i++)
             {
@@ -336,6 +424,8 @@ namespace ImageProcessing.Statistics
 
         /// <summary>
         /// Normalize the histogram.
+        /// The range of the histogram will be modified
+        /// to start at 0 and go to the bin size.
         /// </summary>
         public void Normalize()
         {
@@ -359,7 +449,7 @@ namespace ImageProcessing.Statistics
                 }
             }
 
-            Load(pixels);
+            Load(pixels, ImageWidth, ImageHeight);
 
         }
 
@@ -439,17 +529,17 @@ namespace ImageProcessing.Statistics
         /// <returns>The bar graph image.</returns>
         public ColorImage2D CreateHistogramBarGraphCFD(ColorRGBA color, ColorRGBA background, int height)
         {
-            CreateCumulativeHistogram();
+            CreateCDF();
 
             int width = BinSize;
-            int max = CumulativeBins.Last();
+            int max = CDF.Last();
 
             var image = new ColorImage2D(width, height);
             image.Fill(background);
 
             for (int x = 0; x < width; x++)
             {
-                float count01 = CumulativeBins[x] / (float)max;
+                float count01 = CDF[x] / (float)max;
                 int count = (int)(count01 * (height - 1));
 
                 for (int y = 0; y < count; y++)
@@ -471,22 +561,22 @@ namespace ImageProcessing.Statistics
         /// <returns>The line graph image.</returns>
         public ColorImage2D CreateHistogramLineGraphCFD(ColorRGBA color, ColorRGBA background, int height)
         {
-            CreateCumulativeHistogram();
+            CreateCDF();
 
             int width = BinSize;
-            int max = CumulativeBins.Last();
+            int max = CDF.Last();
 
             var image = new ColorImage2D(width, height);
             image.Fill(background);
 
-            float count01 = CumulativeBins[0] / (float)max;
+            float count01 = CDF[0] / (float)max;
             int y = (int)(count01 * (height - 1));
 
             var previosPoint = new Point2i(0, height - y - 1);
 
             for (int x = 1; x < width; x++)
             {
-                count01 = CumulativeBins[x] / (float)max;
+                count01 = CDF[x] / (float)max;
                 y = (int)(count01 * (height - 1));
 
                 var point = new Point2i(x, height - y - 1);
@@ -502,19 +592,19 @@ namespace ImageProcessing.Statistics
         /// <summary>
         /// Create the cumulative function distribution (CFD).
         /// </summary>
-        public void CreateCumulativeHistogram()
+        public void CreateCDF()
         {
-            if (CumulativeBins != null && CumulativeBins.Length == BinSize)
+            if (CDF != null && CDF.Length == BinSize)
                 return;
 
-            CumulativeBins = new int[BinSize];
+            CDF = new int[BinSize];
 
             int previous = 0;
             for (int i = 0; i < Bins.Length; i++)
             {
                 int count = Bins[i].Count + previous;
 
-                CumulativeBins[i] = count;
+                CDF[i] = count;
                 previous = count;
             }
 
@@ -532,11 +622,59 @@ namespace ImageProcessing.Statistics
             for (int i = 0; i < Bins.Length; i++)
             {
                 if (Bins[i] == null)
-                    Bins[i] = new HistogramBin();
+                    Bins[i] = new HistogramBin(i);
                 else
                     Bins[i].Clear();
             }
                 
+        }
+
+        /// <summary>
+        /// Get the bins as a int array.
+        /// </summary>
+        /// <returns>The int array where each value represents 
+        /// the numper of pixels in the bin.</returns>
+        private int[] ToArray()
+        {
+            int[] array = new int[BinSize];
+
+            for (int i = 0; i < BinSize; i++)
+            {
+                array[i] = Bins[i].Count;
+            }
+
+            return array;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="other"></param>
+        /// <exception cref="ArgumentException"></exception>
+        private int[] CreateMappingFunction(Histogram other)
+        {
+            if (other.BinSize != BinSize)
+                throw new ArgumentException("The other histogram must have the same bin size.");
+
+            CreateCDF();
+            other.CreateCDF();
+
+            // pixel mapping function
+            int[] func = new int[BinSize];
+
+            // compute pixel mapping function
+            for (int i = 0; i < BinSize; i++)
+            {
+                int j = BinSize - 1;
+                do
+                {
+                    func[i] = j;
+                    j--;
+                }
+                while (j >= 0 && CDF[i] <= other.CDF[j]);
+            }
+
+            return func;
         }
 
     }

@@ -25,27 +25,39 @@ namespace ImageProcessing.Console
         static void Main(string[] args)
         {
             var bmp1 = new Bitmap(FOLDER + "Grass1.bmp");
-            var bmp2 = new Bitmap(FOLDER + "Grass2.bmp");
+            var bmp2 = new Bitmap(FOLDER + "Grass2_dark.bmp");
 
             var image1 = ToImage(bmp1);
             var image2 = ToImage(bmp2);
 
-            var greyscale1 = image1.ToGreyScaleImage();
-            var greyscale2 = image2.ToGreyScaleImage();
+            var chisto1 = new ColorHistogram(image1, 256);
+            var chisto2 = new ColorHistogram(image2, 256);
 
-            var histo1 = new Histogram(greyscale1, 256);
-            var histo2 = new Histogram(greyscale2, 256);
+            chisto2.Match(chisto1);
 
-            var lineGraph1 = histo1.CreateHistogramLineGraph(ColorRGBA.White, ColorRGBA.Black, 256);
-            var lineGraph2 = histo2.CreateHistogramLineGraph(ColorRGBA.White, ColorRGBA.Black, 256);
+            var image = chisto2.ToImage();
+            image.SaveAsRaw(FOLDER + "matched");
 
-            lineGraph1.SaveAsRaw(FOLDER + "lineGraph1");
-            lineGraph2.SaveAsRaw(FOLDER + "lineGraph2_before");
+            //var greyscale1 = image1.ToGreyScaleImage();
+            //var greyscale2 = image2.ToGreyScaleImage();
+
+            //var histo1 = new Histogram(greyscale1, 256);
+            //var histo2 = new Histogram(greyscale2, 256);
+
+            //var lineGraph1 = histo1.CreateHistogramLineGraph(ColorRGBA.White, ColorRGBA.Black, 256);
+            //var lineGraph2 = histo2.CreateHistogramLineGraph(ColorRGBA.White, ColorRGBA.Black, 256);
+
+            //lineGraph1.SaveAsRaw(FOLDER + "lineGraph1");
+            //lineGraph2.SaveAsRaw(FOLDER + "lineGraph2_before");
 
             //histo2.Match(histo1);
 
-            lineGraph2 = histo2.CreateHistogramLineGraph(ColorRGBA.White, ColorRGBA.Black, 256);
-            lineGraph2.SaveAsRaw(FOLDER + "lineGraph2_after");
+            //greyscale2 = histo2.ToImage();
+
+            //greyscale2.SaveAsRaw(FOLDER + "matched");
+
+            //lineGraph2 = histo2.CreateHistogramLineGraph(ColorRGBA.White, ColorRGBA.Black, 256);
+            //lineGraph2.SaveAsRaw(FOLDER + "lineGraph2_after");
 
             WriteLine("Done");
             

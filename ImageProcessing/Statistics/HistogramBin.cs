@@ -17,18 +17,25 @@ namespace ImageProcessing.Statistics
         /// <summary>
         /// Create a new bin.
         /// </summary>
-        public HistogramBin()
+        public HistogramBin(int binValue)
         {
+            BinValue = binValue;
             Pixels = new List<PixelIndex2D<float>>();
         }
 
         /// <summary>
         /// Create a new bin.
         /// </summary>
-        public HistogramBin(List<PixelIndex2D<float>> pixels)
+        public HistogramBin(int binValue, List<PixelIndex2D<float>> pixels)
         {
+            BinValue = binValue;
             Pixels = new List<PixelIndex2D<float>>(pixels);
         }
+
+        /// <summary>
+        /// The unnomalized value pixels for this bin.
+        /// </summary>
+        public int BinValue { get; private set; }
 
         /// <summary>
         /// THe number of pixels in the bin.
@@ -63,8 +70,23 @@ namespace ImageProcessing.Statistics
         /// <returns></returns>
         public HistogramBin Copy()
         {
-            var copy = new HistogramBin(Pixels);
+            var copy = new HistogramBin(BinValue, Pixels);
             return copy;
+        }
+
+        /// <summary>
+        /// Sets all pixels in the bin.
+        /// </summary>
+        /// <param name="value">The pixels value.</param>
+        public void SetPixels(float value)
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                var pixel = Pixels[i];
+                pixel.Value = value;
+                Pixels[i] = pixel;
+            }
+                
         }
 
         /// <summary>
