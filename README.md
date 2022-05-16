@@ -1,6 +1,6 @@
 A image processing library for personal use.
 
-Depends on this [project](https://github.com/Scrawk/Common)
+Depends on this common code [project](https://github.com/Scrawk/Common)
 
 Based on the material found in the following books.
 
