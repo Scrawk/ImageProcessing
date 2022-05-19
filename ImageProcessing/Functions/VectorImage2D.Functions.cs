@@ -148,14 +148,14 @@ namespace ImageProcessing.Images
 
             if (image1.AreSameSize(image2))
             {
-                image.Fill((x, y) =>
+                image.FillFromFunction((x, y) =>
                 {
                     return image1[x, y] + image2[x, y];
                 });
             }
             else
             {
-                image.Fill((x, y) =>
+                image.FillFromFunction((x, y) =>
                 {
                     float u = width > 1 ? x / (width - 1.0f) : 0;
                     float v = height > 1 ? y / (height - 1.0f) : 0;
@@ -183,14 +183,14 @@ namespace ImageProcessing.Images
 
             if (image1.AreSameSize(image2))
             {
-                image.Fill((x, y) =>
+                image.FillFromFunction((x, y) =>
                 {
                     return image1[x, y] - image2[x, y];
                 });
             }
             else
             {
-                image.Fill((x, y) =>
+                image.FillFromFunction((x, y) =>
                 {
                     float u = width > 1 ? x / (width - 1.0f) : 0;
                     float v = height > 1 ? y / (height - 1.0f) : 0;
@@ -218,14 +218,14 @@ namespace ImageProcessing.Images
 
             if (image1.AreSameSize(image2))
             {
-                image.Fill((x, y) =>
+                image.FillFromFunction((x, y) =>
                 {
                     return image1[x, y] * image2[x, y];
                 });
             }
             else
             {
-                image.Fill((x, y) =>
+                image.FillFromFunction((x, y) =>
                 {
                     float u = width > 1 ? x / (width - 1.0f) : 0;
                     float v = height > 1 ? y / (height - 1.0f) : 0;
@@ -253,7 +253,7 @@ namespace ImageProcessing.Images
 
             if (image1.AreSameSize(image2))
             {
-                image.Fill((x, y) =>
+                image.FillFromFunction((x, y) =>
                 {
                     var v1 = image1[x, y];
                     var v2 = image2[x, y];
@@ -267,7 +267,7 @@ namespace ImageProcessing.Images
             }
             else
             {
-                image.Fill((x, y) =>
+                image.FillFromFunction((x, y) =>
                 {
                     float u = width > 1 ? x / (width - 1.0f) : 0;
                     float v = height > 1 ? y / (height - 1.0f) : 0;
@@ -298,7 +298,7 @@ namespace ImageProcessing.Images
             int height = image1.Height;
             var image = new VectorImage2D(width, height);
 
-            image.Fill((x, y) =>
+            image.FillFromFunction((x, y) =>
             {
                 return image1[x, y] + vector;
             });
@@ -318,7 +318,7 @@ namespace ImageProcessing.Images
             int height = image1.Height;
             var image = new VectorImage2D(width, height);
 
-            image.Fill((x, y) =>
+            image.FillFromFunction((x, y) =>
             {
                 return image1[x, y] - vector;
             });
@@ -338,7 +338,7 @@ namespace ImageProcessing.Images
             int height = image1.Height;
             var image = new VectorImage2D(width, height);
 
-            image.Fill((x, y) =>
+            image.FillFromFunction((x, y) =>
             {
                 return image1[x, y] * vector;
             });
@@ -358,7 +358,7 @@ namespace ImageProcessing.Images
             int height = image1.Height;
             var image = new VectorImage2D(width, height);
 
-            image.Fill((x, y) =>
+            image.FillFromFunction((x, y) =>
             {
                 var v1 = image1[x, y];
                 var v = new Vector2f();

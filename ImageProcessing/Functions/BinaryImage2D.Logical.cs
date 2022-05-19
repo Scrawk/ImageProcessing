@@ -26,7 +26,7 @@ namespace ImageProcessing.Images
             if (AreNotSameSize(image))
                 throw new ArgumentException("The images must be the same size to perform the Or operation.");
 
-            Fill((x, y) => this[x, y] | image[x, y]);
+            FillFromFunction((x, y) => this[x, y] | image[x, y]);
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace ImageProcessing.Images
             if (AreNotSameSize(image))
                 throw new ArgumentException("The images must be the same size to perform the Xor operation.");
 
-            Fill((x, y) => this[x, y] ^ image[x, y]);
+            FillFromFunction((x, y) => this[x, y] ^ image[x, y]);
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace ImageProcessing.Images
             if (AreNotSameSize(image))
                 throw new ArgumentException("The images must be the same size to perform the And operation.");
 
-            Fill((x, y) => this[x, y] & image[x, y]);
+            FillFromFunction((x, y) => this[x, y] & image[x, y]);
         }
 
     }

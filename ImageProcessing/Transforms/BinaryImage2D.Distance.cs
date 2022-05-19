@@ -26,7 +26,7 @@ namespace ImageProcessing.Images
 		public static GreyScaleImage2D Distance(BinaryImage2D image, StructureElement2D b, WRAP_MODE mode = WRAP_MODE.CLAMP)
 		{
 			var image2 = new GreyScaleImage2D(image.Size);
-			image2.Fill((x, y) => image[x, y] ? float.PositiveInfinity : 0);
+			image2.FillFromFunction((x, y) => image[x, y] ? float.PositiveInfinity : 0);
 
 			for (int y = 0; y < image.Height; y++)
 			{
@@ -52,7 +52,7 @@ namespace ImageProcessing.Images
 		public static GreyScaleImage2D ApproxEuclideanDistance(BinaryImage2D image, WRAP_MODE mode = WRAP_MODE.CLAMP)
 		{
 			var image2 = new GreyScaleImage2D(image.Size);
-			image2.Fill((x, y) => image[x, y] ? float.PositiveInfinity : 0);
+			image2.FillFromFunction((x, y) => image[x, y] ? float.PositiveInfinity : 0);
 
 			var k4 = StructureElement2D.ChessBoardElement();
 			var k8 = StructureElement2D.CityBlockElement();

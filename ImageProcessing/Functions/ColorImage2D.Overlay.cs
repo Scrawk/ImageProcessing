@@ -84,7 +84,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 ColorRGBA p1 = this[x,y];
                 ColorRGBA p2;
@@ -111,7 +111,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 ColorRGBA p1 = this[x, y];
                 ColorRGBA p2;
@@ -141,7 +141,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 ColorRGBA p1 = this[x, y];
                 ColorRGBA p2;
@@ -171,7 +171,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 ColorRGBA p1 = this[x, y];
                 ColorRGBA p2;
@@ -201,7 +201,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 ColorRGBA p1 = this[x, y];
                 ColorRGBA p2;
@@ -247,7 +247,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 ColorRGBA p1 = this[x, y];
                 ColorRGBA p2;
@@ -284,7 +284,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 ColorRGBA p1 = this[x, y];
                 ColorRGBA p2;
@@ -333,7 +333,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 ColorRGBA p1 = this[x, y];
                 ColorRGBA p2;
@@ -384,7 +384,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 ColorRGBA p1 = this[x, y];
                 ColorRGBA p2;
@@ -428,7 +428,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 ColorRGBA p1 = this[x, y];
                 ColorRGBA p2;
@@ -465,7 +465,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 ColorRGBA p1 = this[x, y];
                 ColorRGBA p2;

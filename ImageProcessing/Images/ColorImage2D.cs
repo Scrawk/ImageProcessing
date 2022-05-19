@@ -53,7 +53,7 @@ namespace ImageProcessing.Images
         public ColorImage2D(int width, int height, ColorRGBA value)
         {
             Data = new ColorRGBA[width, height];
-            Fill(value);
+            FillWithValue(value);
         }
 
         /// <summary>

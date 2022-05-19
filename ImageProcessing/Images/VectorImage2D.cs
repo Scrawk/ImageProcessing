@@ -41,7 +41,7 @@ namespace ImageProcessing.Images
         public VectorImage2D(int width, int height, Vector2f value)
             : this(width, height)
         {
-            Fill(value);
+            FillWithValue(value);
         }
 
         /// <summary>

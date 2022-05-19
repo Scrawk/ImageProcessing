@@ -431,7 +431,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Fill the array with the value.
         /// </summary>
-        public void Fill(T value)
+        public void FillWithValue(T value)
         {
             for (int y = 0; y < Height; y++)
             {
@@ -443,23 +443,59 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// 
+        /// Fill the image from a array.
         /// </summary>
-        /// <param name="source"></param>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="wrap"></param>
-        /// <exception cref="ArgumentException"></exception>
-        public void Fill(T[,] source, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        /// <param name="source">The array to fill from.</param>
+        /// <param name="x">The x index to start filling image from.</param>
+        /// <param name="y">The y index to start filling image from.</param>
+        /// <param name="wrap">The wrap mode for out of bounds indices into the image.</param>
+        public void FillFromArray(T[,] source, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
-            if (Width != source.GetLength(0) || Height != source.GetLength(1))
-                throw new ArgumentException("The image and the source array must be the same size.");
-
             for (int j = 0; j < source.GetLength(0); j++)
             {
                 for (int i = 0; i < source.GetLength(1); i++)
                 {
-                    SetValue(x + i, y + j,  source[i, j], wrap);
+                    SetValue(x + i, y + j, source[i, j], wrap);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Fill the images channel from a array.
+        /// </summary>
+        /// <param name="source">The array to fill from.</param>
+        /// <param name="channel">The channel to fill.</param>
+        /// <param name="x">The x index to start filling image from.</param>
+        /// <param name="y">The y index to start filling image from.</param>
+        /// <param name="wrap">The wrap mode for out of bounds indices into the image.</param>
+        public void FillChannel(float[,] source, int channel, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        {
+            for (int j = 0; j < source.GetLength(0); j++)
+            {
+                for (int i = 0; i < source.GetLength(1); i++)
+                {
+                    SetChannel(x + i, y + j, channel, source[i, j], wrap);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Fill the images channel from a array.
+        /// </summary>
+        /// <param name="source">The array to fill from.</param>
+        /// <param name="x">The x index to start filling image from.</param>
+        /// <param name="y">The y index to start filling image from.</param>
+        /// <param name="wrap">The wrap mode for out of bounds indices into the image.</param>
+        public void FillFromArray(float[,,] source, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        {
+            for (int j = 0; j < source.GetLength(0); j++)
+            {
+                for (int i = 0; i < source.GetLength(1); i++)
+                {
+                    for (int c = 0; c < source.GetLength(2); c++)
+                    {
+                        SetChannel(x + i, y + j, c, source[i, j, c], wrap);
+                    } 
                 }
             }
         }
@@ -469,7 +505,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="source"></param>
         /// <exception cref="ArgumentException"></exception>
-        public void Fill(T[] source)
+        public void FillFromArray(T[] source)
         {
             if (Width * Height != source.Length)
                 throw new ArgumentException("The image and the source array must be the same size.");
@@ -491,7 +527,7 @@ namespace ImageProcessing.Images
         /// <param name="y"></param>
         /// <param name="image_wrap">The wrap mode for indices outside image bounds.</param>
         /// <param name="source_wrap">The wrap mode for indices outside source bounds.</param>
-        public void Fill(Image2D<T> source, int x = 0, int y = 0, WRAP_MODE image_wrap = WRAP_MODE.CLAMP, WRAP_MODE source_wrap = WRAP_MODE.CLAMP)
+        public void FillFromImage(Image2D<T> source, int x = 0, int y = 0, WRAP_MODE image_wrap = WRAP_MODE.CLAMP, WRAP_MODE source_wrap = WRAP_MODE.CLAMP)
         {
             for (int j = 0; j < source.Height; j++)
             {
@@ -509,7 +545,7 @@ namespace ImageProcessing.Images
         /// <param name="bounds"></param>
         /// <param name="image_wrap">The wrap mode for indices outside image bounds.</param>
         /// <param name="source_wrap">The wrap mode for indices outside source bounds.</param>
-        public void Fill(Image2D<T> source, Box2i bounds, WRAP_MODE image_wrap = WRAP_MODE.CLAMP, WRAP_MODE source_wrap = WRAP_MODE.CLAMP)
+        public void FillFromImage(Image2D<T> source, Box2i bounds, WRAP_MODE image_wrap = WRAP_MODE.CLAMP, WRAP_MODE source_wrap = WRAP_MODE.CLAMP)
         {
             for (int y = bounds.Min.y, yy = 0; y < bounds.Max.y; yy++, y++)
             {
@@ -523,7 +559,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Fill the array with the value from the function.
         /// </summary>
-        public void Fill(Func<int, int, T> func)
+        public void FillFromFunction(Func<int, int, T> func)
         {
             for (int y = 0; y < Height; y++)
             {
@@ -539,7 +575,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="indices">The indices and value to fill.</param>
         /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
-        public void Fill(IList<PixelIndex2D<T>> indices, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        public void FillFromIndices(IList<PixelIndex2D<T>> indices, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             for (int i = 0; i < indices.Count; i++)
             {
@@ -554,7 +590,7 @@ namespace ImageProcessing.Images
         /// <param name="indices">The indices to fill.</param>
         /// <param name="value">The value to fill.</param>
         /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
-        public void Fill(IList<Point2i> indices, T value, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        public void FillFromIndices(IList<Point2i> indices, T value, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             for (int i = 0; i < indices.Count; i++)
             {
@@ -573,7 +609,7 @@ namespace ImageProcessing.Images
         /// <param name="value">The value to fill.</param>
         /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
         /// <exception cref="ArgumentException">Throw if the bounds and mask are not the same size.</exception>
-        public void Fill(Box2i bounds, T value, BinaryImage2D mask = null, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        public void FillFromBox(Box2i bounds, T value, BinaryImage2D mask = null, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             if (mask != null && bounds.Size != mask.Size)
                 throw new ArgumentException("The bounds and mask must be the same size.");
@@ -710,6 +746,48 @@ namespace ImageProcessing.Images
                 for (int x = 0; x < Width; x++)
                 {
                     array[x, y] = this[x, y];
+                }
+            }
+
+            return array;
+        }
+
+        /// <summary>
+        /// Convert to a 2D array.
+        /// </summary>
+        /// <param name="channel">The channel to fill array with.</param>
+        /// <returns>A 2D arry fill with the images values.</returns>
+        public float[,] ToFloatArray(int channel)
+        {
+            var array = new float[Height, Width];
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    array[x, y] = GetChannel(x, y, channel);
+                }
+            }
+
+            return array;
+        }
+
+        /// <summary>
+        /// Convert to a 2D array.
+        /// </summary>
+        /// <returns>A 2D arry fill with the images values.</returns>
+        public float[,,] ToFloatArray()
+        {
+            var array = new float[Height, Width, Channels];
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    for (int c = 0; c < Channels; c++)
+                    {
+                        array[x, y, c] = GetChannel(x, y, c);
+                    }
                 }
             }
 

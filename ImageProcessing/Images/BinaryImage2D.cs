@@ -45,7 +45,7 @@ namespace ImageProcessing.Images
         public BinaryImage2D(int width, int height, bool value)
             : this(width, height)
         {
-            Fill(value);
+            FillWithValue(value);
         }
 
         /// <summary>
@@ -375,7 +375,7 @@ namespace ImageProcessing.Images
             base.Copy(copy);
             copy.Threshold = Threshold;
 
-            copy.Fill((x, y) =>
+            copy.FillFromFunction((x, y) =>
             {
                 return this[x, y];
             });

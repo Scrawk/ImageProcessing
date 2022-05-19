@@ -4,159 +4,34 @@ using System.Numerics;
 
 using Common.Core.Numerics;
 
+using ImageProcessing.Spectral;
+
 namespace ImageProcessing.Images
 {
     public partial class GreyScaleImage2D
     {
-
-
         /// <summary>
         /// Calculate the 2D DFT on a greayscale image.
         /// Here we are using a vector to store the complex numbers
         /// where the x component is the real part and the y component is the imaginary part.
         /// </summary>
         /// <returns>A vector image containing the spectrum as complex numbers.</returns>
-        public static VectorImage2D DFT(GreyScaleImage2D image)
+        public static VectorImage2D ForwardDFT(GreyScaleImage2D image)
         {
-            int Width = image.Width;
-            int Height = image.Height;  
-            var dft = new VectorImage2D(Width, Height);
+            var dft = new DFT2D(false, SCALING_MODE.DEFAULT);
 
-            var g = new Vector2f[Width];
-            var G = new Vector2f[Width];
+            var real = image.ToFloatArray(0);
+            var imag = new float[image.Width, image.Height];
 
-            //Transform all the rows of the image.
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    var v = image[x, y];
-                    g[x] = new Vector2f(v, 0);
-                }
+            dft.Forward(real, imag);
 
-                DFT1D(g, G, true);
-                dft.SetRow(G, y);
-            }
+            var dft_image = new VectorImage2D(image.Width, image.Height);
 
-            if(Width != Height)
-            {
-                g = new Vector2f[Height];
-                G = new Vector2f[Height];
-            }
+            dft_image.FillChannel(real, 0);
+            dft_image.FillChannel(imag, 1);
 
-            //Transform all the columns of the image.
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    var v = dft[x, y];
-                    g[y] = new Vector2f(v.x, v.y);
-                }
-
-                DFT1D(g, G, true);
-                dft.SetColumn(G, x);
-            }
-
-            return dft;
+            return dft_image;
         }
-
-        /*
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="image"></param>
-        /// <returns></returns>
-        public static GreyScaleImage2D DCT(GreyScaleImage2D image)
-        {
-            int Width = image.Width;
-            int Height = image.Height;
-            var dct = new GreyScaleImage2D(Width, Height);
-
-            var g = new float[Width];
-            var G = new float[Width];
-
-            //Transform all the rows of the image.
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    g[x] = image[x, y];
-                }
-
-                DCT1D(g, G);
-                dct.SetRow(G, y);
-            }
-
-            if (Width != Height)
-            {
-                g = new float[Height];
-                G = new float[Height];
-            }
-
-            //Transform all the columns of the image.
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    g[y] = dct[x, y];
-                }
-
-                DCT1D(g, G);
-                dct.SetColumn(G, x);
-            }
-
-            return dct;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="image"></param>
-        /// <returns></returns>
-        public static GreyScaleImage2D iDCT(GreyScaleImage2D image)
-        {
-            int Width = image.Width;
-            int Height = image.Height;
-            var idct = new GreyScaleImage2D(Width, Height);
-
-            var g = new float[Width];
-            var G = new float[Width];
-
-            //Transform all the rows of the image.
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    g[x] = image[x, y];
-                }
-
-                iDCT1D(g, G);
-                idct.SetRow(G, y);
-            }
-
-            if (Width != Height)
-            {
-                g = new float[Height];
-                G = new float[Height];
-            }
-
-            //Transform all the columns of the image.
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    g[y] = idct[x, y];
-                }
-
-                iDCT1D(g, G);
-                idct.SetColumn(G, x);
-            }
-
-            return idct;
-        }
-
-        */
 
     }
 }

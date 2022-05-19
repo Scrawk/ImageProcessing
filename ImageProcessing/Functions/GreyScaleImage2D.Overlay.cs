@@ -78,7 +78,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 float p1 = this[x, y];
                 float p2;
@@ -104,7 +104,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 float p1 = this[x, y];
                 float p2;
@@ -130,7 +130,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 float p1 = this[x, y];
                 float p2;
@@ -156,7 +156,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 float p1 = this[x, y];
                 float p2;
@@ -189,7 +189,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 float p1 = this[x, y];
                 float p2;
@@ -222,7 +222,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 float p1 = this[x, y];
                 float p2;
@@ -261,7 +261,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 float p1 = this[x, y];
                 float p2;
@@ -302,7 +302,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 float p1 = this[x, y];
                 float p2;
@@ -336,7 +336,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 float p1 = this[x, y];
                 float p2;
@@ -364,7 +364,7 @@ namespace ImageProcessing.Images
         {
             bool sameSize = Size == image.Size;
 
-            Fill((x, y) =>
+            FillFromFunction((x, y) =>
             {
                 float p1 = this[x, y];
                 float p2;
