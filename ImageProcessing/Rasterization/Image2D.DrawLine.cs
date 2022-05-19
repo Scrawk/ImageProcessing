@@ -85,6 +85,7 @@ namespace ImageProcessing.Images
         /// <param name="x2">The x-coordinate of the end point.</param>
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color for the line.</param>
+        /// <param name="mask"></param>
         /// <param name="mode"></param>
         private void DrawLineDDA(int x1, int y1, int x2, int y2, ColorRGBA color, GreyScaleImage2D mask, WRAP_MODE mode)
         {

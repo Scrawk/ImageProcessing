@@ -573,7 +573,7 @@ namespace ImageProcessing.Images
         /// <param name="value">The value to fill.</param>
         /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
         /// <exception cref="ArgumentException">Throw if the bounds and mask are not the same size.</exception>
-        public void Fill(Box2i bounds, BinaryImage2D mask, T value, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        public void Fill(Box2i bounds, T value, BinaryImage2D mask = null, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             if (mask != null && bounds.Size != mask.Size)
                 throw new ArgumentException("The bounds and mask must be the same size.");

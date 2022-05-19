@@ -141,7 +141,7 @@ namespace ImageProcessing.Statistics
 
         /// <summary>
         /// Equalizes the histogram.
-        /// Attempts to make the histograom of a uniform distribution. 
+        /// Attempts to make the histogram of a uniform distribution. 
         /// </summary>
         public void Equalize()
         {
@@ -152,7 +152,7 @@ namespace ImageProcessing.Statistics
         }
 
         /// <summary>
-        /// Attempts to match the hisograom to the other histogram.
+        /// Attempts to match the hisogram to the other histogram.
         /// </summary>
         /// <param name="other">THe histogram to match.</param>
         public void Match(ColorHistogram other)
