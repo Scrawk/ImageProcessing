@@ -18,7 +18,7 @@ namespace ImageProcessing.Images
         /// <returns>THe real part of the transform in a greyscale image.</returns>
         public static GreyScaleImage2D InverseDFT(VectorImage2D image)
         {
-            var dft = new DFT2D(false, SCALING_MODE.DEFAULT);
+            var dft = new DFT2D();
 
             var real = image.ToFloatArray(0);
             var imag = image.ToFloatArray(1);
@@ -30,6 +30,46 @@ namespace ImageProcessing.Images
             dft_image.FillChannel(real, 0);
 
             return dft_image;
+        }
+
+        /// <summary>
+        /// Calculate the 2D DCT on a vector image.
+        /// Each channel is transformed independantly.
+        /// </summary>
+        /// <returns>A Vector image containing the spectrum.</returns>
+        public static VectorImage2D ForwardDCT(VectorImage2D image)
+        {
+            var dct = new DCT2D();
+            var dct_image = new VectorImage2D(image.Width, image.Height);
+
+            for (int i = 0; i < image.Channels; i++)
+            {
+                var data = image.ToFloatArray(i);
+                dct.Forward(data);
+                dct_image.FillChannel(data, i);
+            }
+
+            return dct_image;
+        }
+
+        /// <summary>
+        /// Calculate the 2D DCT on a vector image.
+        /// Each channel is transformed independantly.
+        /// </summary>
+        /// <returns>A Vector image containing the spectrum.</returns>
+        public static VectorImage2D InverseDCT(VectorImage2D image)
+        {
+            var dct = new DCT2D();
+            var dct_image = new VectorImage2D(image.Width, image.Height);
+
+            for (int i = 0; i < image.Channels; i++)
+            {
+                var data = image.ToFloatArray(i);
+                dct.Inverse(data);
+                dct_image.FillChannel(data, i);
+            }
+
+            return dct_image;
         }
 
     }

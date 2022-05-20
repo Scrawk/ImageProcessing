@@ -16,10 +16,10 @@ namespace ImageProcessing.Spectral
 	public class DFT1DDirect
     {
 
-		public DFT1DDirect(int size, SCALING_MODE mode)
+		public DFT1DDirect(int size)
 		{
 			Size = size;
-			Mode = mode;
+			Mode = SCALING_MODE.DEFAULT;
 			CosTable = MakeCosTable();
 			SinTable = MakeSinTable();
 			OutRe = new float[Size];

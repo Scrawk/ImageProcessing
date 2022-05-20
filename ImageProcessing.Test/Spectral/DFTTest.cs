@@ -12,7 +12,7 @@ using ImageProcessing.Spectral;
 namespace ImageProcessing.Test.Spectral
 {
     [TestClass]
-    public class DFT1DDirectTest
+    public class DFTTest
     {
 		/// <summary>
 		/// https://github.com/imagingbook/imagingbook-common/blob/master/src/main/java/imagingbook/common/spectral/dft/Dft1dDirect.java
@@ -24,7 +24,7 @@ namespace ImageProcessing.Test.Spectral
 			float[] re = { 1, 2, 3, 4, 5, 6, 7, 8 };
 			float[] im = new float[re.Length];
 
-			var dft = new DFT1DDirect(re.Length, SCALING_MODE.DEFAULT);
+			var dft = new DFT1DDirect(re.Length);
 
 			var expected = new float[]
 			{
@@ -79,17 +79,28 @@ namespace ImageProcessing.Test.Spectral
 
 			re = image.ToFloatArray(0);
 			
-			var dft = new DFT2D(false, SCALING_MODE.DEFAULT);
+			var dft = new DFT2D();
 
 			dft.Forward(re, im);
 			dft.Inverse(re, im);
 
 			image.FillChannel(re, 0);
 
-			foreach(var v in re)
-            {
-				Console.WriteLine(v);
-            }
+			float[,] expected =
+			{
+				{ 1, 2, 3, 4 },
+				{ 1, 2, 3, 4 },
+				{ 1, 2, 3, 4 },
+				{ 1, 2, 3, 4 }
+			};
+
+			for (int i = 0; i < re.GetLength(0); i++)
+			{
+				for (int j = 0; j < re.GetLength(1); j++)
+				{
+					Assert.IsTrue(MathUtil.AlmostEqual(re[i, j], expected[i, j], 1e-2f));
+				}
+			}
 		}
 
 	}

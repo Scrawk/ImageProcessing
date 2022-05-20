@@ -63,7 +63,8 @@
   <ItemGroup>
     <Compile Include="Images\ImageTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Spectral\DFT1DDirectTest.cs" />
+    <Compile Include="Spectral\DFTTest.cs" />
+    <Compile Include="Spectral\DCTTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

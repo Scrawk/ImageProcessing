@@ -27,10 +27,13 @@ namespace ImageProcessing.Console
             var bmp = new Bitmap(FOLDER + "Grass1.bmp");
             var image = ToImage(bmp).ToGreyScaleImage();
 
-            var dft_forward = GreyScaleImage2D.ForwardDFT(image);
-            var dft_inverse = VectorImage2D.InverseDFT(dft_forward);
+            var dct_forward = GreyScaleImage2D.ForwardDCT(image);
 
-            dft_inverse.SaveAsRaw(FOLDER + "Spectral.raw");
+            dct_forward.SaveAsRaw(FOLDER + "forward.raw");
+
+            var dct_inverse = GreyScaleImage2D.InverseDCT(dct_forward);
+
+            dct_inverse.SaveAsRaw(FOLDER + "Spectral.raw");
             WriteLine("Done");
             
         }

@@ -14,16 +14,10 @@ namespace ImageProcessing.Spectral
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="mode"></param>
-		public DFT2D(SCALING_MODE mode)
+		public DFT2D()
         {
-			Mode = mode;
-        }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		private SCALING_MODE Mode { get; set; }
+        }
 
 		/// <summary>
 		/// Performs an "in-place" 2D DFT forward transformation on the supplied data.
@@ -64,7 +58,7 @@ namespace ImageProcessing.Spectral
 			float[] rowRe = new float[width];
 			float[] rowIm = new float[width];
 
-			var dftRow = new DFT1DDirect(width, Mode);
+			var dftRow = new DFT1DDirect(width);
 
 			for (int v = 0; v < height; v++)
 			{
@@ -80,7 +74,7 @@ namespace ImageProcessing.Spectral
 			float[] colRe = new float[height];
 			float[] colIm = new float[height];
 
-			var dftCol = new DFT1DDirect(height, Mode);
+			var dftCol = new DFT1DDirect(height);
 
 			for (int u = 0; u < width; u++)
 			{
