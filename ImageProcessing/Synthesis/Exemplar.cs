@@ -312,7 +312,7 @@ namespace ImageProcessing.Synthesis
                 var image = new ColorImage2D(ExemplarSize, ExemplarSize);
                 var source = Sources[i];
 
-                image.FillFromFunction((x, y) =>
+                image.Fill((x, y) =>
                 {
                     var index = GetIndex(x, y, true);
                     return source.GetPixel(index.x, index.y, WRAP_MODE.WRAP);

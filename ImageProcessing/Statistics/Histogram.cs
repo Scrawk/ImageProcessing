@@ -467,7 +467,7 @@ namespace ImageProcessing.Statistics
             int max = MaxBinCount();
 
             var image = new ColorImage2D(width, height);  
-            image.FillWithValue(background);
+            image.Fill(background);
 
             for(int x = 0; x < width; x++)
             {
@@ -497,7 +497,7 @@ namespace ImageProcessing.Statistics
             int max = MaxBinCount();
 
             var image = new ColorImage2D(width, height);
-            image.FillWithValue(background);
+            image.Fill(background);
 
             float count01 = Bins[0].Count / (float)max;
             int y = (int)(count01 * (height - 1));
@@ -535,7 +535,7 @@ namespace ImageProcessing.Statistics
             int max = CDF.Last();
 
             var image = new ColorImage2D(width, height);
-            image.FillWithValue(background);
+            image.Fill(background);
 
             for (int x = 0; x < width; x++)
             {
@@ -567,7 +567,7 @@ namespace ImageProcessing.Statistics
             int max = CDF.Last();
 
             var image = new ColorImage2D(width, height);
-            image.FillWithValue(background);
+            image.Fill(background);
 
             float count01 = CDF[0] / (float)max;
             int y = (int)(count01 * (height - 1));

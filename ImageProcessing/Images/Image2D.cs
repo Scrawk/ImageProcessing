@@ -431,7 +431,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Fill the array with the value.
         /// </summary>
-        public void FillWithValue(T value)
+        public void Fill(T value)
         {
             for (int y = 0; y < Height; y++)
             {
@@ -449,7 +449,7 @@ namespace ImageProcessing.Images
         /// <param name="x">The x index to start filling image from.</param>
         /// <param name="y">The y index to start filling image from.</param>
         /// <param name="wrap">The wrap mode for out of bounds indices into the image.</param>
-        public void FillFromArray(T[,] source, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        public void Fill(T[,] source, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             for (int j = 0; j < source.GetLength(0); j++)
             {
@@ -486,7 +486,7 @@ namespace ImageProcessing.Images
         /// <param name="x">The x index to start filling image from.</param>
         /// <param name="y">The y index to start filling image from.</param>
         /// <param name="wrap">The wrap mode for out of bounds indices into the image.</param>
-        public void FillFromArray(float[,,] source, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        public void Fill(float[,,] source, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             for (int j = 0; j < source.GetLength(0); j++)
             {
@@ -505,7 +505,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="source"></param>
         /// <exception cref="ArgumentException"></exception>
-        public void FillFromArray(T[] source)
+        public void Fill(T[] source)
         {
             if (Width * Height != source.Length)
                 throw new ArgumentException("The image and the source array must be the same size.");
@@ -527,7 +527,7 @@ namespace ImageProcessing.Images
         /// <param name="y"></param>
         /// <param name="image_wrap">The wrap mode for indices outside image bounds.</param>
         /// <param name="source_wrap">The wrap mode for indices outside source bounds.</param>
-        public void FillFromImage(Image2D<T> source, int x = 0, int y = 0, WRAP_MODE image_wrap = WRAP_MODE.CLAMP, WRAP_MODE source_wrap = WRAP_MODE.CLAMP)
+        public void Fill(Image2D<T> source, int x = 0, int y = 0, WRAP_MODE image_wrap = WRAP_MODE.CLAMP, WRAP_MODE source_wrap = WRAP_MODE.CLAMP)
         {
             for (int j = 0; j < source.Height; j++)
             {
@@ -545,7 +545,7 @@ namespace ImageProcessing.Images
         /// <param name="bounds"></param>
         /// <param name="image_wrap">The wrap mode for indices outside image bounds.</param>
         /// <param name="source_wrap">The wrap mode for indices outside source bounds.</param>
-        public void FillFromImage(Image2D<T> source, Box2i bounds, WRAP_MODE image_wrap = WRAP_MODE.CLAMP, WRAP_MODE source_wrap = WRAP_MODE.CLAMP)
+        public void Fill(Image2D<T> source, Box2i bounds, WRAP_MODE image_wrap = WRAP_MODE.CLAMP, WRAP_MODE source_wrap = WRAP_MODE.CLAMP)
         {
             for (int y = bounds.Min.y, yy = 0; y < bounds.Max.y; yy++, y++)
             {
@@ -559,7 +559,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Fill the array with the value from the function.
         /// </summary>
-        public void FillFromFunction(Func<int, int, T> func)
+        public void Fill(Func<int, int, T> func)
         {
             for (int y = 0; y < Height; y++)
             {
@@ -575,7 +575,7 @@ namespace ImageProcessing.Images
         /// </summary>
         /// <param name="indices">The indices and value to fill.</param>
         /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
-        public void FillFromIndices(IList<PixelIndex2D<T>> indices, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        public void Fill(IList<PixelIndex2D<T>> indices, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             for (int i = 0; i < indices.Count; i++)
             {
@@ -590,7 +590,7 @@ namespace ImageProcessing.Images
         /// <param name="indices">The indices to fill.</param>
         /// <param name="value">The value to fill.</param>
         /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
-        public void FillFromIndices(IList<Point2i> indices, T value, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        public void Fill(IList<Point2i> indices, T value, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             for (int i = 0; i < indices.Count; i++)
             {
@@ -609,7 +609,7 @@ namespace ImageProcessing.Images
         /// <param name="value">The value to fill.</param>
         /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
         /// <exception cref="ArgumentException">Throw if the bounds and mask are not the same size.</exception>
-        public void FillFromBox(Box2i bounds, T value, BinaryImage2D mask = null, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        public void Fill(Box2i bounds, T value, BinaryImage2D mask = null, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             if (mask != null && bounds.Size != mask.Size)
                 throw new ArgumentException("The bounds and mask must be the same size.");

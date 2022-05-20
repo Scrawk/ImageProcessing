@@ -111,7 +111,7 @@ namespace ImageProcessing.Statistics
         private void UpdateWeights(ColorImage2D image, GreyScaleImage2D weights)
         {
             float sum = 0;
-            weights.FillFromFunction((x, y) =>
+            weights.Fill((x, y) =>
             {
                 var col = image[x, y];
                 var closest = Closest(col);

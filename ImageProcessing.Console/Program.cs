@@ -42,7 +42,7 @@ namespace ImageProcessing.Console
 
             var image = new ColorImage2D(width, height);
 
-            image.FillFromFunction((x, y) =>
+            image.Fill((x, y) =>
             {
                 var color = bm.GetPixel(x, y);
                 return new ColorRGBA(color.R, color.G, color.B, color.A) / 255.0f;

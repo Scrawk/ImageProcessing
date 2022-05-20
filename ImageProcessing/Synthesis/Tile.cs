@@ -154,7 +154,7 @@ namespace ImageProcessing.Synthesis
             foreach(var image in Images)
             {
                 var offset = ColorImage2D.Offset(image, xoffset, yoffset);
-                image.FillFromImage(offset);
+                image.Fill(offset);
             }
         }
 
@@ -167,7 +167,7 @@ namespace ImageProcessing.Synthesis
             foreach (var image in Images)
             {
                 var offset = ColorImage2D.HalfOffset(image, forwards);
-                image.FillFromImage(offset);
+                image.Fill(offset);
             }
         }
 
@@ -185,7 +185,7 @@ namespace ImageProcessing.Synthesis
             foreach(var image in Images)
             {
                 var blurred = ColorImage2D.GaussianBlur(image, strength, bounds, mask, wrap);
-                image.FillFromImage(blurred);
+                image.Fill(blurred);
             }
         }
 

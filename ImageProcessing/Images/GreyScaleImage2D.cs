@@ -31,7 +31,7 @@ namespace ImageProcessing.Images
         public GreyScaleImage2D(int width, int height, float value)
             : this(width, height)
         {
-            FillWithValue(value);
+            Fill(value);
         }
 
         /// <summary>

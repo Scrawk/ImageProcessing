@@ -14,23 +14,16 @@ namespace ImageProcessing.Spectral
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="useFFT"></param>
 		/// <param name="mode"></param>
-		public DFT2D(bool useFFT, SCALING_MODE mode)
+		public DFT2D(SCALING_MODE mode)
         {
 			Mode = mode;
-			UseFFT = useFFT;
         }
 
 		/// <summary>
 		/// 
 		/// </summary>
 		private SCALING_MODE Mode { get; set; }
-
-		/// <summary>
-		/// 
-		/// </summary>
-		private bool UseFFT { get; set; }
 
 		/// <summary>
 		/// Performs an "in-place" 2D DFT forward transformation on the supplied data.

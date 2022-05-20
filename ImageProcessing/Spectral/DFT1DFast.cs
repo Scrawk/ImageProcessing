@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace ImageProcessing.Spectral
 {
+	/*
 	internal class DFT1DFast
 	{
 
@@ -58,4 +59,5 @@ namespace ImageProcessing.Spectral
         }
 
 	}
+	*/
 }

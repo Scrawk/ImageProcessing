@@ -168,7 +168,7 @@ namespace ImageProcessing.Synthesis
 
 			if (IsConst)
 			{
-				map.FillWithValue(Left);
+				map.Fill(Left);
 			}
 			else
 			{
@@ -217,7 +217,7 @@ namespace ImageProcessing.Synthesis
 			var map = CreateMap();
 			var image = new ColorImage2D(Width, Height);
 
-			image.FillFromFunction((x,y) =>
+			image.Fill((x,y) =>
 			{
 				int index = (int)map[x, y];
 				return Colors[index] * a;
