@@ -10,6 +10,105 @@ namespace ImageProcessing.Images
     {
 
         /// <summary>
+        /// Offset and scale each value in the image
+        /// with the option of taking the abs value first.
+        /// </summary>
+        /// <param name="offset">The amount to add to the value before appling the function.</param>
+        /// <param name="scale">The amount to scale the result of the function.</param>
+        /// <param name="abs">True to take the abs of the value before appling the function.</param>
+        public void OffsetScale(float offset, float scale, bool abs)
+        {
+            Modify(v =>
+            {
+                for (int i = 0; i < Channels; i++)
+                {
+                    if (abs) v[i] = Math.Abs(v[i]);
+                    v[i] = offset + v[i] * scale;
+                }
+
+                return v;
+            });
+        }
+
+        /// <summary>
+        /// Scale then offset each value in the image
+        /// with the option of taking the abs value first.
+        /// </summary>
+        /// <param name="offset">The amount to add to the value before appling the function.</param>
+        /// <param name="scale">The amount to scale the result of the function.</param>
+        /// <param name="abs">True to take the abs of the value before appling the function.</param>
+        public void ScaleOffset(float offset, float scale, bool abs)
+        {
+            Modify(v =>
+            {
+                for (int i = 0; i < Channels; i++)
+                {
+                    if (abs) v[i] = Math.Abs(v[i]);
+                    v[i] = v[i] * scale + offset;
+                }
+
+                return v;
+            });
+        }
+
+        /// <summary>
+        /// Take the sqrt of each value in the image.
+        /// </summary>
+        public void Sqrt(bool includeAlpha = false)
+        {
+            Modify(v =>
+            {
+                for (int i = 0; i < Channels; i++)
+                    v[i] = MathUtil.SafeLog10(v[i]);
+
+                return v;
+            });
+        }
+
+        /// <summary>
+        /// Take the log base e of each value in the image.
+        /// </summary>
+        public void Log()
+        {
+            Modify(v =>
+            {
+                for (int i = 0; i < Channels; i++)
+                    v[i] = MathUtil.SafeLog(v[i]);
+
+                return v;
+            });
+        }
+
+        /// <summary>
+        /// Take the log of each value in the image using the provided base value of a.
+        /// </summary>
+        /// <param name="a">The base to use.</param>
+        public void Log(float a)
+        {
+            Modify(v =>
+            {
+                for (int i = 0; i < Channels; i++)
+                    v[i] = (float)Math.Log(v[i], a);
+
+                return v;
+            });
+        }
+
+        /// <summary>
+        /// Take the log base 10 of each value in the image.
+        /// </summary>
+        public void Log10()
+        {
+            Modify(v =>
+            {
+                for (int i = 0; i < Channels; i++)
+                    v[i] = MathUtil.SafeLog10(v[i]);
+
+                return v;
+            });
+        }
+
+        /// <summary>
         /// Make each value in image the smaller of the two values.
         /// </summary>
         /// <param name="value">The another value.</param>

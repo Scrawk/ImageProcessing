@@ -112,7 +112,7 @@ namespace ImageProcessing.Statistics
         /// Calculate the mean of all pixels in the bin.
         /// </summary>
         /// <returns>The mean of all pixels in the bin.</returns>
-        public float CalculateMean()
+        public float Mean()
         {
             if(Count == 0)
                 return 0;
@@ -129,7 +129,7 @@ namespace ImageProcessing.Statistics
         /// </summary>
         /// <param name="mean">The mean of all the pixels in the bin.</param>
         /// <returns>The variance of all pixels in the bin.</returns>
-        public float CalculateVariance(float mean)
+        public float Variance(float mean)
         {
             if (Count == 0)
                 return 0;

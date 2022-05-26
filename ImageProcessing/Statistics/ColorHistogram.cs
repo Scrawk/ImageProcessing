@@ -60,6 +60,17 @@ namespace ImageProcessing.Statistics
         }
 
         /// <summary>
+        /// Array accessor for the histograms bin count.
+        /// </summary>
+        /// <param name="c">The histograms channel.</param>
+        /// <param name="i">The bins index.</param>
+        /// <returns>The bin count at index i.</returns>
+        public int this[int c, int i]
+        {
+            get { return Histograms[c].GetBinCount(i); }
+        }
+
+        /// <summary>
         /// Clear the histogram of all data.
         /// </summary>
         public void Clear()

@@ -9,6 +9,118 @@ namespace ImageProcessing.Images
 {
     public partial class ColorImage2D
     {
+
+        /// <summary>
+        /// Offset and scale each value in the image
+        /// with the option of taking the abs value first.
+        /// </summary>
+        /// <param name="offset">The amount to add to the value before appling the function.</param>
+        /// <param name="scale">The amount to scale the result of the function.</param>
+        /// <param name="abs">True to take the abs of the value before appling the function.</param>
+        /// <param name="includeAlpha">Should the alpha channel the included.</param>
+        public void OffsetScale(float offset, float scale, bool abs, bool includeAlpha = false)
+        {
+            Modify(v =>
+            {
+                int channels = includeAlpha ? 4 : 3;
+                for (int i = 0; i < channels; i++)
+                {
+                    if (abs) v[i] = Math.Abs(v[i]);
+                    v[i] = offset + v[i] * scale;
+                }
+
+                return v;
+            });
+        }
+
+        /// <summary>
+        /// Scale then offset each value in the image
+        /// with the option of taking the abs value first.
+        /// </summary>
+        /// <param name="offset">The amount to add to the value before appling the function.</param>
+        /// <param name="scale">The amount to scale the result of the function.</param>
+        /// <param name="abs">True to take the abs of the value before appling the function.</param>
+        /// <param name="includeAlpha">Should the alpha channel the included.</param>
+        public void ScaleOffset(float offset, float scale, bool abs, bool includeAlpha = false)
+        {
+            Modify(v =>
+            {
+                int channels = includeAlpha ? 4 : 3;
+                for (int i = 0; i < channels; i++)
+                {
+                    if(abs) v[i] = Math.Abs(v[i]);
+                    v[i] = v[i] * scale + offset;
+                }
+
+                return v;
+            });
+        }
+
+        /// <summary>
+        /// Take the sqrt of each value in the image.
+        /// </summary>
+        /// <param name="includeAlpha">Should the alpha channel the included.</param>
+        public void Sqrt(bool includeAlpha = false)
+        {
+            Modify(v =>
+            {
+                int channels = includeAlpha ? 4 : 3;
+                for (int i = 0; i < channels; i++)
+                    v[i] = MathUtil.SafeLog10(v[i]);
+
+                return v;
+            });
+        }
+
+        /// <summary>
+        /// Take the log base e of each value in the image.
+        /// </summary>
+        /// <param name="includeAlpha">Should the alpha channel the included.</param>
+        public void Log(bool includeAlpha = false)
+        {
+            Modify(v =>
+            {
+                int channels = includeAlpha ? 4 : 3;
+                for (int i = 0; i < channels; i++)
+                    v[i] = MathUtil.SafeLog(v[i]);
+
+                return v;
+            });
+        }
+
+        /// <summary>
+        /// Take the log of each value in the image using the provided base value of a.
+        /// </summary>
+        /// <param name="a">The base to use.</param>
+        /// <param name="includeAlpha">Should the alpha channel the included.</param>
+        public void Log(float a, bool includeAlpha = false)
+        {
+            Modify(v =>
+            {
+                int channels = includeAlpha ? 4 : 3;
+                for (int i = 0; i < channels; i++)
+                    v[i] = MathUtil.SafeLog(v[i]);
+
+                return v;
+            });
+        }
+
+        /// <summary>
+        /// Take the log base 10 of each value in the image.
+        /// </summary>
+        /// <param name="includeAlpha">Should the alpha channel the included.</param>
+        public void Log10(bool includeAlpha = false)
+        {
+            Modify(v =>
+            {
+                int channels = includeAlpha ? 4 : 3;
+                for(int i = 0; i < channels; i++)
+                    v[i] = MathUtil.SafeLog10(v[i]);
+
+                return v;
+            });
+        }
+
         /// <summary>
         /// Set the channel at index c of each pixel to the value.
         /// </summary>

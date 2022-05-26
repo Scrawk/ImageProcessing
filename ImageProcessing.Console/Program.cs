@@ -24,16 +24,14 @@ namespace ImageProcessing.Console
 
         static void Main(string[] args)
         {
-            var bmp = new Bitmap(FOLDER + "Grass1.bmp");
+            var bmp = new Bitmap(FOLDER + "Coins.png");
             var image = ToImage(bmp).ToGreyScaleImage();
 
-            var dct_forward = GreyScaleImage2D.ForwardDCT(image);
+            var binary = GreyScaleImage2D.MinErrorThreshold(image);
 
-            dct_forward.SaveAsRaw(FOLDER + "forward.raw");
 
-            var dct_inverse = GreyScaleImage2D.InverseDCT(dct_forward);
+            binary.SaveAsRaw(FOLDER + "image.raw");
 
-            dct_inverse.SaveAsRaw(FOLDER + "Spectral.raw");
             WriteLine("Done");
             
         }

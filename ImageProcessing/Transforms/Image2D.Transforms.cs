@@ -37,7 +37,7 @@ namespace ImageProcessing.Images
         public static IMAGE Offset<IMAGE>(IMAGE image, int offsetX, int offsetY)
             where IMAGE : IImage2D, new()
         {
-            var image2 = NewImage<IMAGE>(image.Height, image.Width);
+            var image2 = NewImage<IMAGE>(image.Width, image.Height);
    
             for(int y = 0; y < image.Height; y++)
             {

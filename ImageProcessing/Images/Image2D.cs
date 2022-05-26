@@ -451,9 +451,9 @@ namespace ImageProcessing.Images
         /// <param name="wrap">The wrap mode for out of bounds indices into the image.</param>
         public void Fill(T[,] source, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
-            for (int j = 0; j < source.GetLength(0); j++)
+            for (int j = 0; j < source.GetLength(1); j++)
             {
-                for (int i = 0; i < source.GetLength(1); i++)
+                for (int i = 0; i < source.GetLength(0); i++)
                 {
                     SetValue(x + i, y + j, source[i, j], wrap);
                 }
@@ -470,9 +470,9 @@ namespace ImageProcessing.Images
         /// <param name="wrap">The wrap mode for out of bounds indices into the image.</param>
         public void FillChannel(float[,] source, int channel, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
-            for (int j = 0; j < source.GetLength(0); j++)
+            for (int j = 0; j < source.GetLength(1); j++)
             {
-                for (int i = 0; i < source.GetLength(1); i++)
+                for (int i = 0; i < source.GetLength(0); i++)
                 {
                     SetChannel(x + i, y + j, channel, source[i, j], wrap);
                 }
@@ -739,7 +739,7 @@ namespace ImageProcessing.Images
         /// <returns>A 2D arry fill with the images values.</returns>
         public T[,] ToArray()
         {
-            var array = new T[Height, Width];
+            var array = new T[Width, Height];
 
             for (int y = 0; y < Height; y++)
             {
@@ -759,7 +759,7 @@ namespace ImageProcessing.Images
         /// <returns>A 2D arry fill with the images values.</returns>
         public float[,] ToFloatArray(int channel)
         {
-            var array = new float[Height, Width];
+            var array = new float[Width, Height];
 
             for (int y = 0; y < Height; y++)
             {
@@ -778,7 +778,7 @@ namespace ImageProcessing.Images
         /// <returns>A 2D arry fill with the images values.</returns>
         public float[,,] ToFloatArray()
         {
-            var array = new float[Height, Width, Channels];
+            var array = new float[Width, Height, Channels];
 
             for (int y = 0; y < Height; y++)
             {

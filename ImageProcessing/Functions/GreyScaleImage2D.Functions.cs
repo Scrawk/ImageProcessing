@@ -91,8 +91,39 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Take the sqrt of each value in the image
+        /// Offset and scale each value in the image
         /// with the option of taking the abs value first.
+        /// </summary>
+        /// <param name="offset">The amount to add to the value before appling the function.</param>
+        /// <param name="scale">The amount to scale the result of the function.</param>
+        /// <param name="abs">True to take the abs of the value before appling the function.</param>
+        public void OffsetScale(float offset, float scale, bool abs)
+        {
+            Modify(v =>
+            {
+                v = abs ? Math.Abs(v) : v;
+                return offset + v * scale;
+            });
+        }
+
+        /// <summary>
+        /// Scale then offset each value in the image
+        /// with the option of taking the abs value first.
+        /// </summary>
+        /// <param name="offset">The amount to add to the value before appling the function.</param>
+        /// <param name="scale">The amount to scale the result of the function.</param>
+        /// <param name="abs">True to take the abs of the value before appling the function.</param>
+        public void ScaleOffset(float offset, float scale, bool abs)
+        {
+            Modify(v =>
+            {
+                v = abs ? Math.Abs(v) : v;
+                return offset + v * scale;
+            });
+        }
+
+        /// <summary>
+        /// Take the sqrt of each value in the image.
         /// </summary>
         public void Sqrt()
         {
@@ -103,15 +134,36 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Take the log of each value in the image
-        /// with the option of taking the abs value first.
+        /// Take the log base e of each value in the image.
         /// </summary>
-
         public void Log()
         {
             Modify(v =>
             {
                 return MathUtil.SafeLog(v);
+            });
+        }
+
+        /// <summary>
+        /// Take the log of each value in the image using the provided base value of a.
+        /// </summary>
+        /// <param name="a">The base to use.</param>
+        public void Log(float a)
+        {
+            Modify(v =>
+            {
+                return (float)Math.Log(v, a);
+            });
+        }
+
+        /// <summary>
+        /// Take the log base 10 of each value in the image.
+        /// </summary>
+        public void Log10()
+        {
+            Modify(v =>
+            {
+                return MathUtil.SafeLog10(v);
             });
         }
 

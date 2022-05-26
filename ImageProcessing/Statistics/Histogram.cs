@@ -77,6 +77,16 @@ namespace ImageProcessing.Statistics
         }
 
         /// <summary>
+        /// Array accessor for the bin count.
+        /// </summary>
+        /// <param name="i">The bins index.</param>
+        /// <returns>The bin count at index i.</returns>
+        public int this[int i]
+        {
+            get { return GetBinCount(i); }
+        }
+
+        /// <summary>
         /// Clear the histogram of all data.
         /// </summary>
         public void Clear()
@@ -188,11 +198,61 @@ namespace ImageProcessing.Statistics
         /// <returns>The sum of all the bin sizes.</returns>
         public int BinSum()
         {
-            int length = 0;
+            int sum = 0;
             for (int i = 0; i < Bins.Length; i++)
-                length += Bins[i].Count;
+                sum += Bins[i].Count;
 
-            return length;
+            return sum;
+        }
+
+        /// <summary>
+        /// Calculate the mean of the histogram.
+        /// </summary>
+        /// <returns>The mean of the histogram.</returns>
+        public float Mean()
+        {
+            float mean = 0;
+            int count = 0;
+
+            for (int i = 0; i < Bins.Length; i++)
+            {
+                count += Bins[i].Count;
+                mean += i * Bins[i].Count;
+            }
+  
+            if(count > 0)
+                return mean / count;
+            else
+                return 0;
+        }
+
+        /// <summary>
+        /// Calculate the variance of the histogram.
+        /// </summary>
+        /// <param name="mean">The mean of all the pixels in the bin.</param>
+        /// <returns>The variance of the histogram.</returns>
+        public float Variance(float mean)
+        {
+
+            float v = 0;
+            int count = 0;
+
+            for (int i = 0; i < Bins.Length; i++)
+            {
+                var bin = Bins[i];
+                count += bin.Count;
+  
+                for (int j = 0; j < bin.Count; j++)
+                {
+                    float diff = bin.GetPixel(j).Value - mean;
+                    v += diff * diff;
+                }
+            }
+
+            if (count > 0)
+                return v / count;
+            else
+                return 0;
         }
 
         /// <summary>
