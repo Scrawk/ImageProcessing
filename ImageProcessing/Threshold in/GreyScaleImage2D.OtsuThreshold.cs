@@ -5,6 +5,11 @@ namespace ImageProcessing.Images
       public partial class GreyScaleImage2D
       {
 	
+	      private int[] h = null;
+	private double[] M0 = null;		// table of background means
+	private double[] M1 = null;		// table of foreground means
+	private int N = 0;	
+	      
 	public int getThreshold(Histogram hist) 
         {
 		h = hist;
