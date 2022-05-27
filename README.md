@@ -36,6 +36,16 @@ ColorImage2D blurred = ColorImage2D.GaussianBlur(color_image, 1.0f);
 
 ![lennablur](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaBlur.png)
 
+A images mipmaps can be created as follows. 
+
+```
+
+color_image.CreateMipmaps();
+
+```
+
+![lennamipmaps](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaMipmaps.png)
+
 A images histogram can be created as follows. A histogram can be used to find statistical information from the image and to apply other algorithms like equalization, histogram matching and thresholding. 
 
 The histograms line or bar graph can also be saved as a image for debugging or display purposes.
@@ -46,7 +56,7 @@ Below is a example of a histograms bar graph from the greyscale image.
 var histogram = new Histogram(greyscale_image, 256);
 
 //create the graph with the bars being white in a black background
-var graph = histogram.CreateHistogramBarGraphColorRGBA.White, ColorRGBA.Black);
+var graph = histogram.CreateHistogramBarGraph(ColorRGBA.White, ColorRGBA.Black);
 
 ```
 
