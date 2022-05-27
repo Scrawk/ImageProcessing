@@ -11,6 +11,7 @@ using Common.GraphTheory.GridGraphs;
 
 using ImageProcessing.Images;
 using ImageProcessing.Statistics;
+using ImageProcessing.Thresholding;
 
 using CONSOLE = System.Console;
 
@@ -27,7 +28,7 @@ namespace ImageProcessing.Console
             var bmp = new Bitmap(FOLDER + "Coins.png");
             var image = ToImage(bmp).ToGreyScaleImage();
 
-            var binary = GreyScaleImage2D.MinErrorThreshold(image);
+            var binary = GreyScaleImage2D.Threshold(GLOBAL_THRESHOLD.OTUS, image);
 
 
             binary.SaveAsRaw(FOLDER + "image.raw");

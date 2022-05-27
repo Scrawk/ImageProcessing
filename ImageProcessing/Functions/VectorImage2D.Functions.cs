@@ -34,10 +34,10 @@ namespace ImageProcessing.Images
         /// Scale then offset each value in the image
         /// with the option of taking the abs value first.
         /// </summary>
-        /// <param name="offset">The amount to add to the value before appling the function.</param>
         /// <param name="scale">The amount to scale the result of the function.</param>
+        /// <param name="offset">The amount to add to the value before appling the function.</param>
         /// <param name="abs">True to take the abs of the value before appling the function.</param>
-        public void ScaleOffset(float offset, float scale, bool abs)
+        public void ScaleOffset(float scale, float offset, bool abs)
         {
             Modify(v =>
             {
@@ -54,7 +54,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// Take the sqrt of each value in the image.
         /// </summary>
-        public void Sqrt(bool includeAlpha = false)
+        public void Sqrt()
         {
             Modify(v =>
             {
