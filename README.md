@@ -38,7 +38,7 @@ public enum WRAP_MODE { CLAMP, WRAP, MIRROR, NONE };
 
 float u, v;
 int c, m;
-float wrap = WRAP_MODE.WRAP;
+var wrap = WRAP_MODE.WRAP;
 
 //Get a pixel from the image.
 //GetPixel will always return a ColorRGBA even if the data type of the image is not a color type.
@@ -55,12 +55,34 @@ float value = greyscale_image.GetValue(u, v, wrap);
 
 ```
 
+By default GetPixels will use bilinear interpoltion if normalized uv's are provided. The interpolation method can by changed by using GetPixelsInterpolated.
+
+```
+
+//The interpolation mode options.
+public enum INTERPOLATION
+{
+		BILINEAR,
+		BICUBIC,
+		BSPLINE,
+		LANZCOS,
+		POINT
+}
+
+float u, v;
+var interp = INTERPOLATION.BICUBIC;
+
+//Get a pixel from the image using interpollation
+ColorRGBA pixel = color_image.GetPixelInterpolated(u, v, interp);
+
+```
+
 A images mipmaps can be created as follows and the GetPixelMipmap function can be used to get a pixel from the mipmap.
 
 ```
 float u, v;
 int m;
-float wrap = WRAP_MODE.WRAP;
+var wrap = WRAP_MODE.WRAP;
 
 color_image.CreateMipmaps();
 
@@ -68,6 +90,8 @@ color_image.CreateMipmaps();
 ColorRGBA pixel = color_image.GetPixelMipmap(u, v, m, wrap);
 
 ```
+
+![lennamipmaps](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaMipmaps.png)
 
 Below is a example of a gaussian blur applied to a color image using a sigma value of 1. 
 Other filters are available such as box blur, sharpen and unsharpen.
@@ -79,8 +103,6 @@ ColorImage2D blurred = ColorImage2D.GaussianBlur(color_image, 1.0f);
 ```
 
 ![lennablur](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaBlur.png)
-
-![lennamipmaps](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaMipmaps.png)
 
 A images histogram can be created as follows. A histogram can be used to find statistical information from the image and to apply other algorithms like equalization, histogram matching and thresholding. 
 
