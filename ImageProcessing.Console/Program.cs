@@ -30,19 +30,9 @@ namespace ImageProcessing.Console
             var image = ToImage(bmp);
             var grey = image.ToGreyScaleImage();
 
-            var histo = new Histogram(grey, 256);
+            var rescale = ColorImage2D.Rescale(image, image.Width * 4, image.Height * 4, RESCALE.BICUBIC, WRAP_MODE.CLAMP);
 
-            var colors = new ColorRGBA[]
-            {
-                ColorRGBA.Red,
-                ColorRGBA.Green,
-                ColorRGBA.Blue,
-                ColorRGBA.White
-            };
-
-            var graph = histo.CreateHistogramBarGraph(ColorRGBA.White, ColorRGBA.Black, 256);
-
-            graph.SaveAsRaw(FOLDER + "image.raw");
+            rescale.SaveAsRaw(FOLDER + "image.raw");
 
             WriteLine("Done");
             

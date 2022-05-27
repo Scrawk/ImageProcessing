@@ -451,10 +451,10 @@ namespace ImageProcessing.Images
         /// Creates the images mipmaps.
         /// </summary>
         /// <param name="maxLevel">The max level of mipmaps to create. -1 to ignore</param>
-        /// <param name="mode">The wrap mode to use.</param>
+        /// <param name="wrap">The wrap mode to use.</param>
         /// <param name="method">The interpolation method to use.</param>
         /// <exception cref="ArgumentException">If max levels is not greater than 0.</exception>
-        public override void CreateMipmaps(int maxLevel, WRAP_MODE mode = WRAP_MODE.CLAMP, RESCALE method = RESCALE.BICUBIC)
+        public override void CreateMipmaps(int maxLevel, WRAP_MODE wrap = WRAP_MODE.CLAMP, RESCALE method = RESCALE.BICUBIC)
         {
             if (maxLevel <= 0)
                 throw new ArgumentException($"Max levels ({maxLevel}) must be greater that 0.");
@@ -467,7 +467,7 @@ namespace ImageProcessing.Images
 
             while (min > 1 && levels.Count < maxLevel)
             {
-                image = Rescale(image, image.Width / 2, image.Height / 2, mode, method);
+                image = Rescale(image, image.Width / 2, image.Height / 2, method, wrap);
                 levels.Add(image);
 
                 min = Math.Min(image.Width, image.Height);
