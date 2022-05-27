@@ -10,4 +10,17 @@ Based on the material found in the following books.
 
 [Digital-Image-Processing](https://www.amazon.com.au/Digital-Image-Processing-Rafael-Gonzalez-ebook/dp/B09TB8M315/ref=sr_1_5?crid=3I7WL5T6JOKMF&keywords=digital+image+processing&qid=1652665817&s=books&sprefix=digital+image+processing%2Cstripbooks%2C277&sr=1-5)
 
+The library provides four types of images. Each image type represents a different data type each with its own strengths. Below is a exeample of the creation of each image type.
+
+'''
+var color = new ColorImage2D(width, height);
+
+var greyscale = new GreyScaleImage2D(width, height);
+
+var binary = new BinaryImage2D(width, height);
+
+var vector = new VectorImage2D(width, height);
+
+'''
+
 ![lennablur](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaBlur.png)
