@@ -55,18 +55,19 @@ float value = greyscale_image.GetValue(u, v, wrap);
 
 ```
 
-By default GetPixels will use bilinear interpoltion if normalized uv's are provided. The interpolation method can by changed by using GetPixelsInterpolated.
+By default GetPixels will use bilinear interpolation if normalized uv's are provided. 
+The interpolation method can by changed by using GetPixelsInterpolated.
 
 ```
 
 //The interpolation mode options.
 public enum INTERPOLATION
 {
-		BILINEAR,
-		BICUBIC,
-		BSPLINE,
-		LANZCOS,
-		POINT
+BILINEAR,
+BICUBIC,
+BSPLINE,
+LANZCOS,
+POINT
 }
 
 float u, v;
@@ -76,6 +77,26 @@ var interp = INTERPOLATION.BICUBIC;
 ColorRGBA pixel = color_image.GetPixelInterpolated(u, v, interp);
 
 ```
+
+A image can be rescaled to new smaller or larger size and the interpolation method can be provided.
+Below is a example of a image being rescaled to 4 times its orginal size and using bicubic interpolation.
+
+```
+//The rescale mode options.
+public enum RESCALE
+{
+BILINEAR,
+BICUBIC,
+BSPLINE,
+LANZCOS,
+POINT
+}
+
+image = ColorImage2D.Rescale(image, image.Width * 4, image.Height * 4, RESCALE.BICUBIC);
+
+```
+
+![lennaresize](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaResized.png))
 
 A images mipmaps can be created as follows and the GetPixelMipmap function can be used to get a pixel from the mipmap.
 
