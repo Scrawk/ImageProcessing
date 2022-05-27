@@ -24,6 +24,75 @@ var vector_image = new VectorImage2D(width, height);
 
 ```
 
+The images pixels can be accessed using a varity of functions. If normalized uv coordinates are used then linear interpolation will be used when getting the pixels.
+A optional wrap mode can be provided (default is clamp) which will tell the image how to handle out of bounds indices. If NONE is used then the image will throw a exception in the case of out of bounds indices.
+
+GetPixel will always return a ColorRGBA even if the data type of the image is not a color type. 
+The function GetChannel will return the value for that channel as a float. Each value in a pixel is represented as a float.
+The function GetValue will return the value for the provided indices as the images data type.
+
+```
+
+//The wrap mode options.
+public enum WRAP_MODE { CLAMP, WRAP, MIRROR, NONE };
+
+float u, v;
+int c, m;
+var wrap = WRAP_MODE.WRAP;
+
+//Get a pixel from the image.
+//GetPixel will always return a ColorRGBA even if the data type of the image is not a color type.
+ColorRGBA pixel = greyscale_image.GetPixel(u, v, wrap);
+
+//Get a pixels channel value from the image.
+//GetChannel will always return a float even if the data type of the image is not a float type.
+float channel = greyscale_image.GetChannel(u, v, c, wrap);
+
+//Get a value from the image.
+//GetValue will always return the images data type. 
+//ie ColorRGBA for color images, float for greyscale images and bool for binary images.
+float value = greyscale_image.GetValue(u, v, wrap);
+
+```
+
+By default GetPixels will use bilinear interpoltion if normalized uv's are provided. The interpolation method can by changed by using GetPixelsInterpolated.
+
+```
+
+//The interpolation mode options.
+public enum INTERPOLATION
+{
+		BILINEAR,
+		BICUBIC,
+		BSPLINE,
+		LANZCOS,
+		POINT
+}
+
+float u, v;
+var interp = INTERPOLATION.BICUBIC;
+
+//Get a pixel from the image using interpollation
+ColorRGBA pixel = color_image.GetPixelInterpolated(u, v, interp);
+
+```
+
+A images mipmaps can be created as follows and the GetPixelMipmap function can be used to get a pixel from the mipmap.
+
+```
+float u, v;
+int m;
+var wrap = WRAP_MODE.WRAP;
+
+color_image.CreateMipmaps();
+
+//Get a pixel from the images mipmap at level m.
+ColorRGBA pixel = color_image.GetPixelMipmap(u, v, m, wrap);
+
+```
+
+![lennamipmaps](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaMipmaps.png)
+
 Below is a example of a gaussian blur applied to a color image using a sigma value of 1. 
 Other filters are available such as box blur, sharpen and unsharpen.
 
@@ -33,18 +102,7 @@ ColorImage2D blurred = ColorImage2D.GaussianBlur(color_image, 1.0f);
 
 ```
 
-
 ![lennablur](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaBlur.png)
-
-A images mipmaps can be created as follows. 
-
-```
-
-color_image.CreateMipmaps();
-
-```
-
-![lennamipmaps](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaMipmaps.png)
 
 A images histogram can be created as follows. A histogram can be used to find statistical information from the image and to apply other algorithms like equalization, histogram matching and thresholding. 
 
