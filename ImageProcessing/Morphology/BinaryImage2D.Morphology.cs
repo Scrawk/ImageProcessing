@@ -18,11 +18,16 @@ namespace ImageProcessing.Images
 		/// Open the image by performing a erode followed by a dilate.
 		/// </summary>
 		/// <param name="a"></param>
-		/// <param name="size"></param>
+		/// <param name="size">The size of structure element. Size shoould be at least 3 and a odd number.</param>
 		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
 		public static BinaryImage2D Open(BinaryImage2D a, int size, WRAP_MODE wrap = WRAP_MODE.CLAMP)
 		{
+			//Size shoould be at least 3 and a odd number.
+			size = Math.Min(size, 3);
+			if (size % 2 != 1)
+				size++;
+
 			a = Erode(a, size, wrap);
 			return Dilate(a, size, wrap);
 		}
@@ -44,11 +49,16 @@ namespace ImageProcessing.Images
 		/// Close the image by performing a dilate followed by a erode.
 		/// </summary>
 		/// <param name="a"></param>
-		/// <param name="size"></param>
+		/// <param name="size">The size of structure element. Size shoould be at least 3 and a odd number.</param>
 		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
 		public static BinaryImage2D Close(BinaryImage2D a, int size, WRAP_MODE wrap = WRAP_MODE.CLAMP)
 		{
+			//Size shoould be at least 3 and a odd number.
+			size = Math.Min(size, 3);
+			if (size % 2 != 1)
+				size++;
+
 			a = Dilate(a, size, wrap);
 			return Erode(a, size, wrap);
 		}
@@ -69,6 +79,7 @@ namespace ImageProcessing.Images
 		/// <summary>
 		/// Find the border of all connected blocks of true values in the image.
 		/// </summary>
+		/// <param name="a"></param>
 		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
 		public static BinaryImage2D Border(BinaryImage2D a, WRAP_MODE wrap = WRAP_MODE.CLAMP)
@@ -436,7 +447,6 @@ namespace ImageProcessing.Images
 		/// <param name="a">The source image.</param>
 		/// <param name="b">The structure element.</param>
 		/// <param name="rotate">The element rotation.</param>
-		/// <param name="wrap">The wrap mode.</param>
 		/// <param name="wrap">The wrap mode for out of bounds indices, Defaluts to clamp.</param>
 		/// <returns></returns>
 		private static bool HitAndMiss(int i, int j, BinaryImage2D a, StructureElement2D b, int rotate, WRAP_MODE wrap)

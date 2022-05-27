@@ -25,13 +25,11 @@ namespace ImageProcessing.Console
 
         static void Main(string[] args)
         {
-            var bmp = new Bitmap(FOLDER + "Coins.png");
-            var image = ToImage(bmp).ToGreyScaleImage();
 
-            var binary = GreyScaleImage2D.Threshold(GLOBAL_THRESHOLD.OTUS, image);
+            var bmp = new Bitmap(FOLDER + "lenna.png");
+            var image = ToImage(bmp);
 
-
-            binary.SaveAsRaw(FOLDER + "image.raw");
+            image.SaveAsRaw(FOLDER + "image.raw");
 
             WriteLine("Done");
             
