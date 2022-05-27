@@ -28,8 +28,21 @@ namespace ImageProcessing.Console
 
             var bmp = new Bitmap(FOLDER + "lenna.png");
             var image = ToImage(bmp);
+            var grey = image.ToGreyScaleImage();
 
-            image.SaveAsRaw(FOLDER + "image.raw");
+            var histo = new Histogram(grey, 256);
+
+            var colors = new ColorRGBA[]
+            {
+                ColorRGBA.Red,
+                ColorRGBA.Green,
+                ColorRGBA.Blue,
+                ColorRGBA.White
+            };
+
+            var graph = histo.CreateHistogramBarGraph(ColorRGBA.White, ColorRGBA.Black, 256);
+
+            graph.SaveAsRaw(FOLDER + "image.raw");
 
             WriteLine("Done");
             
