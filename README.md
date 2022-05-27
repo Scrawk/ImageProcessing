@@ -24,7 +24,7 @@ var vector_image = new VectorImage2D(width, height);
 
 ```
 
-Below is a examle of a gaussian blur applied to a color image using a sigma value of 1. 
+Below is a example of a gaussian blur applied to a color image using a sigma value of 1. 
 Other filters are available such as box blur, sharpen and unsharpen.
 
 ```
@@ -35,3 +35,19 @@ ColorImage2D blurred = ColorImage2D.GaussianBlur(color_image, 1.0f);
 
 
 ![lennablur](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaBlur.png)
+
+A images histogram can be created as follows. A histogram can be used to find statistical information from the image and to apply other algorithms like equalization, histogram matching and thresholding. 
+
+The histograms line or bar graph can also be saved as a image for debugging or display purposes.
+Below is a example of a histograms bar graph from the greyscale image.
+
+```
+// create a histogram with 256 bins
+var histogram = new Histogram(greyscale_image, 256);
+
+//create the graph with the bars being white in a black background
+var graph = histogram.CreateHistogramBarGraphColorRGBA.White, ColorRGBA.Black);
+
+```
+
+![lennabarhisto](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaBarHisto.png)
