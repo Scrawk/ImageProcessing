@@ -96,7 +96,7 @@ image = ColorImage2D.Rescale(image, image.Width * 4, image.Height * 4, RESCALE.B
 
 ```
 
-![lennaresize](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaResized.png))
+![lennaresize](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaResized.png)
 
 A images mipmaps can be created as follows and the GetPixelMipmap function can be used to get a pixel from the mipmap.
 If the mipmap level m is provided as a normalized float then bilinear interpolation will be used to interpolate between the mipmap levels.
