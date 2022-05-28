@@ -26,7 +26,7 @@ namespace ImageProcessing.Images
                 for (int i = 0; i < channels; i++)
                 {
                     if (abs) v[i] = Math.Abs(v[i]);
-                    v[i] = offset + v[i] * scale;
+                    v[i] = (v[i] + offset) * scale;
                 }
 
                 return v;

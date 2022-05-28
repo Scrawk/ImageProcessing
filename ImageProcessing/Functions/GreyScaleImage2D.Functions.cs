@@ -102,7 +102,7 @@ namespace ImageProcessing.Images
             Modify(v =>
             {
                 v = abs ? Math.Abs(v) : v;
-                return offset + v * scale;
+                return (v + offset) * scale;
             });
         }
 
