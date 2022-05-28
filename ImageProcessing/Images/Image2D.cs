@@ -10,6 +10,7 @@ using Common.Core.Threading;
 using Common.Core.Extensions;
 
 using ImageProcessing.Pixels;
+using ImageProcessing.Interpolation;
 
 namespace ImageProcessing.Images
 {
@@ -154,6 +155,42 @@ namespace ImageProcessing.Images
         public abstract ColorRGBA GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
+        /// Get a pixel from the image at normalized index u,v.
+        /// </summary>
+        /// <param name="u">The first normalized (0-1) index.</param>
+        /// <param name="v">The second normalized (0-1) index.</param>
+        /// <param name="method">The interpolation method.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The pixel at index x,y.</returns>
+        public ColorRGBA GetPixelInterpolated(float u, float v, INTERPOLATION method, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        {
+            switch (method)
+            {
+                case INTERPOLATION.BILINEAR:
+                    return GetPixelInterpolated(u, v, LinearInterpolation.Default, mode);
+
+                case INTERPOLATION.BICUBIC:
+                    return GetPixelInterpolated(u, v, CubicInterpolation.Default, mode);
+
+                case INTERPOLATION.BSPLINE:
+                    return GetPixelInterpolated(u, v, SplineInterpolation.MitchellNetravli, mode);
+
+                case INTERPOLATION.LANZCOS:
+                    return GetPixelInterpolated(u, v, LanzcosInterpolation.Default4, mode);
+
+                case INTERPOLATION.POINT:
+                    {
+                        int x = (int)(u * (Width - 1));
+                        int y = (int)(v * (Height - 1));
+                        return GetPixel(x, y, mode);
+                    }
+
+                default:
+                    return GetPixelInterpolated(u, v, LinearInterpolation.Default, mode);
+            }
+        }
+
+        /// <summary>
         /// Get a pixel from the image at index x,y.
         /// </summary>
         /// <param name="x">The first index.</param>
@@ -220,6 +257,43 @@ namespace ImageProcessing.Images
         /// <param name="mode">The wrap mode for indices outside image bounds</param>
         /// <returns>The pixels channel at index x,y,c.</returns>
         public abstract float GetChannel(float u, float v, int c, WRAP_MODE mode = WRAP_MODE.CLAMP);
+
+        /// <summary>
+        /// Get a pixels channel value from the image at normalized index u,v.
+        /// </summary>
+        /// <param name="u">The first normalized (0-1) index.</param>
+        /// <param name="v">The second normalized (0-1) index.</param>
+        /// <param name="c">The pixels channel index (0-3).</param>
+        /// <param name="method">The interpolation method.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds</param>
+        /// <returns>The pixels channel at index x,y,c.</returns>
+        public float GetChannelInterpolated(float u, float v, int c, INTERPOLATION method, WRAP_MODE mode = WRAP_MODE.CLAMP)
+        {
+            switch (method)
+            {
+                case INTERPOLATION.BILINEAR:
+                    return GetChannelInterpolated(u, v, c, LinearInterpolation.Default, mode);
+
+                case INTERPOLATION.BICUBIC:
+                    return GetChannelInterpolated(u, v, c, CubicInterpolation.Default, mode);
+
+                case INTERPOLATION.BSPLINE:
+                    return GetChannelInterpolated(u, v, c, SplineInterpolation.MitchellNetravli, mode);
+
+                case INTERPOLATION.LANZCOS:
+                    return GetChannelInterpolated(u, v, c, LanzcosInterpolation.Default4, mode);
+
+                case INTERPOLATION.POINT:
+                    {
+                        int x = (int)(u * (Width - 1));
+                        int y = (int)(v * (Height - 1));
+                        return GetChannel(x, y, c, mode);
+                    }
+
+                default:
+                    return GetChannelInterpolated(u, v, c, LinearInterpolation.Default, mode);
+            }
+        }
 
         /// <summary>
         /// Get a value from the image at index x,y.

@@ -121,6 +121,16 @@ namespace ImageProcessing.Images
         new ColorRGBA GetPixel(float u, float v, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
+        /// Get a pixel from the image at normalized index u,v.
+        /// </summary>
+        /// <param name="u">The first normalized (0-1) index.</param>
+        /// <param name="v">The second normalized (0-1) index.</param>
+        /// <param name="method">The interpolation method.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds.</param>
+        /// <returns>The pixel at index x,y.</returns>
+        ColorRGBA GetPixelInterpolated(float u, float v, INTERPOLATION method, WRAP_MODE mode = WRAP_MODE.CLAMP);
+
+        /// <summary>
         /// Get a pixels channel value from the image at index x,y.
         /// </summary>
         /// <param name="x">The first index.</param>
@@ -139,6 +149,17 @@ namespace ImageProcessing.Images
         /// <param name="mode">The wrap mode for indices outside image bounds</param>
         /// <returns>The pixels channel at index x,y,c.</returns>
         float GetChannel(float u, float v, int c, WRAP_MODE mode = WRAP_MODE.CLAMP);
+
+        /// <summary>
+        /// Get a pixels channel value from the image at normalized index u,v.
+        /// </summary>
+        /// <param name="u">The first normalized (0-1) index.</param>
+        /// <param name="v">The second normalized (0-1) index.</param>
+        /// <param name="c">The pixels channel index (0-3).</param>
+        /// <param name="method">The interpolation method.</param>
+        /// <param name="mode">The wrap mode for indices outside image bounds</param>
+        /// <returns>The pixels channel at index x,y,c.</returns>
+        float GetChannelInterpolated(float u, float v, int c, INTERPOLATION method, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
         /// Set the pixel at index x,y.
