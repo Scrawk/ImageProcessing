@@ -143,11 +143,19 @@ var graph = histogram.CreateHistogramBarGraph(ColorRGBA.White, ColorRGBA.Black);
 ![lennabarhisto](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaBarHisto.png)
 
 
-![]()
+![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsThreshold.png)
 
-![]()
+![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsOpenClose.png)
 
-![]()
+![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsBorder.png)
+
+![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsThinning.png)
+
+![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsDist.png)
+
+![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsDFT.png)
+
+![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsDCT.png)
 
 
 
