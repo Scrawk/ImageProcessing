@@ -141,3 +141,18 @@ var graph = histogram.CreateHistogramBarGraph(ColorRGBA.White, ColorRGBA.Black);
 ```
 
 ![lennabarhisto](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaBarHisto.png)
+
+![coinsthreshold](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsThreshold.png)
+
+![coinsopenclose](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsOpenClose.png)
+
+![]()
+
+![]()
+
+![]()
+
+
+
+
+
