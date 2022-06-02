@@ -142,21 +142,31 @@ var graph = histogram.CreateHistogramBarGraph(ColorRGBA.White, ColorRGBA.Black);
 
 ![lennabarhisto](https://github.com/Scrawk/ImageProcessing/blob/master/Media/lennaBarHisto.png)
 
-
-# TODO
-
+A Image can be converted to a binary image through thresholding. Binary images consist of a single bit per pixel and can have a number morphological algorithms applied to them. Below is a example of a image having Otus thresholding applied. You can see there is still some noise left which can be removed with other methods.
 
 ![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsThreshold.png)
 
+Below is a example of open and close morphological filters being applied to a binary image. You can see this results in most of the noise being removed. Other morphological filters provided are erode, dilate and hit-miss filters.
+
 ![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsOpenClose.png)
+
+Other filters can be used to find the borders of existing sturctures.
 
 ![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsBorder.png)
 
+Below is a example of a morphological filter called thinning that can find the skeleton of existing sturctures.
+
 ![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsThinning.png)
+
+Below is a example of a distance transform where a pixels value represents its distance from the nearest empty pixel.
 
 ![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsDist.png)
 
+Spectral methods can also be applied to a image. Below is a example of a discrete fourier transform being applied to a greyscale image. 
+
 ![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsDFT.png)
+
+Below is a example of a discrete cosine transform being applied to a greyscale image. 
 
 ![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsDCT.png)
 
