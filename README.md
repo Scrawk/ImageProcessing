@@ -150,11 +150,11 @@ Below is a example of open and close morphological filters being applied to a bi
 
 ![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsOpenClose.png)
 
-Other filters can be used to find the borders of existing sturctures.
+Other filters can be used to find the borders of existing structures.
 
 ![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsBorder.png)
 
-Below is a example of a morphological filter called thinning that can find the skeleton of existing sturctures.
+Below is a example of a morphological filter called thinning that can find the skeleton of existing structure.
 
 ![](https://github.com/Scrawk/ImageProcessing/blob/master/Media/CoinsThinning.png)
 
