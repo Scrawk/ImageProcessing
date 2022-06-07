@@ -25,16 +25,6 @@ namespace ImageProcessing.Console
 
         static void Main(string[] args)
         {
-
-            var bmp = new Bitmap(FOLDER + "lenna.png");
-            var image = ToImage(bmp);
-            var grey = image.ToGreyScaleImage();
-
-            var rescale = ColorImage2D.Rescale(image, image.Width * 4, image.Height * 4, RESCALE.BICUBIC, WRAP_MODE.CLAMP);
-
-            rescale.SaveAsRaw(FOLDER + "image.raw");
-
-            WriteLine("Done");
             
         }
 
