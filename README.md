@@ -1,5 +1,7 @@
 A image processing library for personal use.
 
+#Project Layout
+
 The solution consits of three projects as follows.
 
 The ImageProcessing.Console project is used to test code during development and is optional.
@@ -8,17 +10,21 @@ The ImageProcessing.Test project contains the unit tests. The unit tests are add
 
 The ImageProcessing project contains the code to build the required binarys and they can be found in the release or debug folders. In these folders you will find the following dll's which you will need to include in any project you wish to use them.
 
-ImageProcessing.dll
-Common.Core.dll
-Common.Collections.dll
-Common.Geometry.dll
-Common.GraphTheory.dll
+ImageProcessing.dll.
+Common.Core.dll.
+Common.Collections.dll.
+Common.Geometry.dll.
+Common.GraphTheory.dll.
 
 The common code [project](https://github.com/Scrawk/Common) is a dependancy of this project and is the source of the common dll's.
 
 For each dll a xml and pbd file can be found which contains code comments and debugging symbals. Inculding theses files is optional but recommended.
 
+#Build Events
+
 Build events are used to move the dll's to other projects I am currenty working on and this may generate a error when you build the project. The build events can the found under the projects properties->build events->on post build. you will need to delete or edit the events to stop any errors.
+
+#Source Material
 
 Based on the material found in the following books.
 
