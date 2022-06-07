@@ -1,6 +1,6 @@
 A image processing library for personal use.
 
-#Project Layout
+# Project Layout
 
 The solution consits of three projects as follows.
 
@@ -20,11 +20,11 @@ The common code [project](https://github.com/Scrawk/Common) is a dependancy of t
 
 For each dll a xml and pbd file can be found which contains code comments and debugging symbals. Inculding theses files is optional but recommended.
 
-#Build Events
+# Build Events
 
 Build events are used to move the dll's to other projects I am currenty working on and this may generate a error when you build the project. The build events can the found under the projects properties->build events->on post build. you will need to delete or edit the events to stop any errors.
 
-#Source Material
+# Source Material
 
 Based on the material found in the following books.
 
@@ -33,6 +33,8 @@ Based on the material found in the following books.
 [Digital-Image-Processing-Algorithmic-Introduction](https://www.amazon.com/Digital-Image-Processing-Algorithmic-Introduction/dp/1447166833/ref=sr_1_16?crid=HCSOG0YBH0VA&keywords=digital+image+processing+a&qid=1651558586&s=books&sprefix=digital+image+processing+a%2Cstripbooks-intl-ship%2C303&sr=1-16) 
 
 [Digital-Image-Processing](https://www.amazon.com.au/Digital-Image-Processing-Rafael-Gonzalez-ebook/dp/B09TB8M315/ref=sr_1_5?crid=3I7WL5T6JOKMF&keywords=digital+image+processing&qid=1652665817&s=books&sprefix=digital+image+processing%2Cstripbooks%2C277&sr=1-5)
+
+# Usage
 
 The library provides four types of images. Each image type represents a different data type each with its own strengths. Below is a example of the creation of each image type.
 
