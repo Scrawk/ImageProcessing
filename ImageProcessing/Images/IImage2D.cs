@@ -6,21 +6,10 @@ using Common.Core.Colors;
 using Common.Collections.Arrays;
 
 using ImageProcessing.Samplers;
-using ImageProcessing.Pixels;
+using ImageProcessing.IO;
 
 namespace ImageProcessing.Images
 {
-
-    /// <summary>
-    /// Wrap mode options for when sampling a image.
-    /// </summary>
-    public enum WRAP_MODE { CLAMP, WRAP, MIRROR, NONE };
-
-    /// <summary>
-    /// The mode pixels are blended based on there alpha value.
-    /// Only applies to images with a alpha channel.
-    /// </summary>
-    public enum BLEND_MODE { ALPHA, NONE };
 
     /// <summary>
     /// General interface for a 2 dimensional image.
@@ -193,15 +182,6 @@ namespace ImageProcessing.Images
         /// <param name="value">The pixels channel value.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         void SetChannel(int x, int y, int c, float value, WRAP_MODE mode = WRAP_MODE.NONE);
-
-        /// <summary>
-        /// Get the images data as bytes.
-        /// </summary>
-        /// <param name="bitDepth">The bitdepth of the bytes.</param>
-        /// <param name="includeAlpha">Should the alpha channel be included.</param>
-        /// <param name="bigEndian">The endianness if 16 bits.</param>
-        /// <returns></returns>
-        byte[] ToBytes(BIT_DEPTH bitDepth, bool includeAlpha, bool bigEndian = false);
 
         /// <summary>
         /// Add a property to the image. Could be any object.

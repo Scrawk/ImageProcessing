@@ -94,7 +94,7 @@ namespace ImageProcessing.Images
         /// <summary>
         /// The number of channels in the images pixel.
         /// </summary>
-        public override int Channels => 3;
+        public override int Channels => 4;
 
         /// <summary>
         /// The number of mipmap levels in image.

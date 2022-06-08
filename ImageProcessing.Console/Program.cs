@@ -12,6 +12,7 @@ using Common.GraphTheory.GridGraphs;
 using ImageProcessing.Images;
 using ImageProcessing.Statistics;
 using ImageProcessing.Thresholding;
+using ImageProcessing.IO;
 
 using CONSOLE = System.Console;
 
@@ -28,11 +29,11 @@ namespace ImageProcessing.Console
 
             var bmp = new Bitmap(FOLDER + "lenna.png");
             var image = ToImage(bmp);
-            var grey = image.ToGreyScaleImage();
 
-            var rescale = ColorImage2D.Rescale(image, image.Width * 4, image.Height * 4, RESCALE.BICUBIC, WRAP_MODE.CLAMP);
+            var param = new TGAParams(PIXEL_FORMAT_IO.RGB);
+            param.RLE = true;
 
-            rescale.SaveAsRaw(FOLDER + "image.raw");
+            ReadWriteTGA.Write(image, "C:/Users/Justin/OneDrive/Desktop/lenna.tga", param);
 
             WriteLine("Done");
             
