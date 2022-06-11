@@ -26,7 +26,7 @@ namespace ImageProcessing.Console
 
         static void Main(string[] args)
         {
-
+            /*
             var bmp = new Bitmap(FOLDER + "lenna.png");
             var image = ToImage(bmp);
 
@@ -36,7 +36,7 @@ namespace ImageProcessing.Console
             ReadWriteTGA.Write(image, "C:/Users/Justin/OneDrive/Desktop/lenna.tga", param);
 
             WriteLine("Done");
-            
+            */
         }
 
         private static ColorImage2D ToImage(Bitmap bm)
