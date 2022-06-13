@@ -8,8 +8,4 @@ using Common.Core.Shapes;
 namespace ImageProcessing.Images
 {
 
-	public partial class ColorImage2D
-	{
-
-	}
 }

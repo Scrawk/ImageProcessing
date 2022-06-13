@@ -21,10 +21,6 @@ namespace ImageProcessing.Images
     public abstract partial class Image2D<T> : IImage2D
     {
 
-        /// <summary>
-        /// The number of elements in the array.
-        /// </summary>
-        public abstract int Count { get; }
 
         /// <summary>
         /// The size of the arrays 1st dimention.
@@ -597,11 +593,26 @@ namespace ImageProcessing.Images
         /// 
         /// </summary>
         /// <param name="source"></param>
+        public void Fill(IData2D source)
+        {
+            for (int y = 0; y < source.Height; y++)
+            {
+                for (int x = 0; x < source.Width; x++)
+                {
+                    SetPixel(x, y, source.GetPixel(x,y));
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="image_wrap">The wrap mode for indices outside image bounds.</param>
         /// <param name="source_wrap">The wrap mode for indices outside source bounds.</param>
-        public void Fill(Image2D<T> source, int x = 0, int y = 0, WRAP_MODE image_wrap = WRAP_MODE.CLAMP, WRAP_MODE source_wrap = WRAP_MODE.CLAMP)
+        public void Fill(IImage2D source, int x = 0, int y = 0, WRAP_MODE image_wrap = WRAP_MODE.CLAMP, WRAP_MODE source_wrap = WRAP_MODE.CLAMP)
         {
             for (int j = 0; j < source.Height; j++)
             {
@@ -619,7 +630,7 @@ namespace ImageProcessing.Images
         /// <param name="bounds"></param>
         /// <param name="image_wrap">The wrap mode for indices outside image bounds.</param>
         /// <param name="source_wrap">The wrap mode for indices outside source bounds.</param>
-        public void Fill(Image2D<T> source, Box2i bounds, WRAP_MODE image_wrap = WRAP_MODE.CLAMP, WRAP_MODE source_wrap = WRAP_MODE.CLAMP)
+        public void Fill(IImage2D source, Box2i bounds, WRAP_MODE image_wrap = WRAP_MODE.CLAMP, WRAP_MODE source_wrap = WRAP_MODE.CLAMP)
         {
             for (int y = bounds.Min.y, yy = 0; y < bounds.Max.y; yy++, y++)
             {

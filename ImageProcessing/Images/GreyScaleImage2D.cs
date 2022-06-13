@@ -74,11 +74,6 @@ namespace ImageProcessing.Images
         private GreyScaleImage2D[] Mipmaps { get; set; }
 
         /// <summary>
-        /// The number of elements in the array.
-        /// </summary>
-        public override int Count => Data.Length;
-
-        /// <summary>
         /// The size of the arrays 1st dimention.
         /// </summary>
         public override int Width => Data.GetLength(0);
