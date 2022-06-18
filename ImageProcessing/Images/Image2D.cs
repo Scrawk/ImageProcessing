@@ -1174,7 +1174,7 @@ namespace ImageProcessing.Images
         /// <param name="filename"></param>
         public void ReadTGA(string filename)
         {
-            //ReadWriteTGA.Read(this, filename);
+            ReadWriteTGA.Read(this, filename);
         }
 
         /// <summary>

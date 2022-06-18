@@ -31,18 +31,20 @@ namespace ImageProcessing.Console
         {
             //BenchmarkRunner.Run<BenchMarkTest>();
 
-            var bmp = new Bitmap(TEST_FOLDER + "PNG/lenna_poster.png");
-            var image = ToImage(bmp);
+            //var bmp = new Bitmap(TEST_FOLDER + "PNG/lenna_poster.png");
+            //var image = ToImage(bmp);
 
-            //var image = ReadWriteTGA.Read(TEST_FOLDER + "TGA/lenna_24_ps.tga");
+            /*
+            var image = new ColorImage2D();
+            image.ReadTGA(TEST_FOLDER + "TGA/lenna_24_ps.tga");
 
             var param3 = TGAParams.Default;
             param3.Format = PIXEL_FORMAT_IO.BGR;
             param3.FlipY = true;
             param3.RLE = true;
 
-            ReadWriteTGA.Write(image, DESKTOP + "lenna_test.tga", param3);
-
+            image.WriteTGA(DESKTOP + "lenna_test.tga", param3);
+            */
         }
 
         public class BenchMarkTest

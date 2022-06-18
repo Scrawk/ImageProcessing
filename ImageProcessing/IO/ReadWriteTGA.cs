@@ -108,9 +108,41 @@ namespace ImageProcessing.IO
 
         private const int HEADER_BYTES = 18;
 
-        public static ColorImage2D Read(string filename)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="filename"></param>
+        public static void Read(IImage2D image, string filename)
         {
-            ColorImage2D image = null;
+            if (!filename.EndsWith(".tga"))
+                filename += ".tga";
+
+            using (FileStream file = new FileStream(filename, FileMode.Open))
+            {
+                var header = ReadHeader(file);
+                var pixels = ReadPixels(file, header);
+
+                if (pixels != null)
+                {
+                    image.Resize(header.Width, header.Height);
+                    image.Fill(pixels);
+                }
+
+                file.Close();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="IMAGE"></typeparam>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        public static IMAGE Read<IMAGE>(string filename)
+            where IMAGE : IImage2D, new()
+        {
+            IMAGE image = new IMAGE();
 
             if (!filename.EndsWith(".tga"))
                 filename += ".tga";
@@ -122,7 +154,7 @@ namespace ImageProcessing.IO
 
                 if(pixels != null)
                 {
-                    image = new ColorImage2D(header.Width, header.Height);  
+                    image.Resize(header.Width, header.Height);  
                     image.Fill(pixels); 
                 }
 
@@ -132,7 +164,12 @@ namespace ImageProcessing.IO
             return image;
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="filename"></param>
+        /// <param name="param"></param>
         public static void Write(IImage2D image, string filename, TGAParams param)
         {
             if (image == null)
@@ -140,7 +177,6 @@ namespace ImageProcessing.IO
 
             if (!filename.EndsWith(".tga"))
                 filename += ".tga";
-
 
             using (FileStream file = new FileStream(filename, FileMode.Create))
             {
@@ -240,6 +276,7 @@ namespace ImageProcessing.IO
             byte[] short_bytes = new byte[2];
 
             int bits_per_pixel = header.BitsPerPixel;
+            int image_type = header.ImageType;
             bool is_RLE = false;
             bool is_indexed = header.Indexed != 0;
             bool is_grey = !is_indexed && header.ImageType == 3;
@@ -248,29 +285,20 @@ namespace ImageProcessing.IO
             int width = header.Width;
             int height = header.Height;
 
-            if (header.ImageType >= 8)
+            if (image_type >= 8)
             {
-                header.ImageType -= 8;
+                image_type -= 8;
                 is_RLE = true;
             }
 
             if (is_indexed)
-            {
-                Console.WriteLine("Indexed TGA not supported.");
-                return null;
-            }
+                throw new InvalidOperationException("Indexed TGA not supported.");
 
             if (comp == 0)  
-            {
-                Console.WriteLine("Can't find out TGA pixelformat");
-                return null;
-            }
+                throw new InvalidOperationException("Can't find TGA pixelformat");
 
             if (width <= 0 || height <= 0)
-            {
-                Console.WriteLine("Invald size");
-                return null;
-            }
+                throw new InvalidOperationException("Invald size");
 
             file.Seek(HEADER_BYTES, SeekOrigin.Begin);
 
@@ -332,6 +360,8 @@ namespace ImageProcessing.IO
                     {
                         for (int j = 0; j < comp; ++j)
                             pixel[j] = (byte)file.ReadByte();
+
+                        pixel.a = 255;
                     }
 
                     read_next_pixel = 0;
