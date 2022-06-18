@@ -11,6 +11,7 @@ using Common.Core.Extensions;
 
 using ImageProcessing.Pixels;
 using ImageProcessing.Interpolation;
+using ImageProcessing.IO;
 
 namespace ImageProcessing.Images
 {
@@ -1094,6 +1095,46 @@ namespace ImageProcessing.Images
         public void ClearProperties()
         {
             Properties = null;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="param"></param>
+        public void ReadRAW(string filename, RawParams param)
+        {
+            ReadWriteRaw.Read(this, filename, param);   
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="param"></param>
+        public void WriteRAW(string filename, RawParams param)
+        {
+            ReadWriteRaw.Write(this, filename, param);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="param"></param>
+        public void ReadTGA(string filename, TGAParams param)
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="param"></param>
+        public void WriteTGA(string filename, TGAParams param)
+        {
+            ReadWriteTGA.Write(this, filename, param);
         }
 
 

@@ -15,7 +15,6 @@ namespace ImageProcessing.IO
         public bool BigEndian;
         public bool FlipY;
 
-
         public RawParams(BIT_DEPTH bitDepth)
         {
             BitDepth = bitDepth;

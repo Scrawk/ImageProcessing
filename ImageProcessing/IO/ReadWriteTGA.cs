@@ -47,38 +47,50 @@ namespace ImageProcessing.IO
     }
 
     [Serializable]
-    //[StructLayout(LayoutKind.Explicit)]
+    [StructLayout(LayoutKind.Explicit)]
     internal struct TGAHeader
     {
-        public byte offset;
-        public byte indexed;
-        public byte image_type;
-        public byte palette_start0;
-        public byte palette_start1;
-        public byte palette_len0;
-        public byte palette_len1;
-        public byte palette_bits;
-        public byte x_origin0;
-        public byte x_origin1;
-        public byte y_origin0;
-        public byte y_origin1;
-        public byte width0;
-        public byte width1;
-        public byte height0;
-        public byte height1;
-        public byte bits_per_pixel;
-        public byte inverted;
+        [FieldOffset(0)] public byte Offset;
+        [FieldOffset(1)] public byte Indexed;
+        [FieldOffset(2)] public byte ImageType;
+        [FieldOffset(3)] public byte PaletteStart0;
+        [FieldOffset(4)] public byte PaletteStart1;
+        [FieldOffset(5)] public byte PaletteLen0;
+        [FieldOffset(6)] public byte PaletteLen1;
+        [FieldOffset(7)] public byte PaletteBits;
+        [FieldOffset(8)] public byte XOrigin0;
+        [FieldOffset(9)] public byte XOrigin1;
+        [FieldOffset(10)] public byte YOrigin0;
+        [FieldOffset(11)] public byte YOrigin1;
+        [FieldOffset(12)] public byte Width0;
+        [FieldOffset(13)] public byte Width1;
+        [FieldOffset(14)] public byte Height0;
+        [FieldOffset(15)] public byte Height1;
+        [FieldOffset(16)] public byte BitsPerPixel;
+        [FieldOffset(17)] public byte Inverted;
 
-        public short Width => BitConverter.ToInt16(new byte[] { width0, width1 }, 0);
+        [FieldOffset(3)]
+        public short PaletteStart;
 
-        public short Height => BitConverter.ToInt16(new byte[] { height0, height1 }, 0);
+        [FieldOffset(5)]
+        public short PaletteLen;
 
-        public short PaletteLen => BitConverter.ToInt16(new byte[] { palette_len0, palette_len1 }, 0);
+        [FieldOffset(8)]
+        public short XOrigin;
+
+        [FieldOffset(10)]
+        public short YOrigin;
+
+        [FieldOffset(12)]
+        public short Width;
+
+        [FieldOffset(14)]
+        public short Height;
 
         public override string ToString()
         {
             return string.Format("[TGAHeader: Widtht={0}, Height={1}, ImageType={2}, Indexed={3}, BitsPerPixel={4}, Inverted={5}]",
-                Width, Height, image_type, indexed, bits_per_pixel, inverted);
+                Width, Height, ImageType, Indexed, BitsPerPixel, Inverted);
         }
     }
 
@@ -99,6 +111,9 @@ namespace ImageProcessing.IO
         public static ColorImage2D Read(string filename)
         {
             ColorImage2D image = null;
+
+            if (!filename.EndsWith(".tga"))
+                filename += ".tga";
 
             using (FileStream file = new FileStream(filename, FileMode.Open))
             {
@@ -122,6 +137,9 @@ namespace ImageProcessing.IO
         {
             if (image == null)
                 return;
+
+            if (!filename.EndsWith(".tga"))
+                filename += ".tga";
 
             if (!param.RLE)
             {
@@ -282,33 +300,30 @@ namespace ImageProcessing.IO
             var header_bytes = new Byte[HEADER_BYTES];
 
             int read_bytes = file.Read(header_bytes, 0, header_bytes.Length);
-
             if (read_bytes != HEADER_BYTES)
-            {
-                return header;
-            }
+                throw new InvalidOperationException("Failed to read header bytes.");
 
-            header.offset = header_bytes[0];
-            header.indexed = header_bytes[1];
-            header.image_type = header_bytes[2];
-            header.palette_start0 = header_bytes[3];
-            header.palette_start1 = header_bytes[4];
-            header.palette_len0 = header_bytes[5];
-            header.palette_len1 = header_bytes[6];
-            header.palette_bits = header_bytes[7];
-            header.x_origin0 = header_bytes[8];
-            header.x_origin1 = header_bytes[9];
-            header.y_origin0 = header_bytes[10];
-            header.y_origin1 = header_bytes[11];
-            header.width0 = header_bytes[12];
-            header.width1 = header_bytes[13];
-            header.height0 = header_bytes[14];
-            header.height1 = header_bytes[15];
-            header.bits_per_pixel = header_bytes[16];
+            header.Offset = header_bytes[0];
+            header.Indexed = header_bytes[1];
+            header.ImageType = header_bytes[2];
+            header.PaletteStart0 = header_bytes[3];
+            header.PaletteStart1 = header_bytes[4];
+            header.PaletteLen0 = header_bytes[5];
+            header.PaletteLen1 = header_bytes[6];
+            header.PaletteBits = header_bytes[7];
+            header.XOrigin0 = header_bytes[8];
+            header.XOrigin1 = header_bytes[9];
+            header.YOrigin0 = header_bytes[10];
+            header.YOrigin1 = header_bytes[11];
+            header.Width0 = header_bytes[12];
+            header.Width1 = header_bytes[13];
+            header.Height0 = header_bytes[14];
+            header.Height1 = header_bytes[15];
+            header.BitsPerPixel = header_bytes[16];
 
             //Photoshop seems to presume image is always inverted
             //header.inverted = header_bytes[17];
-            header.inverted = 1;
+            header.Inverted = 1;
 
             return header;
         }
@@ -362,18 +377,18 @@ namespace ImageProcessing.IO
         {
             byte[] short_bytes = new byte[2];
 
-            int bits_per_pixel = header.bits_per_pixel;
+            int bits_per_pixel = header.BitsPerPixel;
             bool is_RLE = false;
-            bool is_indexed = header.indexed != 0;
-            bool is_grey = !is_indexed && header.image_type == 3;
+            bool is_indexed = header.Indexed != 0;
+            bool is_grey = !is_indexed && header.ImageType == 3;
             bool rgb16 = (bits_per_pixel == 15 || bits_per_pixel == 16) && !is_grey;
             int comp = GetComp(bits_per_pixel, is_grey);
             int width = header.Width;
             int height = header.Height;
 
-            if (header.image_type >= 8)
+            if (header.ImageType >= 8)
             {
-                header.image_type -= 8;
+                header.ImageType -= 8;
                 is_RLE = true;
             }
 
@@ -470,7 +485,7 @@ namespace ImageProcessing.IO
                 --RLE_count;
             }
            
-            if (header.inverted != 0)
+            if (header.Inverted != 0)
             {
                 for (int j = 0; j * 2 < height; ++j)
                 {
@@ -515,34 +530,6 @@ namespace ImageProcessing.IO
             }
 
             return 0;
-        }
-
-        private static int stbi__getn(FileStream file, byte[] bytes, int row, int n)
-        {
-            //int blen = (int)(s->img_buffer_end - s->img_buffer);
-
-            //if (blen < n)
-            {
-                int res = 0;
-                int count = 0;
-
-                //memcpy(buffer, s->img_buffer, blen);
-
-                //count = (s->io.read)(s->io_user_data, (char*)buffer + blen, n - blen);
-                //res = (count == (n - blen));
-                //s->img_buffer = s->img_buffer_end;
-
-                return res;
-            }
-
-            //if (s->img_buffer + n <= s->img_buffer_end)
-            {
-                //memcpy(buffer, s->img_buffer, n);
-                //s->img_buffer += n;
-                return 1;
-            }
-            //else
-            //    return 0;
         }
 
         private static void WritePixels(FileStream file, IImage2D image, TGAParams param)

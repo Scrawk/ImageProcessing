@@ -209,5 +209,33 @@ namespace ImageProcessing.Images
         /// </summary>
         void ClearProperties();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="param"></param>
+        void ReadRAW(string filename, RawParams param);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="param"></param>
+        void WriteRAW(string filename, RawParams param);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="param"></param>
+        void ReadTGA(string filename, TGAParams param);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="param"></param>
+        void WriteTGA(string filename, TGAParams param);
+
     }
 }

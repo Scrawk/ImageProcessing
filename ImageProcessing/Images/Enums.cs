@@ -35,7 +35,7 @@ namespace ImageProcessing.Images
     };
 
     /// <summary>
-    /// The format of a pixel is how the channels are layed ouy.
+    /// The format of a pixel is how the channels are layed out.
     /// This format is restricted to what form should be used 
     /// when saving/loading the pixels data from a file.
     /// </summary>
