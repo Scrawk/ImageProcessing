@@ -500,6 +500,20 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// Fill the array with the pixel.
+        /// </summary>
+        public void Fill(ColorRGBA value)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    SetPixel(x, y, value);
+                }
+            }
+        }
+
+        /// <summary>
         /// Fill the array with the value.
         /// </summary>
         public void Fill(T value)
@@ -509,6 +523,62 @@ namespace ImageProcessing.Images
                 for (int x = 0; x < Width; x++)
                 {
                     this[x, y] = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <exception cref="ArgumentException"></exception>
+        public void Fill(ColorRGBA[] source)
+        {
+            if (Width * Height != source.Length)
+                throw new ArgumentException("The image and the source array must be the same size.");
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    SetPixel(x, y, source[x + y * Width]);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <exception cref="ArgumentException"></exception>
+        public void Fill(T[] source)
+        {
+            if (Width * Height != source.Length)
+                throw new ArgumentException("The image and the source array must be the same size.");
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    this[x, y] = source[x + y * Width];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Fill the image from a array.
+        /// </summary>
+        /// <param name="source">The array to fill from.</param>
+        /// <param name="x">The x index to start filling image from.</param>
+        /// <param name="y">The y index to start filling image from.</param>
+        /// <param name="wrap">The wrap mode for out of bounds indices into the image.</param>
+        public void Fill(ColorRGBA[,] source, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
+        {
+            for (int j = 0; j < source.GetLength(1); j++)
+            {
+                for (int i = 0; i < source.GetLength(0); i++)
+                {
+                    SetPixel(x + i, y + j, source[i, j], wrap);
                 }
             }
         }
@@ -575,51 +645,16 @@ namespace ImageProcessing.Images
         /// 
         /// </summary>
         /// <param name="source"></param>
-        /// <exception cref="ArgumentException"></exception>
-        public void Fill(T[] source)
-        {
-            if (Width * Height != source.Length)
-                throw new ArgumentException("The image and the source array must be the same size.");
-
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    this[x, y] = source[x + y * Width];
-                }
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="source"></param>
-        public void Fill(IData2D source)
-        {
-            for (int y = 0; y < source.Height; y++)
-            {
-                for (int x = 0; x < source.Width; x++)
-                {
-                    SetPixel(x, y, source.GetPixel(x,y));
-                }
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="source"></param>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        /// <param name="image_wrap">The wrap mode for indices outside image bounds.</param>
-        /// <param name="source_wrap">The wrap mode for indices outside source bounds.</param>
-        public void Fill(IImage2D source, int x = 0, int y = 0, WRAP_MODE image_wrap = WRAP_MODE.CLAMP, WRAP_MODE source_wrap = WRAP_MODE.CLAMP)
+        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
+        public void Fill(IImage2D source, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP)
         {
             for (int j = 0; j < source.Height; j++)
             {
                 for (int i = 0; i < source.Width; i++)
                 {
-                    SetPixel(x + i, y + j, source.GetPixel(i, j, source_wrap), image_wrap);
+                    SetPixel(x + i, y + j, source.GetPixel(i, j), wrap);
                 }
             }
         }
@@ -643,8 +678,24 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Fill the array with the value from the function.
+        /// Fill the image with the value from the function.
         /// </summary>
+        /// <param name="func">The function that creates the pixels.</param>
+        public void Fill(Func<int, int, ColorRGBA> func)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    SetPixel(x, y, func(x, y));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Fill the image with the value from the function.
+        /// </summary>
+        /// <param name="func">The function that creates the pixels.</param>
         public void Fill(Func<int, int, T> func)
         {
             for (int y = 0; y < Height; y++)
@@ -1121,10 +1172,9 @@ namespace ImageProcessing.Images
         /// 
         /// </summary>
         /// <param name="filename"></param>
-        /// <param name="param"></param>
-        public void ReadTGA(string filename, TGAParams param)
+        public void ReadTGA(string filename)
         {
-
+            //ReadWriteTGA.Read(this, filename);
         }
 
         /// <summary>

@@ -141,157 +141,19 @@ namespace ImageProcessing.IO
             if (!filename.EndsWith(".tga"))
                 filename += ".tga";
 
-            if (!param.RLE)
+
+            using (FileStream file = new FileStream(filename, FileMode.Create))
             {
-                using (FileStream file = new FileStream(filename, FileMode.Create))
-                {
-                    WriteHeader(file, image, param);
+                WriteHeader(file, image, param);
+
+                if(param.RLE)
+                    WritePixelsRLE(file, image, param);
+                else
                     WritePixels(file, image, param);
-                    file.Close();
-                }
-            }
-            else
-            {
-                using (FileStream file = new FileStream(filename, FileMode.Create))
-                {
-                    int width = image.Width;
-                    int height = image.Height;
-                    int channels = image.Channels;
-                    int format_channels = EnumUtil.Channels(param.Format);
-                    bool hasAlpha = EnumUtil.HasAlpha(param.Format);    
 
-                    int i, j, k;
-                    int jend, jdir;
-                    var pixel = new byte[] { 0, 0, 0, 255 };
-
-                    WriteHeader(file, image, param);
-
-                    var raw_param = new RawParams();
-                    raw_param.BitDepth = BIT_DEPTH.B8;
-                    raw_param.FlipY = false;
-
-                    var bytes = ReadWriteRaw.ToBytes(image, raw_param);
-
-                    if (!param.FlipY)
-                    {
-                        j = 0;
-                        jend = height;
-                        jdir = 1;
-                    }
-                    else
-                    {
-                        j = height - 1;
-                        jend = -1;
-                        jdir = -1;
-                    }
-
-                    for (; j != jend; j += jdir)
-                    {
-                        int row = j * width * channels;
-                        int len;
-
-                        for (i = 0; i < width; i += len)
-                        {
-                            int begin = row + i * channels;
-                            int diff = 1;
-                            len = 1;
-
-                            if (i < width - 1)
-                            {
-                                ++len;
-                                diff = memcmp(bytes, begin, row + (i + 1) * channels, channels);
-
-                                if (diff == 1)
-                                {
-                                    int prev = begin;
-                                    for (k = i + 2; k < width && len < 128; ++k)
-                                    {
-                                        if (memcmp(bytes, prev, row + k * channels, channels) != 0)
-                                        {
-                                            prev += channels;
-                                            ++len;
-                                        }
-                                        else
-                                        {
-                                            --len;
-                                            break;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    for (k = i + 2; k < width && len < 128; ++k)
-                                    {
-                                        if (memcmp(bytes, begin, row + k * channels, channels) == 0)
-                                        {
-                                            ++len;
-                                        }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (diff == 1)
-                            {
-                                byte header = (byte)((len - 1) & 255);
-                                file.WriteByte(header);
-
-                                for (k = 0; k < len; ++k)
-                                {
-                                    for (int c = 0; c < 3; ++c)
-                                    {
-                                        int C = Math.Min(channels - 1, c);
-                                        pixel[c] = bytes[(begin + k * channels) + C];
-                                    }
-
-                                    if (hasAlpha)
-                                        pixel[3] = bytes[(begin + k * channels) + (channels-1)];
-
-                                    WritePixel(file, param.Format, pixel);
-                                }
-                            }
-                            else
-                            {
-                                byte header = (byte)((len - 129) & 255);
-                                file.WriteByte(header);
-
-                                for (int c = 0; c < 3; ++c)
-                                {
-                                    int C = Math.Min(channels - 1, c);
-                                    pixel[c] = bytes[begin + C];
-                                }
-
-                                if (hasAlpha)
-                                    pixel[3] = bytes[begin + (channels - 1)];
-
-                                WritePixel(file, param.Format, pixel);
-                            }
-                        }
-                    }
-
-                    file.Close();
-                }
-
+                file.Close();
             }
 
-        }
-
-        private static int memcmp(byte[] bytes, int ptr1, int ptr2, int count)
-        {
-            for(int i = 0; i < count; i++)
-            {
-                int b1 = bytes[ptr1 + i];
-                int b2 = bytes[ptr2 + i];
-
-                int n = MathUtil.Clamp(b1 - b2, -1, 1);
-                if (n != 0)
-                    return n;   
-            }
-
-            return 0;
         }
 
         private static TGAHeader ReadHeader(FileStream file)
@@ -555,6 +417,140 @@ namespace ImageProcessing.IO
                     WritePixel(file, param.Format, bytes);
                 }
             }
+        }
+
+        private static void WritePixelsRLE(FileStream file, IImage2D image, TGAParams param)
+        {
+            int width = image.Width;
+            int height = image.Height;
+            int channels = image.Channels;
+            //int format_channels = EnumUtil.Channels(param.Format);
+            bool hasAlpha = EnumUtil.HasAlpha(param.Format);
+
+            int i, j, k;
+            int jend, jdir;
+            var pixel = new byte[] { 0, 0, 0, 255 };
+
+            var raw_param = new RawParams();
+            raw_param.BitDepth = BIT_DEPTH.B8;
+            raw_param.FlipY = false;
+
+            var bytes = ReadWriteRaw.ToBytes(image, raw_param);
+
+            if (!param.FlipY)
+            {
+                j = 0;
+                jend = height;
+                jdir = 1;
+            }
+            else
+            {
+                j = height - 1;
+                jend = -1;
+                jdir = -1;
+            }
+
+            for (; j != jend; j += jdir)
+            {
+                int row = j * width * channels;
+                int len;
+
+                for (i = 0; i < width; i += len)
+                {
+                    int begin = row + i * channels;
+                    int diff = 1;
+                    len = 1;
+
+                    if (i < width - 1)
+                    {
+                        ++len;
+                        diff = memcmp(bytes, begin, row + (i + 1) * channels, channels);
+
+                        if (diff == 1)
+                        {
+                            int prev = begin;
+                            for (k = i + 2; k < width && len < 128; ++k)
+                            {
+                                if (memcmp(bytes, prev, row + k * channels, channels) != 0)
+                                {
+                                    prev += channels;
+                                    ++len;
+                                }
+                                else
+                                {
+                                    --len;
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (k = i + 2; k < width && len < 128; ++k)
+                            {
+                                if (memcmp(bytes, begin, row + k * channels, channels) == 0)
+                                {
+                                    ++len;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (diff == 1)
+                    {
+                        byte header = (byte)((len - 1) & 255);
+                        file.WriteByte(header);
+
+                        for (k = 0; k < len; ++k)
+                        {
+                            for (int c = 0; c < 3; ++c)
+                            {
+                                int C = Math.Min(channels - 1, c);
+                                pixel[c] = bytes[(begin + k * channels) + C];
+                            }
+
+                            if (hasAlpha)
+                                pixel[3] = bytes[(begin + k * channels) + (channels - 1)];
+
+                            WritePixel(file, param.Format, pixel);
+                        }
+                    }
+                    else
+                    {
+                        byte header = (byte)((len - 129) & 255);
+                        file.WriteByte(header);
+
+                        for (int c = 0; c < 3; ++c)
+                        {
+                            int C = Math.Min(channels - 1, c);
+                            pixel[c] = bytes[begin + C];
+                        }
+
+                        if (hasAlpha)
+                            pixel[3] = bytes[begin + (channels - 1)];
+
+                        WritePixel(file, param.Format, pixel);
+                    }
+                }
+            }
+        }
+
+        private static int memcmp(byte[] bytes, int ptr1, int ptr2, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                int b1 = bytes[ptr1 + i];
+                int b2 = bytes[ptr2 + i];
+
+                int n = MathUtil.Clamp(b1 - b2, -1, 1);
+                if (n != 0)
+                    return n;
+            }
+
+            return 0;
         }
 
         private static void WritePixel(FileStream file, PIXEL_FORMAT_IO format, byte[] pixel)

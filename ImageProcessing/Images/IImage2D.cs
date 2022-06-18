@@ -212,30 +212,48 @@ namespace ImageProcessing.Images
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="param"></param>
-        void ReadRAW(string filename, RawParams param);
+        /// <param name="pixel"></param>
+        void Fill(ColorRGBA pixel);
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="param"></param>
-        void WriteRAW(string filename, RawParams param);
+        /// <param name="source"></param>
+        void Fill(ColorRGBA[] source);
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="param"></param>
-        void ReadTGA(string filename, TGAParams param);
+        /// <param name="source"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="wrap"></param>
+        void Fill(ColorRGBA[,] source, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP);
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="param"></param>
-        void WriteTGA(string filename, TGAParams param);
+        /// <param name="source"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="wrap"></param>
+        void Fill(IImage2D source, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP);
+
+        /// <summary>
+        /// Fill the images channel from a array.
+        /// </summary>
+        /// <param name="source">The array to fill from.</param>
+        /// <param name="channel">The channel to fill.</param>
+        /// <param name="x">The x index to start filling image from.</param>
+        /// <param name="y">The y index to start filling image from.</param>
+        /// <param name="wrap">The wrap mode for out of bounds indices into the image.</param>
+        void FillChannel(float[,] source, int channel, int x = 0, int y = 0, WRAP_MODE wrap = WRAP_MODE.CLAMP);
+
+        /// <summary>
+        /// Fill the image with the value from the function.
+        /// </summary>
+        /// <param name="func">The function that creates the pixels.</param>
+        void Fill(Func<int, int, ColorRGBA> func);
 
     }
 }

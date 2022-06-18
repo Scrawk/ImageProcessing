@@ -46,20 +46,6 @@ namespace ImageProcessing.IO
 
     internal static class ReadWriteRaw
     {
-        /// <summary>
-        /// Save the image as raw bytes.
-        /// </summary>
-        /// <param name="image"></param>
-        /// <param name="filename">The filename.</param>
-        /// <param name="param"></param>
-        public static void Write(IImage2D image, string filename, RawParams param)
-        {
-            if (!filename.EndsWith(".raw"))
-                filename += ".raw";
-
-            var bytes = ReadWriteRaw.ToBytes(image, param);
-            System.IO.File.WriteAllBytes(filename, bytes);
-        }
 
         /// <summary>
         /// Load from a byte array.
@@ -75,6 +61,21 @@ namespace ImageProcessing.IO
             var bytes = System.IO.File.ReadAllBytes(filename);
 
             ReadWriteRaw.FromBytes(image, bytes, param);
+        }
+
+        /// <summary>
+        /// Save the image as raw bytes.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="filename">The filename.</param>
+        /// <param name="param"></param>
+        public static void Write(IImage2D image, string filename, RawParams param)
+        {
+            if (!filename.EndsWith(".raw"))
+                filename += ".raw";
+
+            var bytes = ReadWriteRaw.ToBytes(image, param);
+            System.IO.File.WriteAllBytes(filename, bytes);
         }
 
         /// <summary>
