@@ -24,84 +24,61 @@ namespace ImageProcessing.Console
     public class Program
     {
 
-        private static readonly string FOLDER = "C:/Users/Justin/OneDrive/Desktop/";
+        private static readonly string TEST_FOLDER = "F:/Projects/Visual Studio Projects/ImageProcessing/ImageProcessing.Test/TestImages/";
+        private static readonly string DESKTOP = "C:/Users/Justin/OneDrive/Desktop/";
 
         public static void Main(string[] args)
         {
-            BenchmarkRunner.Run<BenchMarkTest>();
+            //BenchmarkRunner.Run<BenchMarkTest>();
+
+            /*
+            var bmp = new Bitmap(FOLDER + "lenna_poster.png");
+            var image = ToImage(bmp);
+            WriteLine(image.ToString());
+
+            var param1 = TGAParams.Default;
+            param1.Format = PIXEL_FORMAT_IO.BGR;
+            param1.FlipY = true;
+            param1.RLE = true;
+            WriteLine(param1);
+
+            ReadWriteTGA.Write(image, FOLDER + "lenna_rle.tga", param1);
+
+            var param2 = TGAParams.Default;
+            param2.Format = PIXEL_FORMAT_IO.BGR;
+            param2.FlipY = true;
+            param2.RLE = false;
+            WriteLine(param2);
+
+            ReadWriteTGA.Write(image, FOLDER + "lenna.tga", param2);
+            */
+
+            var image = ReadWriteTGA.Read(TEST_FOLDER + "TGA/lenna_24_ps.tga");
+
+            var param3 = TGAParams.Default;
+            param3.Format = PIXEL_FORMAT_IO.BGR;
+            param3.FlipY = true;
+            param3.RLE = true;
+
+            ReadWriteTGA.Write(image, DESKTOP + "lenna_test.tga", param3);
+
         }
 
         public class BenchMarkTest
         {
 
-            public ColorImage2D image;
-
             [GlobalSetup]
             public void Setup()
             {
-                image = new ColorImage2D(16, 16);
 
-                var rnd = new Random(0);
-                image.Fill((x, y) =>
-                {
-                    var r = (float)rnd.NextDouble();
-                    var g = (float)rnd.NextDouble();
-                    var b = (float)rnd.NextDouble();
-
-                    return new ColorRGBA(r, g, b, 1);
-                });
             }
 
             [Benchmark]
-            public void GetPixel1()
+            public void Test()
             {
-                int width = image.Width;
-                int height = image.Height;  
 
-                for (int y = 0; y < height; y++)
-                {
-                    for (int x = 0; x < width; x++)
-                    {
-                        var p = image.GetPixel(x, y);
-                    }
-                }
             }
-
-            [Benchmark]
-            public void GetPixel2()
-            {
-                int width = image.Width;
-                int height = image.Height;
-
-                for (int y = 0; y < height; y++)
-                {
-                    for (int x = 0; x < width; x++)
-                    {
-                        float u = x / (width - 1.0f);
-                        float v = y / (height - 1.0f);
-
-                        var p = image.GetPixel(u, v);
-                    }
-                }
-            }
-
-            [Benchmark]
-            public void GetPixel3()
-            {
-                int width = image.Width;
-                int height = image.Height;
-
-                for (int y = 0; y < height; y++)
-                {
-                    for (int x = 0; x < width; x++)
-                    {
-                        var p = image[x, y];
-                    }
-                }
-            }
-
         }
-
 
         private static ColorImage2D ToImage(Bitmap bm)
         {
