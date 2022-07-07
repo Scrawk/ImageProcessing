@@ -619,6 +619,29 @@ namespace ImageProcessing.Images
             Mipmaps = levels.ToArray();
         }
 
+        public ColorImage2D ToVectorMap(int scale)
+        {
+            var map = new ColorImage2D(Width * scale, Height * scale);
+
+            int half = scale / 2;
+
+            Iterate((x, y) =>
+            {
+                int i = x * scale + half;
+                int j = y * scale + half;
+
+                var v = this[x,y];
+
+                var p0 = new Point2f(i, j);
+                var p1 = p0 + v;
+
+                map.DrawLine(p0, p1, ColorRGBA.Red);
+
+            });
+
+            return map;
+        }
+
     }
 
 }

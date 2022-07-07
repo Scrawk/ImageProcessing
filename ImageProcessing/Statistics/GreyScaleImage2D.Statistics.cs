@@ -12,7 +12,7 @@ namespace ImageProcessing.Images
         /// The minimum and maximum values in the image.
         /// </summary>
         /// <returns></returns>
-        public void MinMax(out float min, out float max)
+        public void MinMaxValue(out float min, out float max)
         {
             min = float.PositiveInfinity;
             max = float.NegativeInfinity;
@@ -26,6 +26,26 @@ namespace ImageProcessing.Images
                     if (v > max) max = v;
                 }
             }
+        }
+
+        /// <summary>
+        /// Find the min value in image.
+        /// </summary>
+        /// <returns>The min value.</returns>
+        public float MinValue()
+        {
+            MinMaxValue(out float min, out float max);
+            return min; 
+        }
+
+        /// <summary>
+        /// Find the max value in image.
+        /// </summary>
+        /// <returns>The max value.</returns>
+        public float MaxValue()
+        {
+            MinMaxValue(out float min, out float max);
+            return max;
         }
 
         /// <summary>

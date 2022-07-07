@@ -70,7 +70,7 @@ namespace ImageProcessing.Images
         public void Normalize()
         {
             float min, max;
-            MinMax(out min, out max);
+            MinMaxValue(out min, out max);
 
             Modify((v) =>
             {

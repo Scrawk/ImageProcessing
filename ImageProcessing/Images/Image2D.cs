@@ -319,7 +319,49 @@ namespace ImageProcessing.Images
         /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
         /// <param name="blend">The mode pixels are blended based on there alpha value. 
         /// Only applies to images with a alpha channel.</param>
-        public abstract void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE wrap = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA);
+        public abstract void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE wrap = WRAP_MODE.CLAMP, BLEND_MODE blend = BLEND_MODE.ALPHA);
+
+        /*
+        /// <summary>
+        /// Set the pixel at normalized index u,v.
+        /// </summary>
+        /// <param name="u">The first index.</param>
+        /// <param name="v">The second index.</param>
+        /// <param name="pixel">The value.</param>
+        /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
+        /// <param name="blend">The mode pixels are blended based on there alpha value. 
+        /// Only applies to images with a alpha channel.</param>
+        public void SetPixel(float u, float v, ColorRGBA pixel, WRAP_MODE wrap = WRAP_MODE.CLAMP, BLEND_MODE blend = BLEND_MODE.ALPHA)
+        {
+            float x = u * (Width - 1);
+            float y = v * (Height - 1);
+
+            int ix = (int)x;
+            int iy = (int)y;
+            //int ix1 = ix + 1;
+            //int iy1 = iy + 1;
+
+            Indices(ref ix, ref iy, wrap);
+            //Indices(ref ix1, ref iy1, wrap);
+
+            float fx = x - ix;
+            float fy = y - iy;
+            float fx1 = 1.0f - fx;
+            float fy1 = 1.0f - fy;
+
+            if(fx1 * fy1 > 0)
+                SetPixel(ix, iy, fx1 * fy1 * pixel, wrap, blend);
+
+            if(fx * fy1 > 0)
+                SetPixel(ix + 1, iy, fx * fy1 * pixel, wrap, blend);
+
+            if(fx1 * fy > 0)
+                SetPixel(ix, iy + 1, fx1 * fy * pixel, wrap, blend);
+
+            if(fx * fy > 0)
+                SetPixel(ix + 1, iy + 1, fx * fy * pixel, wrap, blend);
+        }
+        */
 
         /// <summary>
         /// Set the pixel at index x,y.
@@ -331,7 +373,7 @@ namespace ImageProcessing.Images
         /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
         /// <param name="blend">The mode pixels are blended based on there alpha value. 
         /// Only applies to images with a alpha channel.</param>
-        public void SetPixelMipmap(int x, int y, int m, ColorRGBA pixel, WRAP_MODE wrap = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA)
+        public void SetPixelMipmap(int x, int y, int m, ColorRGBA pixel, WRAP_MODE wrap = WRAP_MODE.CLAMP, BLEND_MODE blend = BLEND_MODE.ALPHA)
         {
             GetMipmapInterface(m).SetPixel(x, y, pixel, wrap, blend);
         }
@@ -354,6 +396,32 @@ namespace ImageProcessing.Images
         /// <param name="value">The pixels channel value.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
         public abstract void SetValue(int x, int y, T value, WRAP_MODE mode = WRAP_MODE.NONE);
+
+        /// <summary>
+        /// Alpha blend the two pixels.
+        /// </summary>
+        /// <param name="c0">The first pixel.</param>
+        /// <param name="c1">The second pixel.</param>
+        /// <returns>The alpha blened pixel.</returns>
+        public static ColorRGBA AlphaBlend(ColorRGBA c0, ColorRGBA c1)
+        {
+            float a = c0.a + (1.0f - c1.a);
+            a = MathUtil.Clamp01(a);
+
+            if (a <= 0)
+                return ColorRGBA.Blue;
+
+            float inv_a = 1.0f / a;
+            float one_min_a = MathUtil.Clamp01(1.0f - c0.a);
+
+            var c = new ColorRGBA();
+            c.r = ((c0.r * c0.a) + (c1.r * c1.a) * one_min_a) * inv_a;
+            c.g = ((c0.g * c0.a) + (c1.g * c1.a) * one_min_a) * inv_a;
+            c.b = ((c0.b * c0.a) + (c1.b * c1.a) * one_min_a) * inv_a;
+            c.a = a;
+
+            return c;
+        }
 
         /// <summary>
         /// Is this array the same size as the other array.

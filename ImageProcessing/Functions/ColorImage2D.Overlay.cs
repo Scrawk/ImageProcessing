@@ -98,7 +98,7 @@ namespace ImageProcessing.Images
                     p2 = image.GetPixel(u,v);
                 }
 
-                return ColorRGBA.AlphaBlend(p1, p2);
+                return ColorImage2D.AlphaBlend(p1, p2);
             });
         }
 

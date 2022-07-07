@@ -159,7 +159,7 @@ namespace ImageProcessing.Images
         /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
         /// <param name="blend">The mode pixels are blended based on there alpha value. 
         /// Only applies to images with a alpha channel.</param>
-        void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE wrap = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA);
+        void SetPixel(int x, int y, ColorRGBA pixel, WRAP_MODE wrap = WRAP_MODE.CLAMP, BLEND_MODE blend = BLEND_MODE.ALPHA);
 
         /// <summary>
         /// Set the pixel at index x,y.
@@ -171,7 +171,7 @@ namespace ImageProcessing.Images
         /// <param name="wrap">The wrap mode for indices outside image bounds.</param>
         /// <param name="blend">The mode pixels are blended based on there alpha value. 
         /// Only applies to images with a alpha channel.</param>
-        void SetPixelMipmap(int x, int y, int m, ColorRGBA pixel, WRAP_MODE wrap = WRAP_MODE.NONE, BLEND_MODE blend = BLEND_MODE.ALPHA);
+        void SetPixelMipmap(int x, int y, int m, ColorRGBA pixel, WRAP_MODE wrap = WRAP_MODE.CLAMP, BLEND_MODE blend = BLEND_MODE.ALPHA);
 
         /// <summary>
         /// Set the pixels channel at index x,y.
@@ -181,7 +181,7 @@ namespace ImageProcessing.Images
         /// <param name="c">The pixels channel index (0-3).</param>
         /// <param name="value">The pixels channel value.</param>
         /// <param name="mode">The wrap mode for indices outside image bounds.</param>
-        void SetChannel(int x, int y, int c, float value, WRAP_MODE mode = WRAP_MODE.NONE);
+        void SetChannel(int x, int y, int c, float value, WRAP_MODE mode = WRAP_MODE.CLAMP);
 
         /// <summary>
         /// Add a property to the image. Could be any object.

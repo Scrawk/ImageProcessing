@@ -157,6 +157,21 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// Normalize each vector in the image.
+        /// </summary>
+        /// <param name="len"></param>
+        public void Normalize(float len)
+        {
+            Modify((v) =>
+            {
+                if (len == 0)
+                    return Vector2f.Zero;
+                else
+                    return new Vector2f(v.x / len, v.y / len);
+            });
+        }
+
+        /// <summary>
         /// Inverts the vectors in the image.
         /// </summary>
         public void Invert()
@@ -168,9 +183,9 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Add the vectors in the image.
+        /// Add the vector to the vectors in the image.
         /// </summary>
-        /// <param name="vector">The vector.</param>
+        /// <param name="vector">The vector to add.</param>
         public void Add(Vector2f vector)
         {
             Modify(v =>
@@ -180,9 +195,18 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Subtract the vectors in the image.
+        /// Add the value to the vectors in the image.
         /// </summary>
-        /// <param name="vector">The vector.</param>
+        /// <param name="value">The value to add.</param>
+        public void Add(float value)
+        {
+            Add(new Vector2f(value));
+        }
+
+        /// <summary>
+        /// Subtract the vector to the vectors in the image.
+        /// </summary>
+        /// <param name="vector">The vector to subtract.</param>
         /// <param name="reverse">Reverse the operations order.</param>
         public void Subtract(Vector2f vector, bool reverse = false)
         {
@@ -196,9 +220,19 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Multiply the vectors in the image.
+        /// Subtract the value to the vectors in the image.
         /// </summary>
-        /// <param name="vector">The vector.</param>
+        /// <param name="value">The value to subtract.</param>
+        /// <param name="reverse">Reverse the operations order.</param>
+        public void Subtract(float value, bool reverse = false)
+        {
+            Subtract(new Vector2f(value), reverse);
+        }
+
+        /// <summary>
+        /// Multiply the vector to the vectors in the image.
+        /// </summary>
+        /// <param name="vector">The vector to multipy.</param>
         public void Multiply(Vector2f vector)
         {
             Modify(v =>
@@ -208,9 +242,18 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
-        /// Add the vectors in the image.
+        /// Multiply the value to the vectors in the image.
         /// </summary>
-        /// <param name="vector">The vector.</param>
+        /// <param name="value">The value to multipy.</param>
+        public void Multiply(float value)
+        {
+            Multiply(new Vector2f(value));
+        }
+
+        /// <summary>
+        /// Add the vector to the vectors in the image.
+        /// </summary>
+        /// <param name="vector">The vector to divide.</param>
         /// <param name="reverse">Reverse the operations order.</param>
         public void Divide(Vector2f vector, bool reverse = false)
         {
@@ -229,6 +272,16 @@ namespace ImageProcessing.Images
 
                 return v;
             });
+        }
+
+        /// <summary>
+        /// Add the value to the vectors in the image.
+        /// </summary>
+        /// <param name="value">The value to divide.</param>
+        /// <param name="reverse">Reverse the operations order.</param>
+        public void Divide(float value, bool reverse = false)
+        {
+            Divide(new Vector2f(value), reverse);
         }
 
         /// <summary>

@@ -301,7 +301,7 @@ namespace ImageProcessing.Images
             switch (blend)
             {
                 case BLEND_MODE.ALPHA:
-                    this[x, y] = ColorRGBA.AlphaBlend(pixel, this[x, y]);
+                    this[x, y] = AlphaBlend(pixel, this[x, y]);
                     break;
 
                 case BLEND_MODE.NONE:

@@ -12,7 +12,7 @@ namespace ImageProcessing.Images
         /// The minimum and maximum values in the image.
         /// </summary>
         /// <returns></returns>
-        public void MinMax(out Vector2f min, out Vector2f max)
+        public void MinMaxVector(out Vector2f min, out Vector2f max)
         {
             min = Vector2f.PositiveInfinity;
             max = Vector2f.NegativeInfinity;
@@ -30,6 +30,97 @@ namespace ImageProcessing.Images
                     if (v.y > max.y) max.y = v.y;
                 }
             }
+        }
+
+        /// <summary>
+        /// Find the min value for each channel in image.
+        /// </summary>
+        /// <returns>The min value.</returns>
+        public Vector2f MinVector()
+        {
+            MinMaxVector(out Vector2f min, out Vector2f max);
+            return min;
+        }
+
+        /// <summary>
+        /// Find the max value for each channel in image.
+        /// </summary>
+        /// <returns>The max value.</returns>
+        public Vector2f MaxVector()
+        {
+            MinMaxVector(out Vector2f min, out Vector2f max);
+            return max;
+        }
+
+        /// <summary>
+        /// The minimum and maximum sqr magnitudes in the image.
+        /// </summary>
+        /// <returns></returns>
+        public void MinMaxSqrMagnitude(out float min, out float max)
+        {
+            min = float.PositiveInfinity;
+            max = float.NegativeInfinity;
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    float v = this[x, y].SqrMagnitude;
+                    if (v < min) min = v;
+                    if (v > max) max = v;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The minimum and maximum magnitudes in the image.
+        /// </summary>
+        /// <returns></returns>
+        public void MinMaxMagnitude(out float min, out float max)
+        {
+            MinMaxSqrMagnitude(out min, out max);
+            min = MathUtil.SafeSqrt(min);
+            max = MathUtil.SafeSqrt(max);
+        }
+
+        /// <summary>
+        /// Find the min sqr magnitudes in image.
+        /// </summary>
+        /// <returns>The min value.</returns>
+        public float MinSqrMagnitude()
+        {
+            MinMaxSqrMagnitude(out float min, out float max);
+            return min;
+        }
+
+        /// <summary>
+        /// Find the max sqr magnitudes in image.
+        /// </summary>
+        /// <returns>The max value.</returns>
+        public float MaxSqrMagnitude()
+        {
+            MinMaxSqrMagnitude(out float min, out float max);
+            return max;
+        }
+
+        /// <summary>
+        /// Find the min magnitudes in image.
+        /// </summary>
+        /// <returns>The min value.</returns>
+        public float MinMagnitude()
+        {
+            MinMaxMagnitude(out float min, out float max);
+            return min;
+        }
+
+        /// <summary>
+        /// Find the max magnitudes in image.
+        /// </summary>
+        /// <returns>The max value.</returns>
+        public float MaxMagnitude()
+        {
+            MinMaxMagnitude(out float min, out float max);
+            return max;
         }
 
         /// <summary>

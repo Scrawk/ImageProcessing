@@ -36,6 +36,26 @@ namespace ImageProcessing.Images
         }
 
         /// <summary>
+        /// Find the min value for each channel in image.
+        /// </summary>
+        /// <returns>The min value.</returns>
+        public ColorRGBA MinRGBA()
+        {
+            MinMaxRGBA(out ColorRGBA min, out ColorRGBA max);
+            return min;
+        }
+
+        /// <summary>
+        /// Find the max value for each channel in image.
+        /// </summary>
+        /// <returns>The max value.</returns>
+        public ColorRGBA MaxRGBA()
+        {
+            MinMaxRGBA(out ColorRGBA min, out ColorRGBA max);
+            return max;
+        }
+
+        /// <summary>
         /// The minimum and maximum values in the image.
         /// </summary>
         /// <returns></returns>
@@ -53,6 +73,26 @@ namespace ImageProcessing.Images
                     if (v > max) max = v;
                 }
             }
+        }
+
+        /// <summary>
+        /// Find the min intensity in image.
+        /// </summary>
+        /// <returns>The min value.</returns>
+        public float MinIntensity()
+        {
+            MinMaxIntensity(out float min, out float max);
+            return min;
+        }
+
+        /// <summary>
+        /// Find the max intensity in image.
+        /// </summary>
+        /// <returns>The max value.</returns>
+        public float MaxIntensity()
+        {
+            MinMaxIntensity(out float min, out float max);
+            return max;
         }
 
         /// <summary>
