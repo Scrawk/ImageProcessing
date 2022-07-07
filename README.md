@@ -50,6 +50,21 @@ var vector_image = new VectorImage2D(width, height);
 
 ```
 
+Images can also be loaded from files like so. At the moment only TGA and RAW files are supported.
+
+```
+
+string filename = "your_filename";
+
+//Create a empty image and load the file into it.
+var image = new ColorImage2D();
+image.ReadTGA(filename);
+
+//Write the image back to the file.
+image.WriteTGA(filename, TGAParams.Default);
+
+```
+
 The images pixels can be accessed using a varity of functions. If normalized uv coordinates are used then linear interpolation will be used when getting the pixels.
 A optional wrap mode can be provided (default is clamp) which will tell the image how to handle out of bounds indices. If NONE is used then the image will throw a exception in the case of out of bounds indices.
 
